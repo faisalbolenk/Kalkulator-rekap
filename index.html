@@ -3,116 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Rekap Pati 5</title>
+    <title>Aplikasi Kalkulator Pati 5</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; padding: 10px; }
-        .date-badge { background: #007bff; color: white; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.95em; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; padding: 10px; margin: 0; }
+        
+        /* GAYA TAB MENU */
+        .tab-container { display: flex; gap: 8px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95em; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; }
+        .tab-btn.active { background: #007bff; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* GAYA UMUM */
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.95em; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 5px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
         .auto-save-status { font-size: 0.65em; color: #28a745; font-weight: normal; }
         label { display: block; font-size: 0.8em; font-weight: bold; margin-top: 8px; color: #555; }
-        input { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; text-align: center; }
-        .res-box { padding: 8px; margin-top: 8px; border-radius: 8px; background: #e7f3ff; border-left: 4px solid #28a745; font-size: 0.85em; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 1em; }
+        .btn-container { display: flex; justify-content: center; margin-top: 15px; gap: 10px; }
+        .btn-hapus { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.9em; cursor: pointer; color: white; background: #dc3545; }
+
+        /* GAYA REKAP */
+        .res-box { padding: 8px; margin-top: 8px; border-radius: 8px; background: #e7f3ff; border-left: 4px solid #28a745; font-size: 0.85em; font-weight: bold; color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8em; }
         th, td { border: 1px solid #eee; padding: 8px; text-align: center; }
         th { background: #f8f9fa; color: #333; }
         .hasil-cell { background: #fdfdfd; font-size: 0.9em; line-height: 1.4; color: #333; }
         .label-cell { font-weight: bold; color: #555; text-align: left; }
-        
-        .btn-container { display: flex; justify-content: center; margin-top: 15px; }
-        .btn-hapus { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.9em; cursor: pointer; color: white; background: #dc3545; }
+
+        /* GAYA STORAN */
+        .result-box { padding: 12px; margin-top: 10px; border-radius: 8px; text-align: center; font-weight: bold; color: white; font-size: 1em; }
+        .bg-storan { background-color: #007bff; }
+        .bg-persen { background-color: #28a745; }
+        .bg-final { background-color: #dc3545; }
+        .footer { text-align: center; font-size: 0.8em; color: #888; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="date-badge" id="tanggal-hari-ini">Memuat tanggal...</div>
-
-    <div class="card">
-        <h3>
-            <span>1. Kalkulator Rekap</span>
-            <span class="auto-save-status">✅ Auto-Save Aktif</span>
-        </h3>
-        <label>Drop:</label>
-        <input type="number" id="d1" oninput="hitung()" placeholder="Isi Drop">
-        <label>Jml Drop lalu:</label>
-        <input type="number" id="d2" oninput="hitung()" placeholder="Isi Jml Drop lalu">
-        <div class="res-box" id="hDrop">Jml Drop : 0</div>
-
-        <label>Storting:</label>
-        <input type="number" id="s1" oninput="hitung()" placeholder="Isi Storting">
-        <label>Jml Storting lalu:</label>
-        <input type="number" id="s2" oninput="hitung()" placeholder="Isi Jml Storting lalu">
-        <div class="res-box" id="hStort">Jml Storting : 0</div>
-
-        <label>Sirkulasi (Drop*1.3 - Stort + Sirk):</label>
-        <input type="number" id="drRec" oninput="hitung()" placeholder="Drop (otomatis)">
-        <input type="number" id="stRec" oninput="hitung()" placeholder="Stort (otomatis)">
-        <input type="number" id="siRec" oninput="hitung()" placeholder="Isi Sirkulasi lalu">
-        <div class="res-box" id="hSirkulasi">Saldo Sirkulasi : 0</div>
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
     </div>
 
-    <div class="card">
-        <h3>2. Kalkulator CM, MB, ML</h3>
-        <table>
-            <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
-            <tr><td class="label-cell">Angsuran</td>
-                <td><input type="number" id="a1" oninput="hitung()"></td>
-                <td><input type="number" id="a2" oninput="hitung()"></td>
-                <td><input type="number" id="a3" oninput="hitung()"></td>
-            </tr>
-            <tr><td class="label-cell">Jmlh lalu</td>
-                <td><input type="number" id="j1" oninput="hitung()"></td>
-                <td><input type="number" id="j2" oninput="hitung()"></td>
-                <td><input type="number" id="j3" oninput="hitung()"></td>
-            </tr>
-            <tr><td class="label-cell">Sldo lalu</td>
-                <td><input type="number" id="sa1" oninput="hitung()"></td>
-                <td><input type="number" id="sa2" oninput="hitung()"></td>
-                <td><input type="number" id="sa3" oninput="hitung()"></td>
-            </tr>
-            <tr><td class="label-cell">Program</td>
-                <td><input type="number" id="p1" oninput="hitung()"></td>
-                <td><input type="number" id="p2" oninput="hitung()"></td>
-                <td>-</td>
-            </tr>
-            <tr><td class="label-cell"><b>Hasil</b></td>
-                <td class="hasil-cell" id="res1">-</td>
-                <td class="hasil-cell" id="res2">-</td>
-                <td class="hasil-cell" id="res3">-</td>
-            </tr>
-        </table>
-        
-        <div class="btn-container">
-            <button class="btn-hapus" onclick="hapusData()">🗑️ Hapus Semua Data</button>
+    <div class="date-badge" id="tanggal-hari-ini">Memuat tanggal...</div>
+
+    <div id="menu-rekap" class="tab-content active">
+        <div class="card">
+            <h3>
+                <span>1. Kalkulator Rekap</span>
+                <span class="auto-save-status">✅ Auto-Save</span>
+            </h3>
+            <label>Drop:</label>
+            <input type="number" id="d1" oninput="hitungRekap()" placeholder="Isi Drop">
+            <label>Jml Drop lalu:</label>
+            <input type="number" id="d2" oninput="hitungRekap()" placeholder="Isi Jml Drop lalu">
+            <div class="res-box" id="hDrop">Jml Drop : 0</div>
+
+            <label>Storting:</label>
+            <input type="number" id="s1" oninput="hitungRekap()" placeholder="Isi Storting">
+            <label>Jml Storting lalu:</label>
+            <input type="number" id="s2" oninput="hitungRekap()" placeholder="Isi Jml Storting lalu">
+            <div class="res-box" id="hStort">Jml Storting : 0</div>
+
+            <label>Sirkulasi (Drop*1.3 - Stort + Sirk):</label>
+            <input type="number" id="drRec" oninput="hitungRekap()" placeholder="Drop (otomatis)">
+            <input type="number" id="stRec" oninput="hitungRekap()" placeholder="Stort (otomatis)">
+            <input type="number" id="siRec" oninput="hitungRekap()" placeholder="Isi Sirkulasi lalu">
+            <div class="res-box" id="hSirkulasi">Saldo Sirkulasi : 0</div>
+        </div>
+
+        <div class="card">
+            <h3>2. Kalkulator CM, MB, ML</h3>
+            <table>
+                <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
+                <tr><td class="label-cell">Angsuran</td>
+                    <td><input type="number" id="a1" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="a2" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="a3" oninput="hitungRekap()"></td>
+                </tr>
+                <tr><td class="label-cell">Jmlh lalu</td>
+                    <td><input type="number" id="j1" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="j2" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="j3" oninput="hitungRekap()"></td>
+                </tr>
+                <tr><td class="label-cell">Sldo lalu</td>
+                    <td><input type="number" id="sa1" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="sa2" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="sa3" oninput="hitungRekap()"></td>
+                </tr>
+                <tr><td class="label-cell">Program</td>
+                    <td><input type="number" id="p1" oninput="hitungRekap()"></td>
+                    <td><input type="number" id="p2" oninput="hitungRekap()"></td>
+                    <td>-</td>
+                </tr>
+                <tr><td class="label-cell"><b>Hasil</b></td>
+                    <td class="hasil-cell" id="res1">-</td>
+                    <td class="hasil-cell" id="res2">-</td>
+                    <td class="hasil-cell" id="res3">-</td>
+                </tr>
+            </table>
+            <div class="btn-container">
+                <button class="btn-hapus" onclick="hapusData('rekap')">🗑️ Kosongkan Data Rekap</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        const inputIds = ['d1', 'd2', 's1', 's2', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
+    <div id="menu-storan" class="tab-content">
+        <div class="card">
+            <h3>
+                <span>💰 Kalkulator Storan</span>
+                <span class="auto-save-status">✅ Auto-Save</span>
+            </h3>
+            
+            <label>Drop:</label>
+            <input type="number" id="st_drop" oninput="hitungStoran()" placeholder="0">
+            
+            <label>Kasbon:</label>
+            <input type="number" id="st_kasbon" oninput="hitungStoran()" placeholder="0">
+            
+            <label>Storting:</label>
+            <input type="number" id="st_storting" oninput="hitungStoran()" placeholder="0">
+            
+            <label>Transport:</label>
+            <input type="number" id="st_transport" oninput="hitungStoran()" placeholder="0">
+            
+            <div class="result-box bg-storan" id="hasilStoran">Storan: 0</div>
+            <div class="result-box bg-persen" id="hasil9persen">9% Drop: 0</div>
+            <div class="result-box bg-final" id="hasilSelisih">Tunai: 0</div>
 
-        function tampilkanTanggal() {
-            const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const tanggal = new Date().toLocaleDateString('id-ID', opsi);
-            document.getElementById('tanggal-hari-ini').innerText = tanggal;
+            <div class="btn-container">
+                <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Kosongkan Data Storan</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Dibuat oleh: <b>Sigit Ari Wibowo (Pati 5)</b></div>
+
+    <script>
+        // SCRIPT TAB
+        function bukaTab(evt, namaTab) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) tabcontent[i].classList.remove("active");
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
+            document.getElementById(namaTab).classList.add("active");
+            evt.currentTarget.classList.add("active");
         }
 
-        function hitung() {
+        // FORMAT ANGKA MANUAL (ANTI ERROR)
+        function formatAngka(num) {
+            if(isNaN(num)) return "0";
+            let str = num.toString().split(".");
+            str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return str.join(",");
+        }
+
+        // FORMAT TANGGAL MANUAL (ANTI ERROR DI HP)
+        function tampilkanTanggal() {
+            const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            let d = new Date();
+            let teks = namaHari[d.getDay()] + ', ' + d.getDate() + ' ' + namaBulan[d.getMonth()] + ' ' + d.getFullYear();
+            document.getElementById('tanggal-hari-ini').innerText = teks;
+        }
+
+        function getTodayString() {
+            let d = new Date();
+            return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+        }
+
+        // ID UNTUK PENYIMPANAN
+        const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
+        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport'];
+        const semuaIds = rekapIds.concat(storanIds);
+
+        // HITUNG REKAP
+        function hitungRekap() {
             document.getElementById('drRec').value = document.getElementById('d1').value;
             document.getElementById('stRec').value = document.getElementById('s1').value;
 
             let d1 = parseFloat(document.getElementById('d1').value) || 0;
             let d2 = parseFloat(document.getElementById('d2').value) || 0;
-            document.getElementById('hDrop').innerText = "Jml Drop : " + (d1 + d2).toLocaleString('id-ID');
+            document.getElementById('hDrop').innerText = "Jml Drop : " + formatAngka(d1 + d2);
 
             let s1 = parseFloat(document.getElementById('s1').value) || 0;
             let s2 = parseFloat(document.getElementById('s2').value) || 0;
-            document.getElementById('hStort').innerText = "Jml Storting : " + (s1 + s2).toLocaleString('id-ID');
+            document.getElementById('hStort').innerText = "Jml Storting : " + formatAngka(s1 + s2);
 
             let dr = parseFloat(document.getElementById('drRec').value) || 0;
             let st = parseFloat(document.getElementById('stRec').value) || 0;
             let si = parseFloat(document.getElementById('siRec').value) || 0;
             let sirk = (dr * 1.3) - st + si;
-            document.getElementById('hSirkulasi').innerText = "Saldo Sirkulasi : " + sirk.toLocaleString('id-ID');
+            document.getElementById('hSirkulasi').innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
 
             for(let i=1; i<=3; i++) {
                 let a = parseFloat(document.getElementById('a'+i).value) || 0;
@@ -124,42 +210,51 @@
                 let sisa = sa - a;
                 let persentase = (i == 3) ? "" : ("<br><b>" + (sisa / p).toFixed(2) + "%</b>");
                 
-                document.getElementById('res'+i).innerHTML = `Jml: ${hasil.toLocaleString('id-ID')}<br>Sld: ${sisa.toLocaleString('id-ID')}${persentase}`;
+                document.getElementById('res'+i).innerHTML = `Jml: ${formatAngka(hasil)}<br>Sld: ${formatAngka(sisa)}${persentase}`;
             }
-
-            // AUTO-SAVE SETIAP KALI ANGKA BERUBAH
-            simpanData(false);
+            simpanData();
         }
 
-        function simpanData(tampilkanPesan = true) {
+        // HITUNG STORAN
+        function hitungStoran() {
+            let drop = parseFloat(document.getElementById('st_drop').value) || 0;
+            let kasbon = parseFloat(document.getElementById('st_kasbon').value) || 0;
+            let storting = parseFloat(document.getElementById('st_storting').value) || 0;
+            let transport = parseFloat(document.getElementById('st_transport').value) || 0;
+
+            let storan = (drop * 0.20) + kasbon + storting - drop - transport;
+            let persen9 = drop * 0.09;
+            let tunai = storan - persen9;
+
+            document.getElementById('hasilStoran').innerText = "Storan: " + formatAngka(storan);
+            document.getElementById('hasil9persen').innerText = "9% Drop: " + formatAngka(persen9);
+            document.getElementById('hasilSelisih').innerText = "Tunai: " + formatAngka(tunai);
+            simpanData();
+        }
+
+        // SIMPAN & MUAT DATA (AUTO-SAVE)
+        function simpanData() {
             let dataObj = {};
-            inputIds.forEach(id => {
+            semuaIds.forEach(id => {
                 if(document.getElementById(id)) {
                     dataObj[id] = document.getElementById(id).value;
                 }
             });
-            
-            let todayStr = new Date().toLocaleDateString('en-CA');
-            let finalData = { lastDate: todayStr, values: dataObj };
-            
-            localStorage.setItem('kalkulatorPati5', JSON.stringify(finalData));
-            if(tampilkanPesan) alert("✅ Data berhasil disimpan!");
+            let finalData = { lastDate: getTodayString(), values: dataObj };
+            localStorage.setItem('KalkulatorPati_Final', JSON.stringify(finalData));
         }
 
         function muatData() {
-            let savedData = localStorage.getItem('kalkulatorPati5');
             tampilkanTanggal();
+            let savedData = localStorage.getItem('KalkulatorPati_Final');
 
             if(savedData) {
                 let parsed = JSON.parse(savedData);
-                let todayStr = new Date().toLocaleDateString('en-CA');
-                
+                let todayStr = getTodayString();
                 let dataObj = parsed.values ? parsed.values : parsed;
                 let lastDate = parsed.lastDate || todayStr;
 
-                // LOGIKA PINDAH BUKU (ROLLOVER) JAM 12 MALAM
                 if (lastDate !== todayStr) {
-                    // 1. Rekap Drop, Storting, Sirkulasi
                     let old_d1 = parseFloat(dataObj['d1']) || 0;
                     let old_d2 = parseFloat(dataObj['d2']) || 0;
                     let old_s1 = parseFloat(dataObj['s1']) || 0;
@@ -176,12 +271,8 @@
                     dataObj['s2'] = totalStortKemarin !== 0 ? totalStortKemarin : '';
                     dataObj['siRec'] = totalSirkKemarin !== 0 ? totalSirkKemarin : '';
 
-                    dataObj['d1'] = '';
-                    dataObj['s1'] = '';
-                    dataObj['drRec'] = '';
-                    dataObj['stRec'] = '';
+                    dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
 
-                    // 2. Rekap CM, MB, ML (Hasil kemarin jadi lalu hari ini)
                     for(let i=1; i<=3; i++) {
                         let old_a = parseFloat(dataObj['a'+i]) || 0;
                         let old_j = parseFloat(dataObj['j'+i]) || 0;
@@ -190,40 +281,32 @@
                         let totalJmlKemarin = old_a + old_j;
                         let sisaSaldoKemarin = old_sa - old_a;
                         
-                        // Masukkan ke kolom "lalu"
                         dataObj['j'+i] = totalJmlKemarin !== 0 ? totalJmlKemarin : '';
                         dataObj['sa'+i] = sisaSaldoKemarin !== 0 ? sisaSaldoKemarin : '';
-                        
-                        // Kosongkan angsuran hari ini (karena baru mau ditagih)
                         dataObj['a'+i] = '';
-                        // Program (p1, p2) tetap dibiarkan ada, tidak dihapus
                     }
-
-                    alert("🌅 Hari baru! Semua data hasil kemarin otomatis dipindah ke kolom 'lalu'.");
+                    alert("🌅 Hari baru! Data rekap kemarin otomatis dipindah.");
                 }
 
-                // Masukkan data ke UI
-                inputIds.forEach(id => {
+                semuaIds.forEach(id => {
                     if(document.getElementById(id) && dataObj[id] !== undefined) {
                         document.getElementById(id).value = dataObj[id];
                     }
                 });
-                
-                hitung();
             }
+            hitungRekap();
+            hitungStoran();
         }
 
-        function hapusData() {
-            let konfirmasi = confirm("⚠️ Yakin ingin menghapus semua data secara permanen?");
+        function hapusData(jenis) {
+            let konfirmasi = confirm(`⚠️ Yakin ingin menghapus semua data ${jenis}?`);
             if(konfirmasi) {
-                localStorage.removeItem('kalkulatorPati5');
-                inputIds.forEach(id => {
-                    if(document.getElementById(id)) {
-                        document.getElementById(id).value = '';
-                    }
+                let targetIds = (jenis === 'rekap') ? rekapIds : storanIds;
+                targetIds.forEach(id => {
+                    if(document.getElementById(id)) document.getElementById(id).value = '';
                 });
-                hitung(); 
-                alert("🗑️ Seluruh data telah dikosongkan.");
+                if(jenis === 'rekap') hitungRekap();
+                if(jenis === 'storan') hitungStoran();
             }
         }
 
