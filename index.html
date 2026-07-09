@@ -10,10 +10,11 @@
         
         /* TAB MENU */
         .tab-container { display: flex; gap: 5px; margin-bottom: 8px; }
-        .tab-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; background: #ddd; color: #555; }
-        .tab-btn.active { background: #007bff; color: white; }
+        .tab-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s;}
+        .tab-btn.active { background: #007bff; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .date-badge { background: #17a2b8; color: white; text-align: center; padding: 6px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 12px; }
         .card { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -32,7 +33,7 @@
         .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 3px; text-align: center; }
         .tabel-rekap th { background: #f8f9fa; }
         .label-cell { text-align: left; font-weight: bold; color: #555; width: 45px; }
-        .hasil-cell { font-size: 11px; line-height: 1.3; font-weight: bold; }
+        .hasil-cell { font-size: 11px; line-height: 1.3; font-weight: bold; color: #d9534f; }
         
         .btn-hapus { width: 100%; padding: 8px; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; cursor: pointer; color: white; background: #dc3545; margin-top: 8px; }
         .btn-hapus-tabel { background: #ff9800; margin-top: 10px; }
@@ -44,7 +45,7 @@
         .res-storan div { flex: 1; padding: 8px 4px; text-align: center; font-weight: bold; color: white; font-size: 11px; border-radius: 5px; }
         .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #dc3545; }
 
-        /* TABEL LEDGER (BULAN JULI) */
+        /* TABEL LEDGER (DINAMIS) */
         .table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
         .ledger-table { min-width: 1100px; width: 100%; border-collapse: collapse; background: white; font-size: 10px; }
         .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 3px; text-align: center; }
@@ -52,11 +53,11 @@
         .ledger-table input { width: 50px; padding: 4px; font-size: 10px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
         .ledger-table .hari-col { min-width: 35px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 1; border-right: 2px solid #aaa; }
         
-        /* GARIS MERAH HARI MINGGU */
-        .ledger-table .baris-minggu { background-color: #fff0f0; }
-        .ledger-table .baris-minggu td { border-bottom: 2px solid #dc3545; color: #dc3545; }
-        .ledger-table .baris-minggu .hari-col { background: #ffdddd; color: #dc3545; }
-        .ledger-table .baris-minggu input { color: #dc3545; border-color: #ffb3b3; }
+        /* GARIS MERAH HARI LIBUR */
+        .ledger-table .baris-libur { background-color: #fff0f0; }
+        .ledger-table .baris-libur td { border-bottom: 2px solid #dc3545; color: #dc3545; }
+        .ledger-table .baris-libur .hari-col { background: #ffdddd; color: #dc3545; }
+        .ledger-table .baris-libur input { color: #dc3545; border-color: #ffb3b3; }
     </style>
 </head>
 <body>
@@ -70,7 +71,7 @@
 
     <div id="menu-storan" class="tab-content active">
         <div class="card">
-            <h3><span>💰 Kalkulator Storan</span><span class="auto-save">✅ Terhubung ke Rekap & Tabel</span></h3>
+            <h3><span>💰 Kalkulator Storan</span><span class="auto-save">✅ Terhubung ke Rekap</span></h3>
             
             <div class="grid-2">
                 <div><label>Drop:</label><input type="number" id="st_drop" oninput="syncDariStoran()" placeholder="0"></div>
@@ -90,7 +91,7 @@
         </div>
 
         <div class="card" style="padding: 5px;">
-            <h3 style="margin: 5px;"><span>📋 Tabel Storan Juli</span><span class="auto-save">✅ Update Otomatis</span></h3>
+            <h3 style="margin: 5px;"><span id="judul-tabel">📋 Tabel Storan</span><span class="auto-save">✅ Auto-Fill Aktif</span></h3>
             <div class="table-wrapper">
                 <table class="ledger-table">
                     <thead>
@@ -104,11 +105,11 @@
                             <th>Angs ML</th><th>Jml ML</th><th>Sld ML</th>
                         </tr>
                     </thead>
-                    <tbody id="body-juli">
+                    <tbody id="body-tabel">
                         </tbody>
                 </table>
             </div>
-            <button class="btn-hapus btn-hapus-tabel" onclick="hapusTabel()">⚠️ Kosongkan Tabel Juli</button>
+            <button class="btn-hapus btn-hapus-tabel" onclick="hapusTabel()">⚠️ Kosongkan Tabel Bulan Ini</button>
         </div>
     </div>
 
@@ -173,7 +174,7 @@
     <div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px; margin-bottom: 20px;">Pati 5 - Sigit Ari Wibowo</div>
 
     <script>
-        // SCRIPT UI
+        // SCRIPT UI TABS
         function bukaTab(evt, namaTab) {
             let i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -184,6 +185,7 @@
             evt.currentTarget.classList.add("active");
         }
 
+        // FORMATTER
         function formatAngka(num) {
             if(isNaN(num)) return "0";
             let str = num.toString().split(".");
@@ -191,6 +193,7 @@
             return str.join(",");
         }
 
+        // TANGGAL & BULAN DINAMIS
         function tampilkanTanggal() {
             const H = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
             const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -203,17 +206,36 @@
             return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
         }
 
-        // PEMBUATAN TABEL JULI
-        function buatTabelJuli() {
-            let tbody = document.getElementById('body-juli');
-            let html = '';
-            const namaHariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
+        function getBulanTahunString() {
+            let d = new Date();
+            return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+        }
+
+        // PEMBUATAN TABEL OTOMATIS SESUAI BULAN INI
+        function buatTabelBulanIni() {
+            let d = new Date();
+            let tahun = d.getFullYear();
+            let bulan = d.getMonth(); // 0 = Jan, 1 = Feb, etc.
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             
-            for(let i=1; i<=31; i++) {
-                let d = new Date(2026, 6, i); // 6 = Juli
-                let isMinggu = d.getDay() === 0; 
-                let trClass = isMinggu ? 'baris-minggu' : '';
-                let hariStr = i + ' ' + namaHariSingkat[d.getDay()];
+            const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            document.getElementById('judul-tabel').innerText = '📋 Tabel ' + namaBulan[bulan] + ' ' + tahun;
+
+            let tbody = document.getElementById('body-tabel');
+            let html = '';
+            const hariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
+            
+            // DAFTAR TANGGAL MERAH (Bulan-Tanggal). Bisa Anda tambah jika ada libur nasional.
+            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25'];
+
+            for(let i=1; i<=jmlHari; i++) {
+                let currDate = new Date(tahun, bulan, i);
+                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
+                
+                // Cek hari minggu (0) atau tanggal merah nasional
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
+                let trClass = isLibur ? 'baris-libur' : '';
+                let hariStr = i + ' ' + hariSingkat[currDate.getDay()];
 
                 html += `<tr class="${trClass}">
                     <td class="hari-col">${hariStr}</td>
@@ -261,116 +283,143 @@
         const semuaIds = rekapIds.concat(storanIds);
 
         function hitungSemua() {
-            // --- 1. PROSES REKAP ---
+            // 1. HITUNG REKAP
             document.getElementById('drRec').value = document.getElementById('d1').value;
             document.getElementById('stRec').value = document.getElementById('s1').value;
 
-            let d1 = parseFloat(document.getElementById('d1').value) || 0;
-            let d2 = parseFloat(document.getElementById('d2').value) || 0;
-            let JmlDrop = d1 + d2;
-            document.getElementById('hDrop').innerText = "Jml Drop : " + formatAngka(JmlDrop);
+            let d1 = parseFloat(document.getElementById('d1').value) || 0; let d2 = parseFloat(document.getElementById('d2').value) || 0;
+            let JmlDrop = d1 + d2; document.getElementById('hDrop').innerText = "Jml Drop : " + formatAngka(JmlDrop);
 
-            let s1 = parseFloat(document.getElementById('s1').value) || 0;
-            let s2 = parseFloat(document.getElementById('s2').value) || 0;
-            let JmlStort = s1 + s2;
-            document.getElementById('hStort').innerText = "Jml Storting : " + formatAngka(JmlStort);
+            let s1 = parseFloat(document.getElementById('s1').value) || 0; let s2 = parseFloat(document.getElementById('s2').value) || 0;
+            let JmlStort = s1 + s2; document.getElementById('hStort').innerText = "Jml Storting : " + formatAngka(JmlStort);
 
             let si = parseFloat(document.getElementById('siRec').value) || 0;
-            let sirk = (d1 * 1.3) - s1 + si;
-            document.getElementById('hSirkulasi').innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
+            let sirk = (d1 * 1.3) - s1 + si; document.getElementById('hSirkulasi').innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
 
-            // Variabel penyimpan hasil CM, MB, ML untuk tabel
             let hsl = [{}, {}, {}, {}]; // Index 1=CM, 2=MB, 3=ML
-
             for(let i=1; i<=3; i++) {
                 let a = parseFloat(document.getElementById('a'+i).value) || 0;
                 let j = parseFloat(document.getElementById('j'+i).value) || 0;
                 let sa = parseFloat(document.getElementById('sa'+i).value) || 0;
                 let p = parseFloat(document.getElementById('p'+(i==3?1:i)).value) || 1;
                 
-                let hasil = a + j;
-                let sisa = sa - a;
-                let pctRaw = (sisa / p);
+                let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
                 let persentase = (i == 3) ? "" : ("<br>" + pctRaw.toFixed(1) + "%");
                 document.getElementById('res'+i).innerHTML = `J:${formatAngka(hasil)}<br>S:${formatAngka(sisa)}${persentase}`;
                 
-                // Simpan ke array untuk push ke tabel
                 hsl[i] = { angs: a, jml: hasil, sld: sisa, pct: isNaN(pctRaw) ? 0 : pctRaw };
             }
 
-            // --- 2. PROSES STORAN ---
+            // 2. HITUNG STORAN
             let drop = parseFloat(document.getElementById('st_drop').value) || 0;
             let kasbon = parseFloat(document.getElementById('st_kasbon').value) || 0;
             let storting = parseFloat(document.getElementById('st_storting').value) || 0;
             let transport = parseFloat(document.getElementById('st_transport').value) || 0;
 
             let storan = (drop * 0.20) + kasbon + storting - drop - transport;
-            let persen9 = drop * 0.09;
-            let tunai = storan - persen9;
+            let persen9 = drop * 0.09; let tunai = storan - persen9;
 
             document.getElementById('hasilStoran').innerHTML = "Storan<br>" + formatAngka(storan);
             document.getElementById('hasil9persen').innerHTML = "9% Drop<br>" + formatAngka(persen9);
             document.getElementById('hasilSelisih').innerHTML = "Tunai<br>" + formatAngka(tunai);
 
-            // --- 3. AUTO FILL KE TABEL (SESUAI TANGGAL HARI INI) ---
-            let tglHariIni = new Date().getDate(); // Ambil angka tanggal hari ini (1-31)
-            
-            // Helper function untuk isi tabel, kalau 0 atau kosong dibiarkan kosong agar rapi
+            // 3. PUSH KE TABEL HARI INI
+            let tglHariIni = new Date().getDate(); 
             function setVal(idTabel, nilai) {
                 let el = document.getElementById(idTabel);
                 if(el) el.value = (nilai === 0 || nilai === '') ? '' : (Number.isInteger(nilai) ? nilai : nilai.toFixed(1));
             }
 
-            setVal('t_d_' + tglHariIni, d1);
-            setVal('t_jd_' + tglHariIni, JmlDrop);
-            setVal('t_s_' + tglHariIni, s1);
-            setVal('t_js_' + tglHariIni, JmlStort);
+            setVal('t_d_' + tglHariIni, d1); setVal('t_jd_' + tglHariIni, JmlDrop);
+            setVal('t_s_' + tglHariIni, s1); setVal('t_js_' + tglHariIni, JmlStort);
             setVal('t_si_' + tglHariIni, sirk);
             
-            setVal('t_ac_' + tglHariIni, hsl[1].angs);
-            setVal('t_jc_' + tglHariIni, hsl[1].jml);
-            setVal('t_sc_' + tglHariIni, hsl[1].sld);
-            setVal('t_pc_' + tglHariIni, hsl[1].pct);
+            setVal('t_ac_' + tglHariIni, hsl[1].angs); setVal('t_jc_' + tglHariIni, hsl[1].jml);
+            setVal('t_sc_' + tglHariIni, hsl[1].sld); setVal('t_pc_' + tglHariIni, hsl[1].pct);
 
-            setVal('t_am_' + tglHariIni, hsl[2].angs);
-            setVal('t_jm_' + tglHariIni, hsl[2].jml);
-            setVal('t_sm_' + tglHariIni, hsl[2].sld);
-            setVal('t_pm_' + tglHariIni, hsl[2].pct);
+            setVal('t_am_' + tglHariIni, hsl[2].angs); setVal('t_jm_' + tglHariIni, hsl[2].jml);
+            setVal('t_sm_' + tglHariIni, hsl[2].sld); setVal('t_pm_' + tglHariIni, hsl[2].pct);
 
-            setVal('t_al_' + tglHariIni, hsl[3].angs);
-            setVal('t_jl_' + tglHariIni, hsl[3].jml);
+            setVal('t_al_' + tglHariIni, hsl[3].angs); setVal('t_jl_' + tglHariIni, hsl[3].jml);
             setVal('t_sl_' + tglHariIni, hsl[3].sld);
 
-            // --- 4. SIMPAN SEMUA DATA ---
+            // 4. OTOMATISASI ISI SALDO KE HARI BERIKUTNYA
+            propagasiSaldoTabel();
+
+            // 5. SIMPAN DATA
             simpanKalkulator();
-            simpanTabel(); // Pastikan data tabel juga tersimpan
+            simpanTabel();
+        }
+
+        // FUNGSI COPY SALDO & JUMLAH JIKA ANGSURAN KOSONG
+        function propagasiSaldoTabel() {
+            let trs = document.querySelectorAll('#body-tabel tr');
+            let jmlHari = trs.length;
+            
+            for(let i=2; i<=jmlHari; i++) {
+                // Ambil data hari sebelumnya
+                let p_jc = document.getElementById('t_jc_'+(i-1)).value;
+                let p_sc = document.getElementById('t_sc_'+(i-1)).value;
+                
+                let p_jm = document.getElementById('t_jm_'+(i-1)).value;
+                let p_sm = document.getElementById('t_sm_'+(i-1)).value;
+                
+                let p_jl = document.getElementById('t_jl_'+(i-1)).value;
+                let p_sl = document.getElementById('t_sl_'+(i-1)).value;
+
+                // Ambil angsuran hari ini
+                let c_ac = document.getElementById('t_ac_'+i).value;
+                let c_am = document.getElementById('t_am_'+i).value;
+                let c_al = document.getElementById('t_al_'+i).value;
+
+                // Jika angsuran CM kosong, copy jumlah dan saldo kemarin
+                if(!c_ac) {
+                    if(p_jc) document.getElementById('t_jc_'+i).value = p_jc;
+                    if(p_sc) document.getElementById('t_sc_'+i).value = p_sc;
+                }
+                // Jika angsuran MB kosong
+                if(!c_am) {
+                    if(p_jm) document.getElementById('t_jm_'+i).value = p_jm;
+                    if(p_sm) document.getElementById('t_sm_'+i).value = p_sm;
+                }
+                // Jika angsuran ML kosong
+                if(!c_al) {
+                    if(p_jl) document.getElementById('t_jl_'+i).value = p_jl;
+                    if(p_sl) document.getElementById('t_sl_'+i).value = p_sl;
+                }
+            }
         }
 
         // =====================================
-        // PENYIMPANAN DATA
+        // PENYIMPANAN DATA (PER BULAN)
         // =====================================
         function simpanTabel() {
             let dataTabel = {};
-            let inputs = document.querySelectorAll('#body-juli input');
+            let inputs = document.querySelectorAll('#body-tabel input');
             inputs.forEach(inp => { if(inp.value) dataTabel[inp.id] = inp.value; });
-            localStorage.setItem('KalkulatorPati_TabelJul', JSON.stringify(dataTabel));
+            
+            // Simpan dengan nama kunci sesuai bulan (cth: KalkulatorPati_Tabel_2026-07)
+            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+            localStorage.setItem(key, JSON.stringify(dataTabel));
         }
 
         function muatTabel() {
-            buatTabelJuli();
-            let saved = localStorage.getItem('KalkulatorPati_TabelJul');
+            buatTabelBulanIni();
+            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+            let saved = localStorage.getItem(key);
             if(saved) {
                 let dataObj = JSON.parse(saved);
-                for(let key in dataObj) {
-                    if(document.getElementById(key)) document.getElementById(key).value = dataObj[key];
+                for(let k in dataObj) {
+                    if(document.getElementById(k)) document.getElementById(k).value = dataObj[k];
                 }
             }
         }
 
         function hapusTabel() {
-            if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel Juli?")) {
-                localStorage.removeItem('KalkulatorPati_TabelJul');
-                muatTabel();
+            if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) {
+                let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+                localStorage.removeItem(key);
+                muatTabel(); // Refresh tabel jadi kosong
             }
         }
 
@@ -421,6 +470,7 @@
                         dataObj['sa'+i] = sisaSaldoKemarin !== 0 ? sisaSaldoKemarin : '';
                         dataObj['a'+i] = '';
                     }
+                    alert("🌅 Hari baru! Data kalkulator harian di-reset dan dipindah ke kolom lalu.");
                 }
 
                 semuaIds.forEach(id => {
@@ -429,7 +479,6 @@
                     }
                 });
             }
-            // Panggil hitungSemua() untuk memperbarui layar & tabel otomatis
             hitungSemua(); 
         }
 
