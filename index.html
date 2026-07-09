@@ -131,7 +131,7 @@
         body.dark-mode .ledger-table .baris-libur .hari-col { background: #421c1c; color: #ff8080; }
         body.dark-mode .ledger-table .baris-libur input { color: #ff8080; border-color: #5d2222; }
         body.dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2636; border-bottom-color: #007bff; border-top-color: #007bff; }
-        body.dark-mode .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; }
+        body.dark-mode .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; }
         body.dark-mode .ledger-table .baris-hari-ini input { color: #80bdff; border-color: #007bff; background-color: #1e1e1e; }
     </style>
 </head>
@@ -482,19 +482,27 @@
                 if(isHariIni) trClass += 'baris-hari-ini '; 
                 
                 htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
-                    <td><input type="number" id="t_d_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_jd_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_s_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_js_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_si_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_ac_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jc_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sc_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="text" id="t_pc_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_am_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jm_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sm_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="text" id="t_pm_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_al_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jl_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sl_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jd_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_s_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_js_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_si_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_ac_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jc_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sc_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" id="t_pc_${i}" oninput="hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_am_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jm_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sm_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" id="t_pm_${i}" oninput="hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_al_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jl_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
                 </tr>`;
 
                 htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
-                    <td><input type="text" id="tt_prog_${i}" onchange="simpanTabel(); hitungSemua();" oninput="formatRibuan(this)"></td>
-                    <td><input type="number" id="tt_idx_${i}" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="tt_prog_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="number" id="tt_idx_${i}" oninput="hitungSemua();"></td>
                     <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;">0</td>
                     <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;">0</td>
                     <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;">0</td>
@@ -539,7 +547,8 @@
             let el = document.getElementById(idPrefix + tglHariIni);
             if(el) {
                 if (nilai === 0 || nilai === '' || isNaN(nilai)) el.value = '';
-                else el.value = (idPrefix === 't_pc_' || idPrefix === 't_pm_') ? formatPersen(nilai) : (Number.isInteger(nilai) ? nilai : parseFloat(nilai.toFixed(2)));
+                else if (idPrefix === 't_pc_' || idPrefix === 't_pm_') el.value = formatPersen(nilai);
+                else el.value = formatAngka(nilai);
             }
         }
 
@@ -636,7 +645,7 @@
                 
                 totalProgBulanIni += programRow;
                 
-                let dropAktualRow = parseFloat(document.getElementById('t_d_'+i)?.value) || 0;
+                let dropAktualRow = getNum('t_d_'+i);
                 if(i === tglHariIni) {
                     dropAktualRow = getNum('st_drop');
                 }
@@ -648,7 +657,10 @@
                 let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
 
                 if(!isLibur) {
-                    if(hkJalan > 0) k_kekuatan = (jmlStortRow / hkJalan) * hkTotal;
+                    // RUMUS DIPERBARUI: (Jumlah Storting / HK Dilalui) * HK Total / (Index / 100)
+                    if(hkJalan > 0 && indexRow > 0) {
+                        k_kekuatan = (jmlStortRow / hkJalan) * hkTotal / (indexRow / 100);
+                    }
                     let pembagi = sisaHk > 0 ? sisaHk : 1; 
                     k_caridrop = (programRow - jmlDropRow) / pembagi;
                     k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
@@ -664,7 +676,6 @@
                     document.getElementById('disp_targetstort').innerText = formatAngka(k_targetstort);
                 }
             }
-            // FITUR PENCAPAIAN BULAN INI TELAH DIHAPUS SEBAGAIMANA PERMINTAAN
         }
 
         function propagasiSaldoTabel() {
@@ -715,11 +726,8 @@
                     let parsed = JSON.parse(savedData); let todayStr = getTodayString();
                     let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
-                    // LOGIK PERPINDAHAN JAM 12 MALAM (PERGANTIAN HARI) - FIXED IN-ADVANCE TO PREVENT TIMEOUT LOOPS
+                    // LOGIK PERPINDAHAN JAM 12 MALAM (PERGANTIAN HARI) - FIXED & SYNCHRONIZED
                     if (lastDate !== todayStr) {
-                        parsed.lastDate = todayStr;
-                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
-
                         let totalDrop = (parseFloat(dataObj['d1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['d2']?.replace(/\./g, ''))||0);
                         let totalStort = (parseFloat(dataObj['s1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['s2']?.replace(/\./g, ''))||0);
                         let totalSirk = ((parseFloat(dataObj['drRec']?.replace(/\./g, ''))||0) * 1.3) - (parseFloat(dataObj['stRec']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec']?.replace(/\./g, ''))||0);
@@ -736,6 +744,9 @@
                             let a = parseFloat(dataObj['a'+i]?.replace(/\./g, ''))||0; let j = parseFloat(dataObj['j'+i]?.replace(/\./g, ''))||0; let sa = parseFloat(dataObj['sa'+i]?.replace(/\./g, ''))||0;
                             dataObj['j'+i] = (a+j) !== 0 ? (a+j).toString() : ''; dataObj['sa'+i] = (sa-a) !== 0 ? (sa-a).toString() : ''; dataObj['a'+i] = '';
                         }
+                        
+                        parsed.lastDate = todayStr;
+                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
                         alert("🌅 Hari baru terdeteksi! Data input otomatis digeser ke kolom akumulasi lalu.");
                     }
 
@@ -845,7 +856,6 @@
             document.body.removeChild(downloadLink);
         }
 
-        // FITUR CADANGKAN DI-FIX UNTUK PERANGKAT MOBILE & PWA
         function exportData() {
             let allData = {};
             for (let i = 0; i < localStorage.length; i++) { 
