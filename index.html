@@ -366,4 +366,217 @@
             if(h9) h9.innerHTML = "9% Drop<br>" + formatAngka(persen9);
             
             let hSel = document.getElementById('hasilSelisih');
-            i
+            if(hSel) hSel.innerHTML = "Uang Tunai<br>" + formatAngka(tunai);
+
+
+            // --- 2. PROSES BERAT (Dilindungi dengan Debounce agar tidak Freeze) ---
+            clearTimeout(timerDebounce);
+            timerDebounce = setTimeout(function() {
+                try {
+                    let tglHariIni = new Date().getDate(); 
+                    function setTabel(idPrefix, nilai) {
+                        let id = idPrefix + tglHariIni;
+                        let el = document.getElementById(id);
+                        if(el) {
+                            if (nilai === 0 || nilai === '' || isNaN(nilai)) {
+                                el.value = '';
+                            } else {
+                                el.value = Number.isInteger(nilai) ? nilai : nilai.toFixed(1);
+                            }
+                        }
+                    }
+
+                    // Push hasil ke baris tanggal hari ini
+                    setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop);
+                    setTabel('t_s_', s1); setTabel('t_js_', JmlStort);
+                    setTabel('t_si_', sirk);
+                    
+                    setTabel('t_ac_', hsl[1].angs); setTabel('t_jc_', hsl[1].jml);
+                    setTabel('t_sc_', hsl[1].sld); setTabel('t_pc_', hsl[1].pct);
+
+                    setTabel('t_am_', hsl[2].angs); setTabel('t_jm_', hsl[2].jml);
+                    setTabel('t_sm_', hsl[2].sld); setTabel('t_pm_', hsl[2].pct);
+
+                    setTabel('t_al_', hsl[3].angs); setTabel('t_jl_', hsl[3].jml);
+                    setTabel('t_sl_', hsl[3].sld);
+
+                    // Auto Saldo ke hari berikutnya & Simpan Data
+                    propagasiSaldoTabel();
+                    simpanKalkulator();
+                    simpanTabel();
+                } catch(error) {
+                    console.error("Terjadi eror dalam penyimpanan:", error);
+                }
+            }, 600); // Penundaan 0.6 detik setelah pengetikan berhenti
+        }
+
+        // =====================================
+        // FUNGSI AUTO-COPY SALDO AMAN
+        // =====================================
+        function propagasiSaldoTabel() {
+            let d = new Date();
+            let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+
+            for(let i=2; i<=jmlHari; i++) {
+                // Proses CM
+                let p_jc = document.getElementById('t_jc_'+(i-1));
+                let p_sc = document.getElementById('t_sc_'+(i-1));
+                let c_ac = document.getElementById('t_ac_'+i);
+                let c_jc = document.getElementById('t_jc_'+i);
+                let c_sc = document.getElementById('t_sc_'+i);
+
+                if(p_jc && c_ac && c_jc && !c_ac.value) c_jc.value = p_jc.value;
+                if(p_sc && c_ac && c_sc && !c_ac.value) c_sc.value = p_sc.value;
+
+                // Proses MB
+                let p_jm = document.getElementById('t_jm_'+(i-1));
+                let p_sm = document.getElementById('t_sm_'+(i-1));
+                let c_am = document.getElementById('t_am_'+i);
+                let c_jm = document.getElementById('t_jm_'+i);
+                let c_sm = document.getElementById('t_sm_'+i);
+
+                if(p_jm && c_am && c_jm && !c_am.value) c_jm.value = p_jm.value;
+                if(p_sm && c_am && c_sm && !c_am.value) c_sm.value = p_sm.value;
+
+                // Proses ML
+                let p_jl = document.getElementById('t_jl_'+(i-1));
+                let p_sl = document.getElementById('t_sl_'+(i-1));
+                let c_al = document.getElementById('t_al_'+i);
+                let c_jl = document.getElementById('t_jl_'+i);
+                let c_sl = document.getElementById('t_sl_'+i);
+
+                if(p_jl && c_al && c_jl && !c_al.value) c_jl.value = p_jl.value;
+                if(p_sl && c_al && c_sl && !c_al.value) c_sl.value = p_sl.value;
+            }
+        }
+
+        // =====================================
+        // PENYIMPANAN DATA AMAN (ANTI ERROR)
+        // =====================================
+        function simpanTabel() {
+            let dataTabel = {};
+            let d = new Date();
+            let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
+
+            for(let i=1; i<=jmlHari; i++) {
+                for(let p of prefiks) {
+                    let id = p + i;
+                    let el = document.getElementById(id);
+                    if(el && el.value) dataTabel[id] = el.value;
+                }
+            }
+            
+            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+            localStorage.setItem(key, JSON.stringify(dataTabel));
+        }
+
+        function muatTabel() {
+            buatTabelBulanIni();
+            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+            let saved = localStorage.getItem(key);
+            if(saved) {
+                try {
+                    let dataObj = JSON.parse(saved);
+                    for(let k in dataObj) {
+                        let el = document.getElementById(k);
+                        if(el) el.value = dataObj[k];
+                    }
+                } catch(e) {
+                    console.error("Data memori korup", e);
+                }
+            }
+        }
+
+        function hapusTabel() {
+            if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) {
+                let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
+                localStorage.removeItem(key);
+                muatTabel();
+            }
+        }
+
+        function simpanKalkulator() {
+            let dataObj = {};
+            semuaIds.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) dataObj[id] = el.value;
+            });
+            localStorage.setItem('KalkulatorPati_Mini', JSON.stringify({ lastDate: getTodayString(), values: dataObj }));
+        }
+
+        function muatKalkulator() {
+            tampilkanTanggal();
+            let savedData = localStorage.getItem('KalkulatorPati_Mini');
+
+            if(savedData) {
+                try {
+                    let parsed = JSON.parse(savedData);
+                    let todayStr = getTodayString();
+                    let dataObj = parsed.values ? parsed.values : parsed;
+                    let lastDate = parsed.lastDate || todayStr;
+
+                    if (lastDate !== todayStr) {
+                        let old_d1 = parseFloat(dataObj['d1']) || 0; let old_d2 = parseFloat(dataObj['d2']) || 0;
+                        let old_s1 = parseFloat(dataObj['s1']) || 0; let old_s2 = parseFloat(dataObj['s2']) || 0;
+                        let old_drRec = parseFloat(dataObj['drRec']) || 0; let old_stRec = parseFloat(dataObj['stRec']) || 0;
+                        let old_siRec = parseFloat(dataObj['siRec']) || 0;
+
+                        let totalDropKemarin = old_d1 + old_d2;
+                        let totalStortKemarin = old_s1 + old_s2;
+                        let totalSirkKemarin = (old_drRec * 1.3) - old_stRec + old_siRec;
+
+                        dataObj['d2'] = totalDropKemarin !== 0 ? totalDropKemarin : '';
+                        dataObj['s2'] = totalStortKemarin !== 0 ? totalStortKemarin : '';
+                        dataObj['siRec'] = totalSirkKemarin !== 0 ? totalSirkKemarin : '';
+                        dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
+                        
+                        dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = '';
+
+                        for(let i=1; i<=3; i++) {
+                            let old_a = parseFloat(dataObj['a'+i]) || 0;
+                            let old_j = parseFloat(dataObj['j'+i]) || 0;
+                            let old_sa = parseFloat(dataObj['sa'+i]) || 0;
+                            
+                            let totalJmlKemarin = old_a + old_j;
+                            let sisaSaldoKemarin = old_sa - old_a;
+                            
+                            dataObj['j'+i] = totalJmlKemarin !== 0 ? totalJmlKemarin : '';
+                            dataObj['sa'+i] = sisaSaldoKemarin !== 0 ? sisaSaldoKemarin : '';
+                            dataObj['a'+i] = '';
+                        }
+                        alert("🌅 Hari baru! Data kalkulator harian di-reset dan dipindah ke kolom lalu.");
+                    }
+
+                    semuaIds.forEach(id => {
+                        let el = document.getElementById(id);
+                        if(el && dataObj[id] !== undefined) {
+                            el.value = dataObj[id];
+                        }
+                    });
+                } catch (e) {
+                    console.error("Gagal memuat memori kalkulator", e);
+                }
+            }
+            hitungSemua(); 
+        }
+
+        function hapusData(jenis) {
+            if(confirm(`⚠️ Reset semua data input ${jenis}? (Tabel Storan bulanan tidak ikut terhapus)`)) {
+                let targetIds = (jenis === 'rekap') ? rekapIds : storanIds;
+                targetIds.forEach(id => { 
+                    let el = document.getElementById(id);
+                    if(el) el.value = ''; 
+                });
+                hitungSemua();
+            }
+        }
+
+        // EKSEKUSI SAAT WEB DIBUKA
+        window.onload = function() {
+            muatTabel();
+            muatKalkulator();
+        };
+    </script>
+</body>
+</html>
