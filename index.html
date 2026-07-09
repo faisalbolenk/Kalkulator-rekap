@@ -4,19 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Pati 5</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#17a2b8">
+    <link id="pwa-manifest" rel="manifest">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzE3YTJiOCIvPjx0ZXh0IHg9IjUwIiB5PSI2NCIgZm9udC1zaXplPSI1MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDU8L3RleHQ+PC9zdmc+">
+
     <style>
         /* GAYA MINIMALIS & RAPI */
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; }
         
         /* TAB MENU */
-        .tab-container { display: flex; gap: 5px; margin-bottom: 8px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s;}
+        .tab-container { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
+        .tab-btn { flex: 1; padding: 10px 5px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; min-width: 100px;}
         .tab-btn.active { background: #007bff; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; }
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between;}
         .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         h3 { margin: 0 0 10px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
         .auto-save { font-size: 11px; color: #28a745; font-weight: normal; }
@@ -24,80 +31,126 @@
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 6px; margin-bottom: 6px; }
         input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; }
-        input[readonly] { background-color: #f8f9fa; color: #888; }
+        input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
-        .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #28a745; font-size: 13px; font-weight: bold; color: #333; }
+        .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #007bff; font-size: 13px; font-weight: bold; color: #333; }
+        .res-box.alert-minus { border-left-color: #dc3545; background: #fff0f0; }
+
+        .rumus-box { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; text-align: center; padding: 10px; border-radius: 5px; margin: 10px 0 0 0; font-size: 14px; }
         
         /* TABEL COMPACT (REKAP) */
         .tabel-rekap { width: 100%; border-collapse: collapse; font-size: 12px; }
         .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; }
         .tabel-rekap th { background: #f8f9fa; }
         .label-cell { text-align: left; font-weight: bold; color: #555; width: 70px; }
-        .hasil-cell { font-size: 11px; line-height: 1.4; font-weight: bold; color: #d9534f; }
+        .hasil-cell { font-size: 11px; line-height: 1.4; font-weight: bold; color: #333; }
+        .text-minus { color: #dc3545 !important; font-weight: bold; } 
         
-        .btn-hapus { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; color: white; background: #dc3545; margin-top: 10px; }
-        .btn-hapus-tabel { background: #ff9800; margin-top: 12px; }
+        /* TOMBOL AKSI */
+        .btn-group { display: flex; gap: 6px; margin-top: 10px; }
+        .btn-hapus, .btn-salin { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 5px;}
+        .btn-hapus { background: #dc3545; }
+        .btn-salin { background: #28a745; }
+        .btn-hapus-tabel { background: #ff9800; }
+        .btn-salin-tabel { background: #17a2b8; }
 
         /* GAYA STORAN */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .grid-2 label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 3px; }
         .res-storan { display: flex; gap: 6px; margin-top: 10px; }
-        .res-storan div { flex: 1; padding: 10px 4px; text-align: center; font-weight: bold; color: white; font-size: 12px; border-radius: 5px; }
-        .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #dc3545; }
+        .res-storan div { flex: 1; padding: 10px 4px; text-align: center; font-weight: bold; color: white; font-size: 12px; border-radius: 5px; transition: 0.3s;}
+        .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #6c757d; }
+        .bg-minus { background: #8b0000 !important; border: 2px solid #ff4d4d; box-shadow: 0 0 8px rgba(220,53,69,0.5); }
 
-        /* TABEL LEDGER (DINAMIS - BISA DI-SCROLL) */
-        .table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
-        .ledger-table { min-width: 1000px; width: 100%; border-collapse: collapse; background: white; font-size: 11px; }
-        .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; }
-        .ledger-table th { background: #007bff; color: white; font-size: 10px; padding: 6px 2px; white-space: nowrap; }
+        /* TABEL LEDGER & TARGET (Sticky Header/Kolom) */
+        .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
+        .ledger-table { min-width: 1050px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 11px; }
+        .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle;}
         
-        /* KOTAK INPUT TABEL DIPERKECIL */
+        .ledger-table th { background: #007bff; color: white; font-size: 10px; padding: 6px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
+        
+        /* WARNA HEADER CM, MB, ML (Untuk Tabel Storan) */
+        .tabel-storan-ui th:nth-child(7), .tabel-storan-ui th:nth-child(8), .tabel-storan-ui th:nth-child(9), .tabel-storan-ui th:nth-child(10) { background: #d4a017 !important; border-bottom-color: #a87e0f; } 
+        .tabel-storan-ui th:nth-child(11), .tabel-storan-ui th:nth-child(12), .tabel-storan-ui th:nth-child(13), .tabel-storan-ui th:nth-child(14) { background: #28a745 !important; border-bottom-color: #1e7e34; } 
+        .tabel-storan-ui th:nth-child(15), .tabel-storan-ui th:nth-child(16), .tabel-storan-ui th:nth-child(17) { background: #6f42c1 !important; border-bottom-color: #532c94; } 
+
+        .tabel-storan-ui td:nth-child(7), .tabel-storan-ui td:nth-child(8), .tabel-storan-ui td:nth-child(9), .tabel-storan-ui td:nth-child(10) { background-color: #fffbe6; } 
+        .tabel-storan-ui td:nth-child(11), .tabel-storan-ui td:nth-child(12), .tabel-storan-ui td:nth-child(13), .tabel-storan-ui td:nth-child(14) { background-color: #eafaf1; } 
+        .tabel-storan-ui td:nth-child(15), .tabel-storan-ui td:nth-child(16), .tabel-storan-ui td:nth-child(17) { background-color: #f4ecf9; } 
+
         .ledger-table input { width: 55px; padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
+        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
+        .ledger-table th.hari-col { z-index: 4; background: #0056b3; } 
         
-        /* HARI TANGGAL DI TABEL DIPERKECIL & DISINGKAT */
-        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 1; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
-        
-        /* GARIS MERAH HARI LIBUR */
         .ledger-table .baris-libur { background-color: #fff0f0; }
         .ledger-table .baris-libur td { border-bottom: 2px solid #dc3545; color: #dc3545; }
         .ledger-table .baris-libur .hari-col { background: #ffdddd; color: #dc3545; }
         .ledger-table .baris-libur input { color: #dc3545; border-color: #ffb3b3; }
+
+        .ledger-table .baris-hari-ini td { border-bottom: 2px solid #0056b3; border-top: 2px solid #0056b3; background-color: #eaf4ff; }
+        .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; }
+        .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #80bdff; background-color: #ffffff; }
+
+        /* KHUSUS TABEL TARGET MIN-WIDTH */
+        .tabel-target-ui { min-width: 600px; }
+        .tabel-target-ui input { width: 70px; }
+        .tabel-target-ui th:nth-child(4) { background: #17a2b8 !important; }
+        .tabel-target-ui th:nth-child(5) { background: #d39e00 !important; }
+        .tabel-target-ui th:nth-child(6) { background: #28a745 !important; }
+
+        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
+        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
+        
+        .info-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="tab-container">
-        <button class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Kalkulator Storan</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Kalkulator Rekap</button>
+        <button class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
     </div>
 
-    <div class="date-badge" id="tanggal-hari-ini">Memuat tanggal...</div>
+    <div class="date-badge">
+        <span id="tanggal-hari-ini">Memuat tanggal...</span>
+        <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
+    </div>
 
     <div id="menu-storan" class="tab-content active">
         <div class="card">
             <h3><span>💰 Kalkulator Storan</span><span class="auto-save">✅ Terhubung ke Rekap</span></h3>
             
             <div class="grid-2">
-                <div><label>Drop:</label><input type="number" id="st_drop" oninput="syncDariStoran()" placeholder="0"></div>
-                <div><label>Kasbon:</label><input type="number" id="st_kasbon" oninput="hitungSemua()" placeholder="0"></div>
+                <div><label>Drop:</label><input type="text" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
+                <div><label>Kasbon:</label><input type="text" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
                 
-                <div><label>Storting:</label><input type="number" id="st_storting" oninput="syncDariStoran()" placeholder="0"></div>
-                <div><label>Transport:</label><input type="number" id="st_transport" oninput="hitungSemua()" placeholder="0"></div>
+                <div><label>Storting:</label><input type="text" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
+                <div><label>Transport:</label><input type="text" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
             </div>
             
             <div class="res-storan">
-                <div class="bg-1" id="hasilStoran">Storan<br>0</div>
-                <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
                 <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
+                <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
+                <div class="bg-1" id="hasilStoran">Storan<br>0</div>
             </div>
 
-            <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Reset Kalkulator Storan</button>
+            <div class="btn-group">
+                <button class="btn-salin" onclick="salinLaporan()">📋 Salin WA</button>
+                <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Reset</button>
+            </div>
+
+            <div class="rumus-box">
+                <div style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
+                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
+            </div>
         </div>
 
         <div class="card" style="padding: 8px;">
             <h3 style="margin: 5px;"><span id="judul-tabel">📋 Tabel Storan</span><span class="auto-save">✅ Terisi Otomatis</span></h3>
+            
             <div class="table-wrapper">
-                <table class="ledger-table">
+                <table class="ledger-table tabel-storan-ui">
                     <thead>
                         <tr>
                             <th class="hari-col">Hari</th>
@@ -120,10 +173,13 @@
                         </tr>
                     </thead>
                     <tbody id="body-tabel">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
-            <button class="btn-hapus btn-hapus-tabel" onclick="hapusTabel()">⚠️ Kosongkan Tabel Bulan Ini</button>
+            <div class="btn-group">
+                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-storan-ui', 'Storan')">📊 Unduh Excel</button>
+                <button class="btn-hapus btn-hapus-tabel" onclick="hapusTabel()">⚠️ Kosongkan Tabel</button>
+            </div>
         </div>
     </div>
 
@@ -132,21 +188,21 @@
             <h3><span>1. Rekap Harian</span><span class="auto-save">✅ Terhubung ke Storan</span></h3>
             
             <div class="flex-row">
-                <input type="number" id="d1" oninput="syncDariRekap()" placeholder="Drop Hari Ini">
-                <input type="number" id="d2" oninput="hitungSemua()" placeholder="Drop Sebelumnya">
+                <input type="text" inputmode="numeric" id="d1" oninput="formatRibuan(this); syncDariRekap()" placeholder="Drop Hari Ini">
+                <input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="Drop Sebelumnya">
             </div>
             <div class="res-box" id="hDrop">Jumlah Drop : 0</div>
 
             <div class="flex-row">
-                <input type="number" id="s1" oninput="syncDariRekap()" placeholder="Storting Hari Ini">
-                <input type="number" id="s2" oninput="hitungSemua()" placeholder="Storting Sebelumnya">
+                <input type="text" inputmode="numeric" id="s1" oninput="formatRibuan(this); syncDariRekap()" placeholder="Storting Hari Ini">
+                <input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="Storting Sebelumnya">
             </div>
             <div class="res-box" id="hStort">Jumlah Storting : 0</div>
 
             <div class="flex-row">
-                <input type="number" id="drRec" readonly placeholder="Drop (Otomatis)">
-                <input type="number" id="stRec" readonly placeholder="Storting (Otomatis)">
-                <input type="number" id="siRec" oninput="hitungSemua()" placeholder="Sirkulasi Sebelumnya">
+                <input type="text" inputmode="numeric" id="drRec" readonly placeholder="Drop (Otomatis)">
+                <input type="text" inputmode="numeric" id="stRec" readonly placeholder="Storting (Otomatis)">
+                <input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="Sirkulasi Sebelumnya">
             </div>
             <div class="res-box" style="margin-bottom:0;" id="hSirkulasi">Saldo Sirkulasi : 0</div>
         </div>
@@ -156,23 +212,23 @@
             <table class="tabel-rekap">
                 <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
                 <tr><td class="label-cell">Angsuran</td>
-                    <td><input type="number" id="a1" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="a2" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="a3" oninput="hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="a1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="a2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="a3" oninput="formatRibuan(this); hitungSemua()"></td>
                 </tr>
                 <tr><td class="label-cell">Jumlah</td>
-                    <td><input type="number" id="j1" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="j2" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="j3" oninput="hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="j1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="j2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="j3" oninput="formatRibuan(this); hitungSemua()"></td>
                 </tr>
                 <tr><td class="label-cell">Saldo</td>
-                    <td><input type="number" id="sa1" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="sa2" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="sa3" oninput="hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="sa1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="sa2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="sa3" oninput="formatRibuan(this); hitungSemua()"></td>
                 </tr>
                 <tr><td class="label-cell">Program</td>
-                    <td><input type="number" id="p1" oninput="hitungSemua()"></td>
-                    <td><input type="number" id="p2" oninput="hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="p1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="p2" oninput="formatRibuan(this); hitungSemua()"></td>
                     <td>-</td>
                 </tr>
                 <tr><td class="label-cell">Hasil</td>
@@ -181,14 +237,173 @@
                     <td class="hasil-cell" id="res3">-</td>
                 </tr>
             </table>
-            <button class="btn-hapus" onclick="hapusData('rekap')">🗑️ Reset Kalkulator Rekap</button>
+            <button class="btn-hapus" style="width: 100%; margin-top: 10px;" onclick="hapusData('rekap')">🗑️ Reset Kalkulator Rekap</button>
+        </div>
+    </div>
+
+    <div id="menu-target" class="tab-content">
+        <div class="card">
+            <h3><span>🎯 Target & Proyeksi Harian</span></h3>
+            
+            <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
+                <span class="info-badge" style="background:#007bff; color:white;" id="info-hk-total">Total HK: 0</span>
+                <span class="info-badge" style="background:#28a745; color:white;" id="info-hk-lalu">Dilalui: 0</span>
+                <span class="info-badge" style="background:#dc3545; color:white;" id="info-hk-sisa">Sisa HK: 0</span>
+            </div>
+
+            <div class="flex-row">
+                <div style="flex:1;">
+                    <label style="font-size:11px; font-weight:bold; color:#555;">Program Drop (Manual):</label>
+                    <input type="text" inputmode="numeric" id="tg_program" oninput="formatRibuan(this); updateTargetDariAtas();" placeholder="Isi Program (Rp)">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:11px; font-weight:bold; color:#555;">Index Storting (%):</label>
+                    <input type="number" id="tg_index" oninput="updateTargetDariAtas();" placeholder="Contoh: 123">
+                </div>
+            </div>
+
+            <div class="res-box" id="res_kekuatan" style="margin-top: 10px; text-align: center;">
+                Kekuatan Program Hari Ini<br><span style="font-size:22px; color:#0056b3;" id="disp_kekuatan">0</span>
+            </div>
+
+            <div class="grid-2">
+                <div class="res-box" style="margin-bottom:0; background:#fff3cd; border-color:#ffc107; color:#856404; text-align:center;">
+                    Cari Drop / Hari Sisa<br><span style="font-size:16px;" id="disp_caridrop">0</span>
+                </div>
+                <div class="res-box" style="margin-bottom:0; background:#d4edda; border-color:#28a745; color:#155724; text-align:center;">
+                    Target Stort / Hari Sisa<br><span style="font-size:16px;" id="disp_targetstort">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 8px;">
+            <h3 style="margin: 5px;"><span id="judul-tabel-target">📋 Tabel Target Bulan Ini</span></h3>
+            <div style="font-size:11px; color:#666; margin-bottom:8px; text-align:center;">Pengisian Program & Index di atas akan otomatis masuk ke tabel untuk hari ini.</div>
+            
+            <div class="table-wrapper">
+                <table class="ledger-table tabel-target-ui">
+                    <thead>
+                        <tr>
+                            <th class="hari-col">Hari</th>
+                            <th>Program</th>
+                            <th>Index (%)</th>
+                            <th>Kekuatan</th>
+                            <th>Cari Drop</th>
+                            <th>Stort / Hari</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-tabel-target">
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn-group">
+                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-target-ui', 'Target')">📊 Unduh Excel Target</button>
+            </div>
         </div>
     </div>
     
+    <div class="card">
+        <h3>💾 Cadangkan & Pulihkan Data</h3>
+        <div style="display: flex; gap: 6px;">
+            <button class="btn-backup" onclick="exportData()">📤 Cadangkan (.json)</button>
+            <label class="btn-restore">
+                📥 Pulihkan
+                <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+            </label>
+        </div>
+    </div>
+
     <div style="text-align:center; font-size:11px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b></div>
 
     <script>
-        // SCRIPT UI TABS
+        // INIT PWA
+        function setupPWA() {
+            const manifestData = {
+                "name": "Kalkulator Pati", "short_name": "Pati 5", "start_url": window.location.href, "display": "standalone",
+                "background_color": "#f0f2f5", "theme_color": "#17a2b8",
+                "icons": [{"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzE3YTJiOCIvPjx0ZXh0IHg9IjUwIiB5PSI2NCIgZm9udC1zaXplPSI1MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDU8L3RleHQ+PC9zdmc+", "sizes": "512x512", "type": "image/svg+xml"}]
+            };
+            const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'}));
+            document.getElementById('pwa-manifest').href = manifestUrl;
+
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v3').then(c => c.addAll([location.href]))); self.skipWaiting(); });
+                    self.addEventListener('activate', e => { self.clients.claim(); });
+                    self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)).catch(() => new Response("Offline Mode"))); });
+                `;
+                navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error);
+            }
+        }
+
+        // VARIABEL GLOBAL HARI KERJA
+        let hkTotal = 0, hkDilalui = 0, hkSisa = 0;
+
+        // MENGHITUNG HARI KERJA BULAN INI
+        function hitungHariKerja() {
+            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
+            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; 
+
+            hkTotal = 0; hkDilalui = 0; hkSisa = 0;
+            for(let i=1; i<=jmlHari; i++) {
+                let currDate = new Date(tahun, bulan, i);
+                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
+                
+                if(!isLibur) {
+                    hkTotal++;
+                    if(i <= tglHariIni) hkDilalui++;
+                }
+            }
+            hkSisa = hkTotal - hkDilalui;
+            
+            document.getElementById('info-hk-total').innerText = 'Total HK: ' + hkTotal;
+            document.getElementById('info-hk-lalu').innerText = 'Dilalui: ' + hkDilalui;
+            document.getElementById('info-hk-sisa').innerText = 'Sisa HK: ' + hkSisa;
+        }
+
+        // FUNGSI AUTO-FORMAT RIBUAN
+        function formatRibuan(el) {
+            let cursor = el.selectionStart;
+            let oldLen = el.value.length;
+            let clean = el.value.replace(/[^0-9\-]/g, ''); 
+            if(clean === '' || clean === '-') { el.value = clean; return; }
+            let isNeg = clean.startsWith('-');
+            clean = clean.replace(/\-/g, '');
+            if (clean === '') { el.value = isNeg ? '-' : ''; return; }
+            clean = parseInt(clean, 10).toString(); 
+            let formatted = (isNeg ? '-' : '') + clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            el.value = formatted;
+            let newLen = el.value.length;
+            if(cursor !== null) { let newPos = cursor + (newLen - oldLen); el.setSelectionRange(newPos, newPos); }
+        }
+
+        // AMBIL ANGKA BERSIH
+        function getNum(id) {
+            let el = document.getElementById(id);
+            if (!el || el.value === "") return 0;
+            let val = parseFloat(el.value.replace(/\./g, '')); 
+            return isNaN(val) ? 0 : val;
+        }
+
+        // FORMATTER DISPLAY
+        function formatAngka(num) {
+            if(isNaN(num) || !isFinite(num)) return "0";
+            let isNeg = num < 0;
+            let str = Math.abs(num).toFixed(0).toString().split(".");
+            str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return (isNeg ? "-" : "") + str.join(",");
+        }
+
+        function formatPersen(num) {
+            if (isNaN(num) || !isFinite(num)) return "00,00%";
+            let strNum = num.toString(); let desimalIndex = strNum.indexOf('.');
+            if (desimalIndex !== -1) strNum = strNum.substring(0, desimalIndex + 3);
+            return parseFloat(strNum).toFixed(2).replace('.', ',') + "%";
+        }
+
+        // UI TABS
         function bukaTab(evt, namaTab) {
             let i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -199,21 +414,6 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // FORMATTER & HELPER
-        function formatAngka(num) {
-            if(isNaN(num)) return "0";
-            let str = num.toString().split(".");
-            str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            return str.join(",");
-        }
-
-        // HELPER ANTI ERROR (Mengambil angka secara aman meskipun elemen kosong)
-        function getNum(id) {
-            let el = document.getElementById(id);
-            return el && el.value ? parseFloat(el.value) : 0;
-        }
-
-        // TANGGAL & BULAN DINAMIS
         function tampilkanTanggal() {
             const H = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const B = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -221,359 +421,402 @@
             document.getElementById('tanggal-hari-ini').innerText = H[d.getDay()] + ', ' + d.getDate() + ' ' + B[d.getMonth()] + ' ' + d.getFullYear();
         }
 
-        function getTodayString() {
-            let d = new Date();
-            return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
-        }
+        function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+        function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
 
-        function getBulanTahunString() {
-            let d = new Date();
-            return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
-        }
-
-        // PEMBUATAN TABEL OTOMATIS SESUAI BULAN
+        // BUILDER KEDUA TABEL (Storan & Target)
         function buatTabelBulanIni() {
-            let d = new Date();
-            let tahun = d.getFullYear();
-            let bulan = d.getMonth();
+            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth();
+            let tglHariIni = d.getDate(); 
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
-            
             const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
             let judul = document.getElementById('judul-tabel');
-            if(judul) judul.innerText = '📋 Tabel ' + namaBulan[bulan] + ' ' + tahun;
+            if(judul) judul.innerText = '📋 Tabel Storan ' + namaBulan[bulan] + ' ' + tahun;
+            let judulTarget = document.getElementById('judul-tabel-target');
+            if(judulTarget) judulTarget.innerText = '📋 Tabel Target ' + namaBulan[bulan] + ' ' + tahun;
 
             let tbody = document.getElementById('body-tabel');
-            if(!tbody) return;
-            let html = '';
+            let tbodyTarget = document.getElementById('body-tabel-target');
+            if(!tbody || !tbodyTarget) return;
             
+            let htmlStoran = ''; let htmlTarget = '';
             const hariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
-            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; // Format: Bulan-Tanggal
+            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25'];
 
             for(let i=1; i<=jmlHari; i++) {
                 let currDate = new Date(tahun, bulan, i);
                 let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
-                
                 let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
-                let trClass = isLibur ? 'baris-libur' : '';
-                let hariStr = i + ' ' + hariSingkat[currDate.getDay()];
+                let isHariIni = (i === tglHariIni); 
+                
+                let trClass = '';
+                if(isLibur) trClass += 'baris-libur ';
+                if(isHariIni) trClass += 'baris-hari-ini '; 
+                
+                // TABEL STORAN
+                htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
+                    <td><input type="number" id="t_d_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_jd_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="number" id="t_s_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_js_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="number" id="t_si_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_ac_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="number" id="t_jc_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sc_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="text" id="t_pc_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_am_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="number" id="t_jm_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sm_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="text" id="t_pm_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_al_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="number" id="t_jl_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sl_${i}" onchange="simpanTabel()"></td>
+                </tr>`;
 
-                html += `<tr class="${trClass}">
-                    <td class="hari-col">${hariStr}</td>
-                    <td><input type="number" id="t_d_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jd_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_s_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_js_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_si_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_ac_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jc_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_sc_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_pc_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_am_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jm_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_sm_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_pm_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_al_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_jl_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="number" id="t_sl_${i}" onchange="simpanTabel()"></td>
+                // TABEL TARGET
+                htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
+                    <td><input type="text" id="tt_prog_${i}" onchange="simpanTabel(); hitungSemua();" oninput="formatRibuan(this)"></td>
+                    <td><input type="number" id="tt_idx_${i}" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;">0</td>
+                    <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;">0</td>
+                    <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;">0</td>
                 </tr>`;
             }
-            tbody.innerHTML = html;
+            tbody.innerHTML = htmlStoran;
+            tbodyTarget.innerHTML = htmlTarget;
         }
 
-        // =====================================
-        // SINKRONISASI DROP & STORTING
-        // =====================================
+        // SINKRONISASI
         function syncDariStoran() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) d1.value = st_d.value;
-            
             let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
             if(s1 && st_s) s1.value = st_s.value;
-            
             hitungSemua();
         }
-
         function syncDariRekap() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) st_d.value = d1.value;
-            
             let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
             if(s1 && st_s) st_s.value = s1.value;
-            
             hitungSemua();
         }
 
-        // =====================================
-        // PERHITUNGAN UTAMA (DENGAN ANTI-FREEZE)
-        // =====================================
+        // MENGIRIM INPUT TOP TARGET KE TABEL HARI INI
+        function updateTargetDariAtas() {
+            let tglHariIni = new Date().getDate();
+            let p = document.getElementById('tg_program').value;
+            let i = document.getElementById('tg_index').value;
+            
+            let tp = document.getElementById('tt_prog_'+tglHariIni);
+            let ti = document.getElementById('tt_idx_'+tglHariIni);
+            
+            if(tp) tp.value = p;
+            if(ti) ti.value = i;
+            
+            simpanTabel();
+            hitungSemua();
+        }
+
+        function setTabel(idPrefix, nilai) {
+            let tglHariIni = new Date().getDate(); 
+            let el = document.getElementById(idPrefix + tglHariIni);
+            if(el) {
+                if (nilai === 0 || nilai === '' || isNaN(nilai)) el.value = '';
+                else el.value = (idPrefix === 't_pc_' || idPrefix === 't_pm_') ? formatPersen(nilai) : (Number.isInteger(nilai) ? nilai : parseFloat(nilai.toFixed(2)));
+            }
+        }
+
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
         const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport'];
-        const semuaIds = rekapIds.concat(storanIds);
+        const targetIds = ['tg_program', 'tg_index']; 
+        const semuaIds = rekapIds.concat(storanIds, targetIds);
+        let timerDebounce = null;
 
-        let timerDebounce = null; // Variabel sistem peredam (Anti-Freeze)
-
+        // KALKULASI UTAMA (Storan, Rekap & Target)
         function hitungSemua() {
-            // --- 1. PROSES INSTAN (Sangat Ringan) ---
-            let drRec = document.getElementById('drRec'); let d1_el = document.getElementById('d1');
-            if(drRec && d1_el) drRec.value = d1_el.value;
+            try {
+                let drRec = document.getElementById('drRec'); let d1_el = document.getElementById('d1');
+                if(drRec && d1_el) { drRec.value = d1_el.value; }
+                let stRec = document.getElementById('stRec'); let s1_el = document.getElementById('s1');
+                if(stRec && s1_el) { stRec.value = s1_el.value; }
 
-            let stRec = document.getElementById('stRec'); let s1_el = document.getElementById('s1');
-            if(stRec && s1_el) stRec.value = s1_el.value;
+                let d1 = getNum('d1'); let d2 = getNum('d2'); let JmlDrop = d1 + d2; 
+                let hDrop = document.getElementById('hDrop'); if(hDrop) hDrop.innerText = "Jumlah Drop : " + formatAngka(JmlDrop);
 
-            let d1 = getNum('d1'); let d2 = getNum('d2');
-            let JmlDrop = d1 + d2; 
-            let hDrop = document.getElementById('hDrop');
-            if(hDrop) hDrop.innerText = "Jumlah Drop : " + formatAngka(JmlDrop);
+                let s1 = getNum('s1'); let s2 = getNum('s2'); let JmlStort = s1 + s2; 
+                let hStort = document.getElementById('hStort'); if(hStort) hStort.innerText = "Jumlah Storting : " + formatAngka(JmlStort);
 
-            let s1 = getNum('s1'); let s2 = getNum('s2');
-            let JmlStort = s1 + s2; 
-            let hStort = document.getElementById('hStort');
-            if(hStort) hStort.innerText = "Jumlah Storting : " + formatAngka(JmlStort);
-
-            let si = getNum('siRec');
-            let sirk = (d1 * 1.3) - s1 + si; 
-            let hSirkulasi = document.getElementById('hSirkulasi');
-            if(hSirkulasi) hSirkulasi.innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
-
-            let hsl = [{}, {}, {}, {}]; // Index 1=CM, 2=MB, 3=ML
-            for(let i=1; i<=3; i++) {
-                let a = getNum('a'+i);
-                let j = getNum('j'+i);
-                let sa = getNum('sa'+i);
-                let p = getNum('p'+(i==3?1:i)) || 1;
-                
-                let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
-                let persentase = (i == 3) ? "" : ("<br>Persentase: " + pctRaw.toFixed(1) + "%");
-                
-                let resBox = document.getElementById('res'+i);
-                if(resBox) resBox.innerHTML = `Jumlah: ${formatAngka(hasil)}<br>Saldo: ${formatAngka(sisa)}${persentase}`;
-                
-                hsl[i] = { angs: a, jml: hasil, sld: sisa, pct: isNaN(pctRaw) ? 0 : pctRaw };
-            }
-
-            let drop = getNum('st_drop');
-            let kasbon = getNum('st_kasbon');
-            let storting = getNum('st_storting');
-            let transport = getNum('st_transport');
-
-            let storan = (drop * 0.20) + kasbon + storting - drop - transport;
-            let persen9 = drop * 0.09; let tunai = storan - persen9;
-
-            let hasilStoran = document.getElementById('hasilStoran');
-            if(hasilStoran) hasilStoran.innerHTML = "Storan<br>" + formatAngka(storan);
-            
-            let h9 = document.getElementById('hasil9persen');
-            if(h9) h9.innerHTML = "9% Drop<br>" + formatAngka(persen9);
-            
-            let hSel = document.getElementById('hasilSelisih');
-            if(hSel) hSel.innerHTML = "Uang Tunai<br>" + formatAngka(tunai);
-
-
-            // --- 2. PROSES BERAT (Dilindungi dengan Debounce agar tidak Freeze) ---
-            clearTimeout(timerDebounce);
-            timerDebounce = setTimeout(function() {
-                try {
-                    let tglHariIni = new Date().getDate(); 
-                    function setTabel(idPrefix, nilai) {
-                        let id = idPrefix + tglHariIni;
-                        let el = document.getElementById(id);
-                        if(el) {
-                            if (nilai === 0 || nilai === '' || isNaN(nilai)) {
-                                el.value = '';
-                            } else {
-                                el.value = Number.isInteger(nilai) ? nilai : nilai.toFixed(1);
-                            }
-                        }
-                    }
-
-                    // Push hasil ke baris tanggal hari ini
-                    setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop);
-                    setTabel('t_s_', s1); setTabel('t_js_', JmlStort);
-                    setTabel('t_si_', sirk);
-                    
-                    setTabel('t_ac_', hsl[1].angs); setTabel('t_jc_', hsl[1].jml);
-                    setTabel('t_sc_', hsl[1].sld); setTabel('t_pc_', hsl[1].pct);
-
-                    setTabel('t_am_', hsl[2].angs); setTabel('t_jm_', hsl[2].jml);
-                    setTabel('t_sm_', hsl[2].sld); setTabel('t_pm_', hsl[2].pct);
-
-                    setTabel('t_al_', hsl[3].angs); setTabel('t_jl_', hsl[3].jml);
-                    setTabel('t_sl_', hsl[3].sld);
-
-                    // Auto Saldo ke hari berikutnya & Simpan Data
-                    propagasiSaldoTabel();
-                    simpanKalkulator();
-                    simpanTabel();
-                } catch(error) {
-                    console.error("Terjadi eror dalam penyimpanan:", error);
+                let si = getNum('siRec'); let sirk = (d1 * 1.3) - s1 + si; 
+                let hSirkulasi = document.getElementById('hSirkulasi');
+                if(hSirkulasi) {
+                    hSirkulasi.innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
+                    if(sirk < 0) { hSirkulasi.classList.add('alert-minus'); hSirkulasi.innerHTML = "⚠️ Saldo Sirkulasi : " + formatAngka(sirk); } 
+                    else { hSirkulasi.classList.remove('alert-minus'); }
                 }
-            }, 600); // Penundaan 0.6 detik setelah pengetikan berhenti
+
+                let hsl = [{}, {}, {}, {}];
+                for(let i=1; i<=3; i++) {
+                    let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i); let p = getNum('p'+(i==3?1:i)) || 1;
+                    let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
+                    let persentase = (i == 3) ? "" : ("<br>Persentase: " + formatPersen(pctRaw));
+                    let saldoStr = sisa < 0 ? `<span class="text-minus">⚠️ ${formatAngka(sisa)}</span>` : formatAngka(sisa);
+                    let resBox = document.getElementById('res'+i);
+                    if(resBox) resBox.innerHTML = `Jumlah: ${formatAngka(hasil)}<br>Saldo: ${saldoStr}${persentase}`;
+                }
+
+                let drop = getNum('st_drop'); let kasbon = getNum('st_kasbon');
+                let storting = getNum('st_storting'); let transport = getNum('st_transport');
+
+                let persen11Drop = parseFloat((drop * 0.11).toFixed(2));
+                let rumusBaruTotal = parseFloat((kasbon + persen11Drop + storting).toFixed(2));
+                let hRumusTambahan = document.getElementById('hasilRumusTambahan');
+                if(hRumusTambahan) hRumusTambahan.innerHTML = `${formatAngka(kasbon)} + ${formatAngka(persen11Drop)} + ${formatAngka(storting)} = <span style="color:#28a745;">${formatAngka(rumusBaruTotal)}</span>`;
+
+                let storan = (drop * 0.20) + kasbon + storting - drop - transport;
+                let persen9 = drop * 0.09; let tunai = storan - persen9;
+
+                let hasilStoran = document.getElementById('hasilStoran'); if(hasilStoran) hasilStoran.innerHTML = "Storan<br>" + formatAngka(storan);
+                let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = "9% Drop<br>" + formatAngka(persen9);
+                
+                let hSel = document.getElementById('hasilSelisih');
+                if(hSel) {
+                    hSel.innerHTML = "Tunai<br>" + formatAngka(tunai);
+                    if(tunai < 0) { hSel.classList.add('bg-minus'); hSel.innerHTML = "⚠️ Minus<br>" + formatAngka(tunai); } 
+                    else { hSel.classList.remove('bg-minus'); }
+                }
+
+                setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort);
+                
+                propagasiSaldoTabel(); // Merambat saldo & Target Input ke hari esok
+                kalkulasiTabelTarget(); // Hitung seluruh tabel Target berdasarkan input tabel 
+
+                clearTimeout(timerDebounce);
+                timerDebounce = setTimeout(() => { simpanKalkulator(); simpanTabel(); }, 800);
+            } catch (error) { console.error("Error kalkulasi:", error); }
         }
 
-        // =====================================
-        // FUNGSI AUTO-COPY SALDO AMAN
-        // =====================================
-        function propagasiSaldoTabel() {
-            let d = new Date();
-            let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        // FUNGSI MENGHITUNG SETIAP BARIS TABEL TARGET
+        function kalkulasiTabelTarget() {
+            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
+            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; 
 
-            for(let i=2; i<=jmlHari; i++) {
-                // Proses CM
-                let p_jc = document.getElementById('t_jc_'+(i-1));
-                let p_sc = document.getElementById('t_sc_'+(i-1));
-                let c_ac = document.getElementById('t_ac_'+i);
-                let c_jc = document.getElementById('t_jc_'+i);
-                let c_sc = document.getElementById('t_sc_'+i);
-
-                if(p_jc && c_ac && c_jc && !c_ac.value) c_jc.value = p_jc.value;
-                if(p_sc && c_ac && c_sc && !c_ac.value) c_sc.value = p_sc.value;
-
-                // Proses MB
-                let p_jm = document.getElementById('t_jm_'+(i-1));
-                let p_sm = document.getElementById('t_sm_'+(i-1));
-                let c_am = document.getElementById('t_am_'+i);
-                let c_jm = document.getElementById('t_jm_'+i);
-                let c_sm = document.getElementById('t_sm_'+i);
-
-                if(p_jm && c_am && c_jm && !c_am.value) c_jm.value = p_jm.value;
-                if(p_sm && c_am && c_sm && !c_am.value) c_sm.value = p_sm.value;
-
-                // Proses ML
-                let p_jl = document.getElementById('t_jl_'+(i-1));
-                let p_sl = document.getElementById('t_sl_'+(i-1));
-                let c_al = document.getElementById('t_al_'+i);
-                let c_jl = document.getElementById('t_jl_'+i);
-                let c_sl = document.getElementById('t_sl_'+i);
-
-                if(p_jl && c_al && c_jl && !c_al.value) c_jl.value = p_jl.value;
-                if(p_sl && c_al && c_sl && !c_al.value) c_sl.value = p_sl.value;
-            }
-        }
-
-        // =====================================
-        // PENYIMPANAN DATA AMAN (ANTI ERROR)
-        // =====================================
-        function simpanTabel() {
-            let dataTabel = {};
-            let d = new Date();
-            let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
-
+            let hkJalan = 0;
             for(let i=1; i<=jmlHari; i++) {
-                for(let p of prefiks) {
-                    let id = p + i;
-                    let el = document.getElementById(id);
-                    if(el && el.value) dataTabel[id] = el.value;
+                let currDate = new Date(tahun, bulan, i);
+                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat);
+                
+                if(!isLibur) hkJalan++;
+                let sisaHk = hkTotal - hkJalan;
+
+                // Ambil data input Target di baris tersebut
+                let progInput = document.getElementById('tt_prog_'+i);
+                let idxInput = document.getElementById('tt_idx_'+i);
+                if(!progInput || !idxInput) continue;
+
+                let programRow = getNum('tt_prog_'+i);
+                let indexRow = parseFloat(idxInput.value) || 0; // % Format
+                
+                let jmlStortRow = getNum('t_js_'+i);
+                let jmlDropRow = getNum('t_jd_'+i);
+
+                let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
+
+                if(!isLibur) {
+                    // Kekuatan Program
+                    if(hkJalan > 0) k_kekuatan = (jmlStortRow / hkJalan) * hkTotal;
+                    
+                    // Supaya tidak dibagi Nol di hari terakhir
+                    let pembagi = sisaHk > 0 ? sisaHk : 1; 
+                    
+                    // Cari Drop
+                    k_caridrop = (programRow - jmlDropRow) / pembagi;
+                    
+                    // Target Storting (Program x (Index / 100) - Jml Stort) / Sisa
+                    k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
+                }
+
+                // Tulis hasil ke tabel
+                document.getElementById('tt_kekuatan_'+i).innerText = formatAngka(k_kekuatan);
+                document.getElementById('tt_caridrop_'+i).innerText = formatAngka(k_caridrop);
+                document.getElementById('tt_targetstort_'+i).innerText = formatAngka(k_targetstort);
+
+                // Update Display Kartu Atas KHUSUS untuk baris Hari Ini
+                if(i === tglHariIni && !isLibur) {
+                    document.getElementById('disp_kekuatan').innerText = formatAngka(k_kekuatan);
+                    document.getElementById('disp_caridrop').innerText = formatAngka(k_caridrop);
+                    document.getElementById('disp_targetstort').innerText = formatAngka(k_targetstort);
                 }
             }
+        }
+
+        // PROPAGASI DATA KOSONG KE HARI ESOK (Termasuk input Target)
+        function propagasiSaldoTabel() {
+            let i = new Date().getDate() + 1;
+            let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            if (i > jmlHari) return; 
+            const cp = (id1, id2) => { let p = document.getElementById(id1); let c = document.getElementById(id2); if(p && c && !c.value) c.value = p.value; };
             
-            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
-            localStorage.setItem(key, JSON.stringify(dataTabel));
+            cp('t_jc_'+(i-1), 't_jc_'+i); cp('t_sc_'+(i-1), 't_sc_'+i); cp('t_pc_'+(i-1), 't_pc_'+i); 
+            cp('t_jm_'+(i-1), 't_jm_'+i); cp('t_sm_'+(i-1), 't_sm_'+i); cp('t_pm_'+(i-1), 't_pm_'+i); 
+            cp('t_jl_'+(i-1), 't_jl_'+i); cp('t_sl_'+(i-1), 't_sl_'+i); 
+            
+            // AUTO-FILL TARGET HARIAN KE BESOK (Jika besok kosong)
+            cp('tt_prog_'+(i-1), 'tt_prog_'+i);
+            cp('tt_idx_'+(i-1), 'tt_idx_'+i);
+        }
+
+        function simpanTabel() {
+            let dataTabel = {}; let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_', 'tt_prog_', 'tt_idx_'];
+            for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
+            localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), JSON.stringify(dataTabel));
         }
 
         function muatTabel() {
             buatTabelBulanIni();
-            let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
-            let saved = localStorage.getItem(key);
-            if(saved) {
-                try {
-                    let dataObj = JSON.parse(saved);
-                    for(let k in dataObj) {
-                        let el = document.getElementById(k);
-                        if(el) el.value = dataObj[k];
-                    }
-                } catch(e) {
-                    console.error("Data memori korup", e);
-                }
-            }
+            let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
+            if(saved) { try { let obj = JSON.parse(saved); for(let k in obj) { let el = document.getElementById(k); if(el) el.value = obj[k]; } } catch(e){} }
+            
+            // Tarik data hari ini ke kolom atas target saat refresh aplikasi
+            let tglHariIni = new Date().getDate();
+            let tp = document.getElementById('tt_prog_'+tglHariIni);
+            let ti = document.getElementById('tt_idx_'+tglHariIni);
+            if(tp && tp.value) document.getElementById('tg_program').value = tp.value;
+            if(ti && ti.value) document.getElementById('tg_index').value = ti.value;
         }
-
-        function hapusTabel() {
-            if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) {
-                let key = 'KalkulatorPati_Tabel_' + getBulanTahunString();
-                localStorage.removeItem(key);
-                muatTabel();
-            }
-        }
+        function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
 
         function simpanKalkulator() {
             let dataObj = {};
-            semuaIds.forEach(id => {
-                let el = document.getElementById(id);
-                if(el) dataObj[id] = el.value;
-            });
+            semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
             localStorage.setItem('KalkulatorPati_Mini', JSON.stringify({ lastDate: getTodayString(), values: dataObj }));
         }
 
         function muatKalkulator() {
             tampilkanTanggal();
             let savedData = localStorage.getItem('KalkulatorPati_Mini');
-
             if(savedData) {
                 try {
-                    let parsed = JSON.parse(savedData);
-                    let todayStr = getTodayString();
-                    let dataObj = parsed.values ? parsed.values : parsed;
-                    let lastDate = parsed.lastDate || todayStr;
+                    let parsed = JSON.parse(savedData); let todayStr = getTodayString();
+                    let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
                     if (lastDate !== todayStr) {
-                        let old_d1 = parseFloat(dataObj['d1']) || 0; let old_d2 = parseFloat(dataObj['d2']) || 0;
-                        let old_s1 = parseFloat(dataObj['s1']) || 0; let old_s2 = parseFloat(dataObj['s2']) || 0;
-                        let old_drRec = parseFloat(dataObj['drRec']) || 0; let old_stRec = parseFloat(dataObj['stRec']) || 0;
-                        let old_siRec = parseFloat(dataObj['siRec']) || 0;
+                        let totalDrop = (parseFloat(dataObj['d1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['d2'].replace(/\./g, ''))||0);
+                        let totalStort = (parseFloat(dataObj['s1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['s2'].replace(/\./g, ''))||0);
+                        let totalSirk = ((parseFloat(dataObj['drRec'].replace(/\./g, ''))||0) * 1.3) - (parseFloat(dataObj['stRec'].replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec'].replace(/\./g, ''))||0);
 
-                        let totalDropKemarin = old_d1 + old_d2;
-                        let totalStortKemarin = old_s1 + old_s2;
-                        let totalSirkKemarin = (old_drRec * 1.3) - old_stRec + old_siRec;
-
-                        dataObj['d2'] = totalDropKemarin !== 0 ? totalDropKemarin : '';
-                        dataObj['s2'] = totalStortKemarin !== 0 ? totalStortKemarin : '';
-                        dataObj['siRec'] = totalSirkKemarin !== 0 ? totalSirkKemarin : '';
+                        dataObj['d2'] = totalDrop !== 0 ? totalDrop.toString() : '';
+                        dataObj['s2'] = totalStort !== 0 ? totalStort.toString() : '';
+                        dataObj['siRec'] = totalSirk !== 0 ? totalSirk.toString() : '';
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
-                        
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let old_a = parseFloat(dataObj['a'+i]) || 0;
-                            let old_j = parseFloat(dataObj['j'+i]) || 0;
-                            let old_sa = parseFloat(dataObj['sa'+i]) || 0;
-                            
-                            let totalJmlKemarin = old_a + old_j;
-                            let sisaSaldoKemarin = old_sa - old_a;
-                            
-                            dataObj['j'+i] = totalJmlKemarin !== 0 ? totalJmlKemarin : '';
-                            dataObj['sa'+i] = sisaSaldoKemarin !== 0 ? sisaSaldoKemarin : '';
-                            dataObj['a'+i] = '';
+                            let a = parseFloat(dataObj['a'+i].replace(/\./g, ''))||0; let j = parseFloat(dataObj['j'+i].replace(/\./g, ''))||0; let sa = parseFloat(dataObj['sa'+i].replace(/\./g, ''))||0;
+                            dataObj['j'+i] = (a+j) !== 0 ? (a+j).toString() : ''; dataObj['sa'+i] = (sa-a) !== 0 ? (sa-a).toString() : ''; dataObj['a'+i] = '';
                         }
-                        alert("🌅 Hari baru! Data kalkulator harian di-reset dan dipindah ke kolom lalu.");
+                        alert("🌅 Hari baru! Data di-reset dan dipindah ke kolom lalu.");
                     }
 
                     semuaIds.forEach(id => {
                         let el = document.getElementById(id);
                         if(el && dataObj[id] !== undefined) {
                             el.value = dataObj[id];
+                            if(el.tagName === 'INPUT' && el.type === 'text' && !id.startsWith('t_')) formatRibuan(el);
                         }
                     });
-                } catch (e) {
-                    console.error("Gagal memuat memori kalkulator", e);
-                }
+                } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
             hitungSemua(); 
         }
 
         function hapusData(jenis) {
-            if(confirm(`⚠️ Reset semua data input ${jenis}? (Tabel Storan bulanan tidak ikut terhapus)`)) {
-                let targetIds = (jenis === 'rekap') ? rekapIds : storanIds;
-                targetIds.forEach(id => { 
-                    let el = document.getElementById(id);
-                    if(el) el.value = ''; 
-                });
+            if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
+                let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
+                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; });
                 hitungSemua();
             }
         }
 
-        // EKSEKUSI SAAT WEB DIBUKA
+        function salinLaporan() {
+            let tgl = document.getElementById('tanggal-hari-ini').innerText;
+            let drop = document.getElementById('st_drop').value || "0";
+            let kasbon = document.getElementById('st_kasbon').value || "0";
+            let storting = document.getElementById('st_storting').value || "0";
+            let transport = document.getElementById('st_transport').value || "0";
+            
+            let tunai = document.getElementById('hasilSelisih').innerText.replace('Tunai\n', '').replace('⚠️ Minus\n', '');
+            let p9 = document.getElementById('hasil9persen').innerText.replace('9% Drop\n', '');
+            let storan = document.getElementById('hasilStoran').innerText.replace('Storan\n', '');
+            let totalHitungan = document.getElementById('hasilRumusTambahan').innerText;
+
+            let teksWA = `*Laporan Storan Pati*\n📅 ${tgl}\n\n` +
+                         `*Input Data:*\n` +
+                         `Drop: ${drop}\n` +
+                         `Kasbon: ${kasbon}\n` +
+                         `Storting: ${storting}\n` +
+                         `Transport: ${transport}\n\n` +
+                         `*Hasil Akhir:*\n` +
+                         `Tunai: ${tunai}\n` +
+                         `9% Drop: ${p9}\n` +
+                         `Storan: ${storan}\n\n` +
+                         `*Total Kasbon + 11% Drop + Storting:*\n` +
+                         `${totalHitungan}`;
+
+            navigator.clipboard.writeText(teksWA).then(() => {
+                alert("✅ Laporan berhasil disalin! Silakan tempel (paste) di WhatsApp.");
+            }).catch(() => {
+                alert("❌ Gagal menyalin laporan, coba lagi.");
+            });
+        }
+
+        function exportKeCSV(tableClass, namaFile) {
+            let tabel = document.querySelector('.' + tableClass);
+            let baris = tabel.querySelectorAll('tr');
+            let csv = [];
+            
+            for (let i = 0; i < baris.length; i++) {
+                let row = [];
+                let cols = baris[i].querySelectorAll('th, td');
+                
+                for (let j = 0; j < cols.length; j++) {
+                    let input = cols[j].querySelector('input');
+                    let val = input ? input.value : cols[j].innerText;
+                    val = val.replace(/(\r\n|\n|\r)/gm, " "); 
+                    row.push('"' + val + '"');
+                }
+                csv.push(row.join(','));
+            }
+            
+            let csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
+            let downloadLink = document.createElement('a');
+            downloadLink.download = 'Rekap_' + namaFile + '_Pati5_' + getBulanTahunString() + '.csv';
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        function exportData() {
+            let allData = {};
+            for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
+            if(Object.keys(allData).length === 0) { alert("Tidak ada data."); return; }
+            let d = document.createElement('a'); d.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
+            d.download = "backup_kalkulator_pati.json"; document.body.appendChild(d); d.click(); d.remove();
+        }
+
+        function importData(e) {
+            let file = e.target.files[0]; if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    let data = JSON.parse(evt.target.result);
+                    for (let key in data) if (key.includes('KalkulatorPati')) localStorage.setItem(key, data[key]);
+                    alert("✅ Data dipulihkan!"); location.reload();
+                } catch (err) { alert("❌ File salah."); }
+            }; reader.readAsText(file);
+        }
+
         window.onload = function() {
+            setupPWA();
+            hitungHariKerja(); 
             muatTabel();
             muatKalkulator();
         };
