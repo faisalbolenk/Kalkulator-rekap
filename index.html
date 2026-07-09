@@ -13,7 +13,7 @@
 
     <style>
         /* GAYA MINIMALIS & RAPI */
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; transition: background 0.3s, color 0.3s; }
         
         /* TAB MENU */
         .tab-container { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
@@ -23,14 +23,14 @@
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between;}
-        .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
+        .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background 0.3s; }
         h3 { margin: 0 0 10px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
         .auto-save { font-size: 11px; color: #28a745; font-weight: normal; }
         
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; }
+        input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; background: white; color: black; }
         input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
         .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #007bff; font-size: 13px; font-weight: bold; color: #333; }
@@ -62,25 +62,23 @@
         .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #6c757d; }
         .bg-minus { background: #8b0000 !important; border: 2px solid #ff4d4d; box-shadow: 0 0 8px rgba(220,53,69,0.5); }
 
-        /* TABEL LEDGER & TARGET (Sticky Header/Kolom) */
+        /* TABEL LEDGER & TARGET */
         .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
         .ledger-table { min-width: 1050px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 11px; }
         .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle;}
-        
         .ledger-table th { background: #007bff; color: white; font-size: 10px; padding: 6px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
         
-        /* WARNA HEADER CM, MB, ML (Untuk Tabel Storan) */
+        /* WARNA LAYOUT STORAN */
         .tabel-storan-ui th:nth-child(7), .tabel-storan-ui th:nth-child(8), .tabel-storan-ui th:nth-child(9), .tabel-storan-ui th:nth-child(10) { background: #d4a017 !important; border-bottom-color: #a87e0f; } 
         .tabel-storan-ui th:nth-child(11), .tabel-storan-ui th:nth-child(12), .tabel-storan-ui th:nth-child(13), .tabel-storan-ui th:nth-child(14) { background: #28a745 !important; border-bottom-color: #1e7e34; } 
         .tabel-storan-ui th:nth-child(15), .tabel-storan-ui th:nth-child(16), .tabel-storan-ui th:nth-child(17) { background: #6f42c1 !important; border-bottom-color: #532c94; } 
-
         .tabel-storan-ui td:nth-child(7), .tabel-storan-ui td:nth-child(8), .tabel-storan-ui td:nth-child(9), .tabel-storan-ui td:nth-child(10) { background-color: #fffbe6; } 
         .tabel-storan-ui td:nth-child(11), .tabel-storan-ui td:nth-child(12), .tabel-storan-ui td:nth-child(13), .tabel-storan-ui td:nth-child(14) { background-color: #eafaf1; } 
         .tabel-storan-ui td:nth-child(15), .tabel-storan-ui td:nth-child(16), .tabel-storan-ui td:nth-child(17) { background-color: #f4ecf9; } 
 
         .ledger-table input { width: 55px; padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
-        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
-        .ledger-table th.hari-col { z-index: 4; background: #0056b3; } 
+        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; color: black; }
+        .ledger-table th.hari-col { z-index: 4; background: #0056b3; color: white;} 
         
         .ledger-table .baris-libur { background-color: #fff0f0; }
         .ledger-table .baris-libur td { border-bottom: 2px solid #dc3545; color: #dc3545; }
@@ -91,17 +89,50 @@
         .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; }
         .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #80bdff; background-color: #ffffff; }
 
-        /* KHUSUS TABEL TARGET MIN-WIDTH */
-        .tabel-target-ui { min-width: 600px; }
-        .tabel-target-ui input { width: 70px; }
+        /* MODIFIKASI UKURAN SUPER COMPACT KHUSUS TABEL TARGET */
+        .tabel-target-ui { min-width: 480px; font-size: 11px; }
+        .tabel-target-ui th, .tabel-target-ui td { padding: 3px 2px; }
+        .tabel-target-ui input { width: 58px; padding: 3px; font-size: 11px; text-align: center; }
         .tabel-target-ui th:nth-child(4) { background: #17a2b8 !important; }
         .tabel-target-ui th:nth-child(5) { background: #d39e00 !important; }
         .tabel-target-ui th:nth-child(6) { background: #28a745 !important; }
 
-        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
-        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
+        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; }
+        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; }
         
         .info-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+
+        /* DARK MODE - FIX COLOR BLEEDING */
+        body.dark-mode { background: #121212; color: #e0e0e0; }
+        body.dark-mode .card { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        body.dark-mode h3 { color: #3788ff; border-bottom-color: #333; }
+        body.dark-mode input { background: #2a2a2a; color: #fff; border-color: #444; }
+        body.dark-mode input[readonly] { background-color: #222; color: #aaa; border-color: #333; }
+        body.dark-mode .res-box { background: #1a2a3a; color: #fff; border-left-color: #3788ff; }
+        body.dark-mode .res-box.alert-minus { background: #3a1a1a; border-left-color: #ff4d4d; }
+        body.dark-mode .rumus-box { background: #3a301a; color: #ffe082; border-left-color: #ffb300; }
+        body.dark-mode .ledger-table { background: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .ledger-table th { background: #1f5cb2; border-bottom-color: #123d7a; }
+        body.dark-mode .ledger-table .hari-col { background: #2a2a2a; color: #fff; border-right-color: #555; }
+        body.dark-mode .ledger-table th.hari-col { background: #123d7a; }
+        body.dark-mode .tabel-rekap th { background: #2a2a2a; color: #fff; }
+        body.dark-mode .tabel-rekap td, body.dark-mode .tabel-rekap th { border-color: #444; }
+        body.dark-mode .label-cell { color: #bbb; }
+        body.dark-mode .hasil-cell { color: #fff; }
+        body.dark-mode .tab-btn { background: #333; color: #aaa; }
+        body.dark-mode .tab-btn.active { background: #007bff; color: white; }
+        body.dark-mode .tabel-storan-ui td:nth-child(7), body.dark-mode .tabel-storan-ui td:nth-child(8), body.dark-mode .tabel-storan-ui td:nth-child(9), body.dark-mode .tabel-storan-ui td:nth-child(10) { background-color: #2d2814; }
+        body.dark-mode .tabel-storan-ui td:nth-child(11), body.dark-mode .tabel-storan-ui td:nth-child(12), body.dark-mode .tabel-storan-ui td:nth-child(13), body.dark-mode .tabel-storan-ui td:nth-child(14) { background-color: #142d1c; }
+        body.dark-mode .tabel-storan-ui td:nth-child(15), body.dark-mode .tabel-storan-ui td:nth-child(16), body.dark-mode .tabel-storan-ui td:nth-child(17) { background-color: #24142d; }
+        
+        /* FIX LAYOUT UNTUK BARIS LIBUR & HARI INI DI MODE MALAM */
+        body.dark-mode .ledger-table .baris-libur { background-color: #2d1a1a; }
+        body.dark-mode .ledger-table .baris-libur td { background-color: #2d1a1a; color: #ff8080; border-bottom-color: #5d2222; }
+        body.dark-mode .ledger-table .baris-libur .hari-col { background: #421c1c; color: #ff8080; }
+        body.dark-mode .ledger-table .baris-libur input { color: #ff8080; border-color: #5d2222; }
+        body.dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2636; border-bottom-color: #007bff; border-top-color: #007bff; }
+        body.dark-mode .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; }
+        body.dark-mode .ledger-table .baris-hari-ini input { color: #80bdff; border-color: #007bff; background-color: #1e1e1e; }
     </style>
 </head>
 <body>
@@ -114,7 +145,10 @@
 
     <div class="date-badge">
         <span id="tanggal-hari-ini">Memuat tanggal...</span>
-        <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button onclick="toggleDarkMode()" style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 0; margin-right: 4px;">🌓</button>
+            <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
+        </div>
     </div>
 
     <div id="menu-storan" class="tab-content active">
@@ -244,7 +278,7 @@
     <div id="menu-target" class="tab-content">
         <div class="card">
             <h3><span>🎯 Target & Proyeksi Harian</span></h3>
-            
+
             <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
                 <span class="info-badge" style="background:#007bff; color:white;" id="info-hk-total">Total HK: 0</span>
                 <span class="info-badge" style="background:#28a745; color:white;" id="info-hk-lalu">Dilalui: 0</span>
@@ -289,7 +323,7 @@
                             <th>Index (%)</th>
                             <th>Kekuatan</th>
                             <th>Cari Drop</th>
-                            <th>Stort / Hari</th>
+                            <th>Stort/Hr</th>
                         </tr>
                     </thead>
                     <tbody id="body-tabel-target">
@@ -336,10 +370,8 @@
             }
         }
 
-        // VARIABEL GLOBAL HARI KERJA
         let hkTotal = 0, hkDilalui = 0, hkSisa = 0;
 
-        // MENGHITUNG HARI KERJA BULAN INI
         function hitungHariKerja() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
@@ -363,7 +395,6 @@
             document.getElementById('info-hk-sisa').innerText = 'Sisa HK: ' + hkSisa;
         }
 
-        // FUNGSI AUTO-FORMAT RIBUAN
         function formatRibuan(el) {
             let cursor = el.selectionStart;
             let oldLen = el.value.length;
@@ -379,7 +410,6 @@
             if(cursor !== null) { let newPos = cursor + (newLen - oldLen); el.setSelectionRange(newPos, newPos); }
         }
 
-        // AMBIL ANGKA BERSIH
         function getNum(id) {
             let el = document.getElementById(id);
             if (!el || el.value === "") return 0;
@@ -387,7 +417,6 @@
             return isNaN(val) ? 0 : val;
         }
 
-        // FORMATTER DISPLAY
         function formatAngka(num) {
             if(isNaN(num) || !isFinite(num)) return "0";
             let isNeg = num < 0;
@@ -403,7 +432,6 @@
             return parseFloat(strNum).toFixed(2).replace('.', ',') + "%";
         }
 
-        // UI TABS
         function bukaTab(evt, namaTab) {
             let i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -424,7 +452,6 @@
         function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
         function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
 
-        // BUILDER KEDUA TABEL (Storan & Target)
         function buatTabelBulanIni() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth();
             let tglHariIni = d.getDate(); 
@@ -454,7 +481,6 @@
                 if(isLibur) trClass += 'baris-libur ';
                 if(isHariIni) trClass += 'baris-hari-ini '; 
                 
-                // TABEL STORAN
                 htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
                     <td><input type="number" id="t_d_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_jd_${i}" onchange="simpanTabel()"></td>
                     <td><input type="number" id="t_s_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_js_${i}" onchange="simpanTabel()"></td>
@@ -466,7 +492,6 @@
                     <td><input type="number" id="t_jl_${i}" onchange="simpanTabel()"></td><td><input type="number" id="t_sl_${i}" onchange="simpanTabel()"></td>
                 </tr>`;
 
-                // TABEL TARGET
                 htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
                     <td><input type="text" id="tt_prog_${i}" onchange="simpanTabel(); hitungSemua();" oninput="formatRibuan(this)"></td>
                     <td><input type="number" id="tt_idx_${i}" onchange="simpanTabel(); hitungSemua();"></td>
@@ -479,7 +504,6 @@
             tbodyTarget.innerHTML = htmlTarget;
         }
 
-        // SINKRONISASI
         function syncDariStoran() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) d1.value = st_d.value;
@@ -495,7 +519,6 @@
             hitungSemua();
         }
 
-        // MENGIRIM INPUT TOP TARGET KE TABEL HARI INI
         function updateTargetDariAtas() {
             let tglHariIni = new Date().getDate();
             let p = document.getElementById('tg_program').value;
@@ -526,7 +549,6 @@
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerDebounce = null;
 
-        // KALKULASI UTAMA (Storan, Rekap & Target)
         function hitungSemua() {
             try {
                 let drRec = document.getElementById('drRec'); let d1_el = document.getElementById('d1');
@@ -548,7 +570,6 @@
                     else { hSirkulasi.classList.remove('alert-minus'); }
                 }
 
-                let hsl = [{}, {}, {}, {}];
                 for(let i=1; i<=3; i++) {
                     let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i); let p = getNum('p'+(i==3?1:i)) || 1;
                     let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
@@ -581,21 +602,23 @@
 
                 setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort);
                 
-                propagasiSaldoTabel(); // Merambat saldo & Target Input ke hari esok
-                kalkulasiTabelTarget(); // Hitung seluruh tabel Target berdasarkan input tabel 
+                propagasiSaldoTabel(); 
+                kalkulasiTabelTarget(); 
 
                 clearTimeout(timerDebounce);
                 timerDebounce = setTimeout(() => { simpanKalkulator(); simpanTabel(); }, 800);
             } catch (error) { console.error("Error kalkulasi:", error); }
         }
 
-        // FUNGSI MENGHITUNG SETIAP BARIS TABEL TARGET
         function kalkulasiTabelTarget() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; 
 
             let hkJalan = 0;
+            let totalProgBulanIni = 0;
+            let totalDropBulanIni = 0;
+
             for(let i=1; i<=jmlHari; i++) {
                 let currDate = new Date(tahun, bulan, i);
                 let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
@@ -604,48 +627,46 @@
                 if(!isLibur) hkJalan++;
                 let sisaHk = hkTotal - hkJalan;
 
-                // Ambil data input Target di baris tersebut
                 let progInput = document.getElementById('tt_prog_'+i);
                 let idxInput = document.getElementById('tt_idx_'+i);
                 if(!progInput || !idxInput) continue;
 
                 let programRow = getNum('tt_prog_'+i);
-                let indexRow = parseFloat(idxInput.value) || 0; // % Format
+                let indexRow = parseFloat(idxInput.value) || 0; 
                 
+                totalProgBulanIni += programRow;
+                
+                let dropAktualRow = parseFloat(document.getElementById('t_d_'+i)?.value) || 0;
+                if(i === tglHariIni) {
+                    dropAktualRow = getNum('st_drop');
+                }
+                totalDropBulanIni += dropAktualRow;
+
                 let jmlStortRow = getNum('t_js_'+i);
                 let jmlDropRow = getNum('t_jd_'+i);
 
                 let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
 
                 if(!isLibur) {
-                    // Kekuatan Program
                     if(hkJalan > 0) k_kekuatan = (jmlStortRow / hkJalan) * hkTotal;
-                    
-                    // Supaya tidak dibagi Nol di hari terakhir
                     let pembagi = sisaHk > 0 ? sisaHk : 1; 
-                    
-                    // Cari Drop
                     k_caridrop = (programRow - jmlDropRow) / pembagi;
-                    
-                    // Target Storting (Program x (Index / 100) - Jml Stort) / Sisa
                     k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                 }
 
-                // Tulis hasil ke tabel
                 document.getElementById('tt_kekuatan_'+i).innerText = formatAngka(k_kekuatan);
                 document.getElementById('tt_caridrop_'+i).innerText = formatAngka(k_caridrop);
                 document.getElementById('tt_targetstort_'+i).innerText = formatAngka(k_targetstort);
 
-                // Update Display Kartu Atas KHUSUS untuk baris Hari Ini
                 if(i === tglHariIni && !isLibur) {
                     document.getElementById('disp_kekuatan').innerText = formatAngka(k_kekuatan);
                     document.getElementById('disp_caridrop').innerText = formatAngka(k_caridrop);
                     document.getElementById('disp_targetstort').innerText = formatAngka(k_targetstort);
                 }
             }
+            // FITUR PENCAPAIAN BULAN INI TELAH DIHAPUS SEBAGAIMANA PERMINTAAN
         }
 
-        // PROPAGASI DATA KOSONG KE HARI ESOK (Termasuk input Target)
         function propagasiSaldoTabel() {
             let i = new Date().getDate() + 1;
             let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
@@ -656,7 +677,6 @@
             cp('t_jm_'+(i-1), 't_jm_'+i); cp('t_sm_'+(i-1), 't_sm_'+i); cp('t_pm_'+(i-1), 't_pm_'+i); 
             cp('t_jl_'+(i-1), 't_jl_'+i); cp('t_sl_'+(i-1), 't_sl_'+i); 
             
-            // AUTO-FILL TARGET HARIAN KE BESOK (Jika besok kosong)
             cp('tt_prog_'+(i-1), 'tt_prog_'+i);
             cp('tt_idx_'+(i-1), 'tt_idx_'+i);
         }
@@ -673,7 +693,6 @@
             let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
             if(saved) { try { let obj = JSON.parse(saved); for(let k in obj) { let el = document.getElementById(k); if(el) el.value = obj[k]; } } catch(e){} }
             
-            // Tarik data hari ini ke kolom atas target saat refresh aplikasi
             let tglHariIni = new Date().getDate();
             let tp = document.getElementById('tt_prog_'+tglHariIni);
             let ti = document.getElementById('tt_idx_'+tglHariIni);
@@ -696,22 +715,28 @@
                     let parsed = JSON.parse(savedData); let todayStr = getTodayString();
                     let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
+                    // LOGIK PERPINDAHAN JAM 12 MALAM (PERGANTIAN HARI) - FIXED IN-ADVANCE TO PREVENT TIMEOUT LOOPS
                     if (lastDate !== todayStr) {
-                        let totalDrop = (parseFloat(dataObj['d1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['d2'].replace(/\./g, ''))||0);
-                        let totalStort = (parseFloat(dataObj['s1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['s2'].replace(/\./g, ''))||0);
-                        let totalSirk = ((parseFloat(dataObj['drRec'].replace(/\./g, ''))||0) * 1.3) - (parseFloat(dataObj['stRec'].replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec'].replace(/\./g, ''))||0);
+                        parsed.lastDate = todayStr;
+                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
+
+                        let totalDrop = (parseFloat(dataObj['d1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['d2']?.replace(/\./g, ''))||0);
+                        let totalStort = (parseFloat(dataObj['s1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['s2']?.replace(/\./g, ''))||0);
+                        let totalSirk = ((parseFloat(dataObj['drRec']?.replace(/\./g, ''))||0) * 1.3) - (parseFloat(dataObj['stRec']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec']?.replace(/\./g, ''))||0);
 
                         dataObj['d2'] = totalDrop !== 0 ? totalDrop.toString() : '';
                         dataObj['s2'] = totalStort !== 0 ? totalStort.toString() : '';
                         dataObj['siRec'] = totalSirk !== 0 ? totalSirk.toString() : '';
+                        
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = '';
+                        dataObj['tg_program'] = ''; dataObj['tg_index'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let a = parseFloat(dataObj['a'+i].replace(/\./g, ''))||0; let j = parseFloat(dataObj['j'+i].replace(/\./g, ''))||0; let sa = parseFloat(dataObj['sa'+i].replace(/\./g, ''))||0;
+                            let a = parseFloat(dataObj['a'+i]?.replace(/\./g, ''))||0; let j = parseFloat(dataObj['j'+i]?.replace(/\./g, ''))||0; let sa = parseFloat(dataObj['sa'+i]?.replace(/\./g, ''))||0;
                             dataObj['j'+i] = (a+j) !== 0 ? (a+j).toString() : ''; dataObj['sa'+i] = (sa-a) !== 0 ? (sa-a).toString() : ''; dataObj['a'+i] = '';
                         }
-                        alert("🌅 Hari baru! Data di-reset dan dipindah ke kolom lalu.");
+                        alert("🌅 Hari baru terdeteksi! Data input otomatis digeser ke kolom akumulasi lalu.");
                     }
 
                     semuaIds.forEach(id => {
@@ -724,6 +749,32 @@
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
             hitungSemua(); 
+        }
+
+        // TIMER PENGECEKAN HARI BARU (10 detik)
+        setInterval(() => {
+            let todayStr = getTodayString();
+            let savedData = localStorage.getItem('KalkulatorPati_Mini');
+            if(savedData) {
+                try {
+                    let parsed = JSON.parse(savedData);
+                    if(parsed.lastDate && parsed.lastDate !== todayStr) {
+                        muatKalkulator();
+                        hitungHariKerja();
+                        muatTabel();
+                    }
+                } catch(e){}
+            }
+        }, 10000);
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            let isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('KalkulatorPati_DarkMode', isDark ? '1' : '0');
+        }
+        function muatDarkMode() {
+            let savedDark = localStorage.getItem('KalkulatorPati_DarkMode');
+            if (savedDark === '1') document.body.classList.add('dark-mode');
         }
 
         function hapusData(jenis) {
@@ -794,12 +845,24 @@
             document.body.removeChild(downloadLink);
         }
 
+        // FITUR CADANGKAN DI-FIX UNTUK PERANGKAT MOBILE & PWA
         function exportData() {
             let allData = {};
-            for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
-            if(Object.keys(allData).length === 0) { alert("Tidak ada data."); return; }
-            let d = document.createElement('a'); d.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
-            d.download = "backup_kalkulator_pati.json"; document.body.appendChild(d); d.click(); d.remove();
+            for (let i = 0; i < localStorage.length; i++) { 
+                let key = localStorage.key(i); 
+                if (key && key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); 
+            }
+            if(Object.keys(allData).length === 0) { alert("Tidak ada data untuk dicadangkan."); return; }
+            
+            let blob = new Blob([JSON.stringify(allData, null, 2)], {type: 'application/json'});
+            let url = URL.createObjectURL(blob);
+            let d = document.createElement('a'); 
+            d.href = url;
+            d.download = "backup_kalkulator_pati.json"; 
+            document.body.appendChild(d); 
+            d.click(); 
+            d.remove();
+            URL.revokeObjectURL(url);
         }
 
         function importData(e) {
@@ -810,12 +873,14 @@
                     let data = JSON.parse(evt.target.result);
                     for (let key in data) if (key.includes('KalkulatorPati')) localStorage.setItem(key, data[key]);
                     alert("✅ Data dipulihkan!"); location.reload();
-                } catch (err) { alert("❌ File salah."); }
+                } catch (err) { alert("❌ File salah atau rusak."); }
             }; reader.readAsText(file);
+            e.target.value = '';
         }
 
         window.onload = function() {
             setupPWA();
+            muatDarkMode();
             hitungHariKerja(); 
             muatTabel();
             muatKalkulator();
