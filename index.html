@@ -436,17 +436,23 @@
             hitungManualHK();
         }
 
-        // AUTO-FORMAT RIBUAN
+        // AUTO-FORMAT RIBUAN (Mendukung Desimal)
         function formatRibuan(el) {
             let cursor = el.selectionStart;
             let oldLen = el.value.length;
-            let clean = el.value.replace(/[^0-9\-]/g, ''); 
+            // Izinkan angka, minus, dan koma desimal
+            let clean = el.value.replace(/[^0-9\-,]/g, ''); 
             if(clean === '' || clean === '-') { el.value = clean; return; }
             let isNeg = clean.startsWith('-');
             clean = clean.replace(/\-/g, '');
             if (clean === '') { el.value = isNeg ? '-' : ''; return; }
-            clean = parseInt(clean, 10).toString(); 
-            let formatted = (isNeg ? '-' : '') + clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            
+            // Pisahkan bagian bulat dan desimal jika ada koma
+            let parts = clean.split(',');
+            if(parts[0] !== '') parts[0] = parseInt(parts[0], 10).toString(); 
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            
+            let formatted = (isNeg ? '-' : '') + parts.join(',');
             el.value = formatted;
             let newLen = el.value.length;
             if(cursor !== null) { let newPos = cursor + (newLen - oldLen); el.setSelectionRange(newPos, newPos); }
@@ -455,16 +461,21 @@
         function getNum(id) {
             let el = document.getElementById(id);
             if (!el || el.value === "") return 0;
-            let val = parseFloat(el.value.replace(/\./g, '')); 
+            // Hapus titik ribuan, ubah koma menjadi titik desimal standar agar bisa dikalkulasi
+            let clean = el.value.replace(/\./g, '').replace(/,/g, '.'); 
+            let val = parseFloat(clean); 
             return isNaN(val) ? 0 : val;
         }
 
+        // FORMAT ANGKA TANPA MEMBUAT ANGKA DESIMAL HILANG
         function formatAngka(num) {
             if(isNaN(num) || !isFinite(num)) return "0";
             let isNeg = num < 0;
-            let str = Math.abs(num).toFixed(0).toString().split(".");
-            str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            return (isNeg ? "-" : "") + str.join(",");
+            // Hindari angka aneh JavaScript (misal 0.3000000004) dengan membulatkan maksimal 2 desimal jika diperlukan, lalu jadikan string
+            let strNum = (Math.round(Math.abs(num) * 100) / 100).toString();
+            let parts = strNum.split(".");
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return (isNeg ? "-" : "") + parts.join(",");
         }
 
         function formatPersen(num) {
@@ -627,8 +638,9 @@
                 let drop = getNum('st_drop'); let kasbon = getNum('st_kasbon');
                 let storting = getNum('st_storting'); let transport = getNum('st_transport');
 
-                let persenDropToko = parseFloat((drop * cfgDropToko).toFixed(2));
-                let rumusBaruTotal = parseFloat((kasbon + persenDropToko + storting).toFixed(2));
+                // Hilangkan pembulatan toFixed(2) agar desimal terbaca secara alami oleh formatAngka()
+                let persenDropToko = drop * cfgDropToko;
+                let rumusBaruTotal = kasbon + persenDropToko + storting;
                 let hRumusTambahan = document.getElementById('hasilRumusTambahan');
                 if(hRumusTambahan) hRumusTambahan.innerHTML = `${formatAngka(kasbon)} + ${formatAngka(persenDropToko)} + ${formatAngka(storting)} = <span style="color:#28a745;">${formatAngka(rumusBaruTotal)}</span>`;
 
@@ -651,7 +663,8 @@
                     else { hSel.classList.remove('bg-minus'); }
                 }
 
-                setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort);
+                // FIX: Menambahkan setTabel untuk Saldo Sirkulasi (t_si_) ke tabel hari ini
+                setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort); setTabel('t_si_', sirk);
                 
                 propagasiSaldoTabel(); 
                 kalkulasiTabelTarget(); 
@@ -827,9 +840,9 @@
                     let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
                     if (lastDate !== todayStr) {
-                        let totalDrop = (parseFloat(dataObj['d1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['d2'].replace(/\./g, ''))||0);
-                        let totalStort = (parseFloat(dataObj['s1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['s2'].replace(/\./g, ''))||0);
-                        let totalSirk = ((parseFloat(dataObj['drRec'].replace(/\./g, ''))||0) * cfgFaktorSirkulasi) - (parseFloat(dataObj['stRec'].replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec'].replace(/\./g, ''))||0);
+                        let totalDrop = (parseFloat((dataObj['d1'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['d2'] || '').replace(/\./g, ''))||0);
+                        let totalStort = (parseFloat((dataObj['s1'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['s2'] || '').replace(/\./g, ''))||0);
+                        let totalSirk = ((parseFloat((dataObj['drRec'] || '').replace(/\./g, ''))||0) * cfgFaktorSirkulasi) - (parseFloat((dataObj['stRec'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['siRec'] || '').replace(/\./g, ''))||0);
 
                         if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString();
                         if (totalStort !== 0) dataObj['s2'] = totalStort.toString();
@@ -840,9 +853,9 @@
                         dataObj['st_transfer'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let a = parseFloat(dataObj['a'+i].replace(/\./g, ''))||0; 
-                            let j = parseFloat(dataObj['j'+i].replace(/\./g, ''))||0; 
-                            let sa = parseFloat(dataObj['sa'+i].replace(/\./g, ''))||0;
+                            let a = parseFloat((dataObj['a'+i] || '').replace(/\./g, ''))||0; 
+                            let j = parseFloat((dataObj['j'+i] || '').replace(/\./g, ''))||0; 
+                            let sa = parseFloat((dataObj['sa'+i] || '').replace(/\./g, ''))||0;
                             
                             if (a > 0) { 
                                 dataObj['j'+i] = (a+j).toString();
