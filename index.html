@@ -104,7 +104,7 @@
         .hk-input { width: 28px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.7); color: white; font-weight: bold; font-size: 12px; text-align: center; margin-left: 4px; padding: 0; outline: none; }
         .hk-input::-webkit-outer-spin-button, .hk-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* GAYA BARU FORM PENGATURAN */
+        /* GAYA BARU FORM PENGATURAN & LAYOUT RAPI */
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #444;}
         .form-group input { text-align: left; background: #fff; }
@@ -130,11 +130,16 @@
             <h3><span>💰 Kalkulator Storan</span><span class="auto-save">✅ Terhubung ke Rekap</span></h3>
             
             <div class="grid-2">
-                <div><label>Drop:</label><input type="text" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
-                <div><label>Kasbon:</label><input type="text" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+                <div class="form-group"><label>Drop:</label><input type="text" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
+                <div class="form-group"><label>Kasbon:</label><input type="text" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
                 
-                <div><label>Storting:</label><input type="text" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
-                <div><label>Transport:</label><input type="text" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+                <div class="form-group"><label>Storting:</label><input type="text" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
+                <div class="form-group"><label>Transport:</label><input type="text" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+            </div>
+
+            <div class="rumus-box">
+                <div id="label_rumus_tambahan" style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
+                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
             </div>
             
             <div class="res-storan">
@@ -142,28 +147,26 @@
                 <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
                 <div class="bg-1" id="hasilStoran">Storan<br>0</div>
             </div>
+        </div>
 
-            <div class="rumus-box">
-                <div id="label_rumus_tambahan" style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
-                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
-            </div>
-
-            <div style="border-top: 1px dashed #ccc; margin: 15px 0; padding-top: 10px;">
-                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 13px;">💸 Kalkulator Sisa Uang</h4>
-                <div class="grid-2">
-                    <div>
-                        <label>Storan (Otomatis):</label>
-                        <input type="text" id="st_storan_auto" readonly placeholder="0">
-                    </div>
-                    <div>
-                        <label>Transferan:</label>
-                        <input type="text" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();" placeholder="0">
-                    </div>
+        <div class="card">
+            <h3><span>💸 Kalkulator Sisa Uang</span></h3>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Storan (Otomatis):</label>
+                    <input type="text" id="st_storan_auto" readonly placeholder="0">
                 </div>
-                <div class="res-box" id="hasilSisaUang" style="margin-top: 10px; text-align: center; font-size: 14px; background: #d4edda; border-color: #28a745; color: #155724;">
-                    Sisa Uang<br><span style="font-size: 20px; font-weight: bold;" id="angkaSisaUang">0</span>
+                <div class="form-group">
+                    <label>Transferan:</label>
+                    <input type="text" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();" placeholder="0">
                 </div>
             </div>
+            
+            <div class="res-box" id="hasilSisaUang" style="margin-top: 10px; text-align: center; font-size: 14px; background: #d4edda; border-color: #28a745; color: #155724;">
+                Sisa Uang<br><span style="font-size: 20px; font-weight: bold;" id="angkaSisaUang">0</span>
+            </div>
+
             <div class="btn-group">
                 <button class="btn-salin" onclick="salinLaporan()">📋 Salin WA</button>
                 <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Reset</button>
@@ -575,7 +578,6 @@
             }
         }
 
-        // TAMBAHKAN 'st_transfer' AGAR TER SIMPAN OTOMATIS
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
         const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer'];
         const targetIds = ['tg_program', 'tg_index']; 
@@ -683,6 +685,7 @@
             }
         }
 
+        // PERBARUAN KALKULASI KEKUATAN PROGRAM DIBAGI INDEX
         function kalkulasiTabelTarget() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
@@ -694,6 +697,9 @@
 
             let programRow = getNum('tg_program'); 
             let indexRow = parseFloat(document.getElementById('tg_index').value) || 0; 
+            
+            // Konversi nilai persentase index (contoh: 120 menjadi 1.2). Jika 0, set menjadi 1 agar tidak error dibagi nol.
+            let faktorIndex = indexRow > 0 ? (indexRow / 100) : 1;
 
             let hkJalan = 0;
             for(let i=1; i<=jmlHari; i++) {
@@ -711,12 +717,14 @@
 
                 if(!isLibur) {
                     if(i === tglHariIni) {
-                        if(manualHkDilalui > 0) k_kekuatan = (jmlStortRow / manualHkDilalui) * manualHkTotal;
+                        // KEKUATAN DIBAGI INDEX (Sesuai Permintaan)
+                        if(manualHkDilalui > 0) k_kekuatan = ((jmlStortRow / manualHkDilalui) * manualHkTotal) / faktorIndex;
                         let pembagi = manualHkSisa > 0 ? manualHkSisa : 1; 
                         k_caridrop = (programRow - jmlDropRow) / pembagi;
                         k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                     } else if (i < tglHariIni) { 
-                        if(hkJalan > 0) k_kekuatan = (jmlStortRow / hkJalan) * manualHkTotal;
+                        // KEKUATAN DIBAGI INDEX (Sesuai Permintaan)
+                        if(hkJalan > 0) k_kekuatan = ((jmlStortRow / hkJalan) * manualHkTotal) / faktorIndex;
                         let pembagi = sisaHk > 0 ? sisaHk : 1; 
                         k_caridrop = (programRow - jmlDropRow) / pembagi;
                         k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
@@ -911,7 +919,6 @@
             let storan = document.getElementById('hasilStoran').innerText.replace('Storan\n', '');
             let totalHitungan = document.getElementById('hasilRumusTambahan').innerText;
             
-            // Variabel Baru Untuk Ditambah ke Laporan WA
             let transferan = document.getElementById('st_transfer').value || "0";
             let sisaUang = document.getElementById('angkaSisaUang') ? document.getElementById('angkaSisaUang').innerText : "0";
 
@@ -992,7 +999,7 @@
         window.onload = function() {
             setupPWA();
             muatTabel();
-            muatHK(); // Panggil fungsi muat Hari Kerja
+            muatHK(); 
             muatKalkulator();
         };
     </script>
