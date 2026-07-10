@@ -13,24 +13,24 @@
 
     <style>
         /* GAYA MINIMALIS & RAPI */
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; transition: background 0.3s, color 0.3s; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; }
         
         /* TAB MENU */
         .tab-container { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
-        .tab-btn { flex: 1; padding: 10px 5px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; min-width: 100px;}
+        .tab-btn { flex: 1; padding: 10px 5px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; min-width: 90px;}
         .tab-btn.active { background: #007bff; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
-        .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background 0.3s; }
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between;}
+        .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         h3 { margin: 0 0 10px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
         .auto-save { font-size: 11px; color: #28a745; font-weight: normal; }
         
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; background: white; color: black; }
+        input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; }
         input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
         .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #007bff; font-size: 13px; font-weight: bold; color: #333; }
@@ -64,75 +64,51 @@
 
         /* TABEL LEDGER & TARGET */
         .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
-        .ledger-table { min-width: 1050px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 11px; }
+        .ledger-table { min-width: 1100px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 11px; }
         .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle;}
+        
         .ledger-table th { background: #007bff; color: white; font-size: 10px; padding: 6px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
         
-        /* WARNA LAYOUT STORAN */
         .tabel-storan-ui th:nth-child(7), .tabel-storan-ui th:nth-child(8), .tabel-storan-ui th:nth-child(9), .tabel-storan-ui th:nth-child(10) { background: #d4a017 !important; border-bottom-color: #a87e0f; } 
         .tabel-storan-ui th:nth-child(11), .tabel-storan-ui th:nth-child(12), .tabel-storan-ui th:nth-child(13), .tabel-storan-ui th:nth-child(14) { background: #28a745 !important; border-bottom-color: #1e7e34; } 
         .tabel-storan-ui th:nth-child(15), .tabel-storan-ui th:nth-child(16), .tabel-storan-ui th:nth-child(17) { background: #6f42c1 !important; border-bottom-color: #532c94; } 
+
         .tabel-storan-ui td:nth-child(7), .tabel-storan-ui td:nth-child(8), .tabel-storan-ui td:nth-child(9), .tabel-storan-ui td:nth-child(10) { background-color: #fffbe6; } 
         .tabel-storan-ui td:nth-child(11), .tabel-storan-ui td:nth-child(12), .tabel-storan-ui td:nth-child(13), .tabel-storan-ui td:nth-child(14) { background-color: #eafaf1; } 
         .tabel-storan-ui td:nth-child(15), .tabel-storan-ui td:nth-child(16), .tabel-storan-ui td:nth-child(17) { background-color: #f4ecf9; } 
 
-        .ledger-table input { width: 55px; padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
-        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; color: black; }
-        .ledger-table th.hari-col { z-index: 4; background: #0056b3; color: white;} 
+        .ledger-table input { width: 62px; padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
+        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
+        .ledger-table th.hari-col { z-index: 4; background: #0056b3; } 
         
         .ledger-table .baris-libur { background-color: #fff0f0; }
         .ledger-table .baris-libur td { border-bottom: 2px solid #dc3545; color: #dc3545; }
         .ledger-table .baris-libur .hari-col { background: #ffdddd; color: #dc3545; }
         .ledger-table .baris-libur input { color: #dc3545; border-color: #ffb3b3; }
 
-        .ledger-table .baris-hari-ini td { border-bottom: 2px solid #0056b3; border-top: 2px solid #0056b3; background-color: #eaf4ff; }
-        .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; }
-        .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #80bdff; background-color: #ffffff; }
-
-        /* MODIFIKASI UKURAN SUPER COMPACT KHUSUS TABEL TARGET */
-        .tabel-target-ui { min-width: 480px; font-size: 11px; }
-        .tabel-target-ui th, .tabel-target-ui td { padding: 3px 2px; }
-        .tabel-target-ui input { width: 58px; padding: 3px; font-size: 11px; text-align: center; }
-        .tabel-target-ui th:nth-child(4) { background: #17a2b8 !important; }
-        .tabel-target-ui th:nth-child(5) { background: #d39e00 !important; }
-        .tabel-target-ui th:nth-child(6) { background: #28a745 !important; }
-
-        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; }
-        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; }
+        .ledger-table .baris-hari-ini td { border-bottom: 3px solid #0056b3; border-top: 3px solid #0056b3; background-color: #eaf4ff; padding: 8px 4px; }
+        .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; font-size: 12px; padding: 8px 6px; }
+        .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #0056b3; background-color: #ffffff; padding: 8px 6px; font-size: 13px; box-shadow: 0 0 4px rgba(0,123,255,0.3); }
         
-        .info-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .tabel-target-ui { min-width: 350px; }
+        .tabel-target-ui .hari-col { min-width: 25px; font-size: 9px; padding: 2px 4px; }
+        .tabel-target-ui th:nth-child(1) { width: 35px; }
+        .tabel-target-ui th:nth-child(2) { background: #17a2b8 !important; }
+        .tabel-target-ui th:nth-child(3) { background: #d39e00 !important; }
+        .tabel-target-ui th:nth-child(4) { background: #28a745 !important; }
+        .tabel-target-ui .baris-hari-ini td { font-size: 14px; color: #004085; }
 
-        /* DARK MODE - FIX COLOR BLEEDING */
-        body.dark-mode { background: #121212; color: #e0e0e0; }
-        body.dark-mode .card { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-        body.dark-mode h3 { color: #3788ff; border-bottom-color: #333; }
-        body.dark-mode input { background: #2a2a2a; color: #fff; border-color: #444; }
-        body.dark-mode input[readonly] { background-color: #222; color: #aaa; border-color: #333; }
-        body.dark-mode .res-box { background: #1a2a3a; color: #fff; border-left-color: #3788ff; }
-        body.dark-mode .res-box.alert-minus { background: #3a1a1a; border-left-color: #ff4d4d; }
-        body.dark-mode .rumus-box { background: #3a301a; color: #ffe082; border-left-color: #ffb300; }
-        body.dark-mode .ledger-table { background: #1e1e1e; color: #e0e0e0; }
-        body.dark-mode .ledger-table th { background: #1f5cb2; border-bottom-color: #123d7a; }
-        body.dark-mode .ledger-table .hari-col { background: #2a2a2a; color: #fff; border-right-color: #555; }
-        body.dark-mode .ledger-table th.hari-col { background: #123d7a; }
-        body.dark-mode .tabel-rekap th { background: #2a2a2a; color: #fff; }
-        body.dark-mode .tabel-rekap td, body.dark-mode .tabel-rekap th { border-color: #444; }
-        body.dark-mode .label-cell { color: #bbb; }
-        body.dark-mode .hasil-cell { color: #fff; }
-        body.dark-mode .tab-btn { background: #333; color: #aaa; }
-        body.dark-mode .tab-btn.active { background: #007bff; color: white; }
-        body.dark-mode .tabel-storan-ui td:nth-child(7), body.dark-mode .tabel-storan-ui td:nth-child(8), body.dark-mode .tabel-storan-ui td:nth-child(9), body.dark-mode .tabel-storan-ui td:nth-child(10) { background-color: #2d2814; }
-        body.dark-mode .tabel-storan-ui td:nth-child(11), body.dark-mode .tabel-storan-ui td:nth-child(12), body.dark-mode .tabel-storan-ui td:nth-child(13), body.dark-mode .tabel-storan-ui td:nth-child(14) { background-color: #142d1c; }
-        body.dark-mode .tabel-storan-ui td:nth-child(15), body.dark-mode .tabel-storan-ui td:nth-child(16), body.dark-mode .tabel-storan-ui td:nth-child(17) { background-color: #24142d; }
+        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
+        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
+        .info-badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .hk-input { width: 28px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.7); color: white; font-weight: bold; font-size: 12px; text-align: center; margin-left: 4px; padding: 0; outline: none; }
+        .hk-input::-webkit-outer-spin-button, .hk-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* FIX LAYOUT UNTUK BARIS LIBUR & HARI INI DI MODE MALAM */
-        body.dark-mode .ledger-table .baris-libur { background-color: #2d1a1a; }
-        body.dark-mode .ledger-table .baris-libur td { background-color: #2d1a1a; color: #ff8080; border-bottom-color: #5d2222; }
-        body.dark-mode .ledger-table .baris-libur .hari-col { background: #421c1c; color: #ff8080; }
-        body.dark-mode .ledger-table .baris-libur input { color: #ff8080; border-color: #5d2222; }
-        body.dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2636; border-bottom-color: #007bff; border-top-color: #007bff; }
-        body.dark-mode .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; }
-        body.dark-mode .ledger-table .baris-hari-ini input { color: #80bdff; border-color: #007bff; background-color: #1e1e1e; }
+        /* GAYA BARU FORM PENGATURAN */
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #444;}
+        .form-group input { text-align: left; background: #fff; }
+        .hint { font-size: 11px; color: #666; margin-top: 2px; display: block; }
     </style>
 </head>
 <body>
@@ -141,14 +117,12 @@
         <button class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'menu-pengaturan')">⚙️ Setelan</button>
     </div>
 
     <div class="date-badge">
         <span id="tanggal-hari-ini">Memuat tanggal...</span>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <button onclick="toggleDarkMode()" style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 0; margin-right: 4px;">🌓</button>
-            <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
-        </div>
+        <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
     </div>
 
     <div id="menu-storan" class="tab-content active">
@@ -169,19 +143,35 @@
                 <div class="bg-1" id="hasilStoran">Storan<br>0</div>
             </div>
 
+            <div class="rumus-box">
+                <div id="label_rumus_tambahan" style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
+                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
+            </div>
+
+            <div style="border-top: 1px dashed #ccc; margin: 15px 0; padding-top: 10px;">
+                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 13px;">💸 Kalkulator Sisa Uang</h4>
+                <div class="grid-2">
+                    <div>
+                        <label>Storan (Otomatis):</label>
+                        <input type="text" id="st_storan_auto" readonly placeholder="0">
+                    </div>
+                    <div>
+                        <label>Transferan:</label>
+                        <input type="text" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();" placeholder="0">
+                    </div>
+                </div>
+                <div class="res-box" id="hasilSisaUang" style="margin-top: 10px; text-align: center; font-size: 14px; background: #d4edda; border-color: #28a745; color: #155724;">
+                    Sisa Uang<br><span style="font-size: 20px; font-weight: bold;" id="angkaSisaUang">0</span>
+                </div>
+            </div>
             <div class="btn-group">
                 <button class="btn-salin" onclick="salinLaporan()">📋 Salin WA</button>
                 <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Reset</button>
             </div>
-
-            <div class="rumus-box">
-                <div style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
-                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
-            </div>
         </div>
 
         <div class="card" style="padding: 8px;">
-            <h3 style="margin: 5px;"><span id="judul-tabel">📋 Tabel Storan</span><span class="auto-save">✅ Terisi Otomatis</span></h3>
+            <h3 style="margin: 5px;"><span id="judul-tabel">📋 Tabel Rekap</span><span class="auto-save">✅ Terisi Otomatis</span></h3>
             
             <div class="table-wrapper">
                 <table class="ledger-table tabel-storan-ui">
@@ -211,7 +201,7 @@
                 </table>
             </div>
             <div class="btn-group">
-                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-storan-ui', 'Storan')">📊 Unduh Excel</button>
+                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-storan-ui', 'Rekap')">📊 Unduh Excel</button>
                 <button class="btn-hapus btn-hapus-tabel" onclick="hapusTabel()">⚠️ Kosongkan Tabel</button>
             </div>
         </div>
@@ -278,21 +268,27 @@
     <div id="menu-target" class="tab-content">
         <div class="card">
             <h3><span>🎯 Target & Proyeksi Harian</span></h3>
-
+            
             <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
-                <span class="info-badge" style="background:#007bff; color:white;" id="info-hk-total">Total HK: 0</span>
-                <span class="info-badge" style="background:#28a745; color:white;" id="info-hk-lalu">Dilalui: 0</span>
-                <span class="info-badge" style="background:#dc3545; color:white;" id="info-hk-sisa">Sisa HK: 0</span>
+                <div class="info-badge" style="background:#007bff; color:white;">
+                    Total HK: <input type="number" id="info-hk-total" class="hk-input" oninput="hitungManualHK()">
+                </div>
+                <div class="info-badge" style="background:#28a745; color:white;">
+                    Dilalui: <input type="number" id="info-hk-lalu" class="hk-input" oninput="hitungManualHK()">
+                </div>
+                <div class="info-badge" style="background:#dc3545; color:white;">
+                    Sisa HK: <input type="number" id="info-hk-sisa" class="hk-input" readonly>
+                </div>
             </div>
 
             <div class="flex-row">
                 <div style="flex:1;">
-                    <label style="font-size:11px; font-weight:bold; color:#555;">Program Drop (Manual):</label>
-                    <input type="text" inputmode="numeric" id="tg_program" oninput="formatRibuan(this); updateTargetDariAtas();" placeholder="Isi Program (Rp)">
+                    <label style="font-size:11px; font-weight:bold; color:#555;">Program Drop (Tersimpan):</label>
+                    <input type="text" inputmode="numeric" id="tg_program" oninput="formatRibuan(this); hitungSemua();" placeholder="Isi Program (Rp)">
                 </div>
                 <div style="flex:1;">
                     <label style="font-size:11px; font-weight:bold; color:#555;">Index Storting (%):</label>
-                    <input type="number" id="tg_index" oninput="updateTargetDariAtas();" placeholder="Contoh: 123">
+                    <input type="number" id="tg_index" oninput="hitungSemua();" placeholder="Contoh: 123">
                 </div>
             </div>
 
@@ -312,18 +308,15 @@
 
         <div class="card" style="padding: 8px;">
             <h3 style="margin: 5px;"><span id="judul-tabel-target">📋 Tabel Target Bulan Ini</span></h3>
-            <div style="font-size:11px; color:#666; margin-bottom:8px; text-align:center;">Pengisian Program & Index di atas akan otomatis masuk ke tabel untuk hari ini.</div>
             
             <div class="table-wrapper">
                 <table class="ledger-table tabel-target-ui">
                     <thead>
                         <tr>
                             <th class="hari-col">Hari</th>
-                            <th>Program</th>
-                            <th>Index (%)</th>
                             <th>Kekuatan</th>
                             <th>Cari Drop</th>
-                            <th>Stort/Hr</th>
+                            <th>Stort / Hari</th>
                         </tr>
                     </thead>
                     <tbody id="body-tabel-target">
@@ -332,18 +325,57 @@
             </div>
             <div class="btn-group">
                 <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-target-ui', 'Target')">📊 Unduh Excel Target</button>
+                <button class="btn-hapus btn-hapus-tabel" onclick="resetTarget()">⚠️ Reset Data Target</button>
             </div>
         </div>
     </div>
     
-    <div class="card">
-        <h3>💾 Cadangkan & Pulihkan Data</h3>
-        <div style="display: flex; gap: 6px;">
-            <button class="btn-backup" onclick="exportData()">📤 Cadangkan (.json)</button>
-            <label class="btn-restore">
-                📥 Pulihkan
-                <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
-            </label>
+    <div id="menu-pengaturan" class="tab-content">
+        <div class="card">
+            <h3>⚙️ Pengaturan Parameter Aplikasi</h3>
+            
+            <div class="form-group">
+                <label>Tanggal Merah Libur Kantor:</label>
+                <input type="text" id="cfg_tanggal_merah" placeholder="Format DD-MM (Contoh: 01-01, 17-08, 25-12)">
+                <span class="hint">*Hari Minggu otomatis dianggap libur oleh sistem. Pisahkan tanggal dengan koma.</span>
+            </div>
+            
+            <div class="grid-2" style="margin-top:15px;">
+                <div class="form-group">
+                    <label>Persen Drop Toko (%):</label>
+                    <input type="number" id="cfg_pct_drop_toko" placeholder="11">
+                </div>
+                <div class="form-group">
+                    <label>Persen Bonus Drop (%):</label>
+                    <input type="number" id="cfg_pct_drop_bonus" placeholder="9">
+                </div>
+                <div class="form-group">
+                    <label>Persen Storan Pokok (%):</label>
+                    <input type="number" id="cfg_pct_storan" placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label>Faktor Sirkulasi:</label>
+                    <input type="number" step="0.1" id="cfg_faktor_sirkulasi" placeholder="1.3">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
+                <label>Nama Petugas / Resort (Untuk WA):</label>
+                <input type="text" id="cfg_nama_petugas" placeholder="Contoh: Sigit Ari Wibowo (Pati 5)">
+            </div>
+
+            <button class="btn-salin" style="width: 100%; margin-top: 15px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Parameter</button>
+        </div>
+
+        <div class="card">
+            <h3>💾 Cadangkan & Pulihkan Data</h3>
+            <div style="display: flex; gap: 6px;">
+                <button class="btn-backup" onclick="exportData()">📤 Cadangkan (.json)</button>
+                <label class="btn-restore">
+                    📥 Pulihkan
+                    <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+                </label>
+            </div>
         </div>
     </div>
 
@@ -362,7 +394,7 @@
 
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v3').then(c => c.addAll([location.href]))); self.skipWaiting(); });
+                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v6').then(c => c.addAll([location.href]))); self.skipWaiting(); });
                     self.addEventListener('activate', e => { self.clients.claim(); });
                     self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)).catch(() => new Response("Offline Mode"))); });
                 `;
@@ -370,31 +402,38 @@
             }
         }
 
-        let hkTotal = 0, hkDilalui = 0, hkSisa = 0;
-
-        function hitungHariKerja() {
-            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
-            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
-            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; 
-
-            hkTotal = 0; hkDilalui = 0; hkSisa = 0;
-            for(let i=1; i<=jmlHari; i++) {
-                let currDate = new Date(tahun, bulan, i);
-                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
-                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
-                
-                if(!isLibur) {
-                    hkTotal++;
-                    if(i <= tglHariIni) hkDilalui++;
-                }
+        // FUNGSI UTK AMBIL DAFTAR TANGGAL MERAH DINAMIS (FORMAT: DD-MM)
+        function getTanggalMerahArray() {
+            let saved = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah');
+            if (saved && saved.trim() !== "") {
+                return saved.split(',').map(s => s.trim());
             }
-            hkSisa = hkTotal - hkDilalui;
-            
-            document.getElementById('info-hk-total').innerText = 'Total HK: ' + hkTotal;
-            document.getElementById('info-hk-lalu').innerText = 'Dilalui: ' + hkDilalui;
-            document.getElementById('info-hk-sisa').innerText = 'Sisa HK: ' + hkSisa;
+            return ['01-01', '01-05', '01-06', '17-08', '25-12']; 
         }
 
+        function hitungManualHK() {
+            let total = parseInt(document.getElementById('info-hk-total').value) || 0;
+            let lalu = parseInt(document.getElementById('info-hk-lalu').value) || 0;
+            let sisa = total - lalu;
+            document.getElementById('info-hk-sisa').value = sisa;
+            
+            localStorage.setItem('KalkulatorPati_HK_Total', total);
+            localStorage.setItem('KalkulatorPati_HK_Lalu', lalu);
+            
+            hitungSemua(); 
+        }
+
+        function muatHK() {
+            let savedTotal = localStorage.getItem('KalkulatorPati_HK_Total');
+            let savedLalu = localStorage.getItem('KalkulatorPati_HK_Lalu');
+            
+            document.getElementById('info-hk-total').value = savedTotal !== null ? savedTotal : 27;
+            document.getElementById('info-hk-lalu').value = savedLalu !== null ? savedLalu : 9;
+            
+            hitungManualHK();
+        }
+
+        // AUTO-FORMAT RIBUAN
         function formatRibuan(el) {
             let cursor = el.selectionStart;
             let oldLen = el.value.length;
@@ -459,7 +498,7 @@
             const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             
             let judul = document.getElementById('judul-tabel');
-            if(judul) judul.innerText = '📋 Tabel Storan ' + namaBulan[bulan] + ' ' + tahun;
+            if(judul) judul.innerText = '📋 Tabel Rekap ' + namaBulan[bulan] + ' ' + tahun;
             let judulTarget = document.getElementById('judul-tabel-target');
             if(judulTarget) judulTarget.innerText = '📋 Tabel Target ' + namaBulan[bulan] + ' ' + tahun;
 
@@ -469,11 +508,11 @@
             
             let htmlStoran = ''; let htmlTarget = '';
             const hariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
-            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25'];
+            const tanggalMerah = getTanggalMerahArray();
 
             for(let i=1; i<=jmlHari; i++) {
                 let currDate = new Date(tahun, bulan, i);
-                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
+                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2); 
                 let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
                 let isHariIni = (i === tglHariIni); 
                 
@@ -482,36 +521,35 @@
                 if(isHariIni) trClass += 'baris-hari-ini '; 
                 
                 htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
-                    <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jd_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_s_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_js_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_si_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_ac_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jc_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sc_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" id="t_pc_${i}" oninput="hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_am_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jm_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sm_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" id="t_pm_${i}" oninput="hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_al_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jl_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jd_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_s_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_js_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_si_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_ac_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" id="t_pc_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="text" inputmode="numeric" id="t_am_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" id="t_pm_${i}" onchange="simpanTabel()"></td>
+                    <td><input type="text" inputmode="numeric" id="t_al_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_jl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
                 </tr>`;
 
                 htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
-                    <td><input type="text" inputmode="numeric" id="tt_prog_${i}" oninput="formatRibuan(this); hitungSemua();"></td>
-                    <td><input type="number" id="tt_idx_${i}" oninput="hitungSemua();"></td>
-                    <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;">0</td>
-                    <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;">0</td>
-                    <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;">0</td>
+                    <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;"></td>
+                    <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;"></td>
+                    <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;"></td>
                 </tr>`;
             }
             tbody.innerHTML = htmlStoran;
             tbodyTarget.innerHTML = htmlTarget;
         }
 
+        // SINKRONISASI
         function syncDariStoran() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) d1.value = st_d.value;
@@ -527,39 +565,35 @@
             hitungSemua();
         }
 
-        function updateTargetDariAtas() {
-            let tglHariIni = new Date().getDate();
-            let p = document.getElementById('tg_program').value;
-            let i = document.getElementById('tg_index').value;
-            
-            let tp = document.getElementById('tt_prog_'+tglHariIni);
-            let ti = document.getElementById('tt_idx_'+tglHariIni);
-            
-            if(tp) tp.value = p;
-            if(ti) ti.value = i;
-            
-            simpanTabel();
-            hitungSemua();
-        }
-
         function setTabel(idPrefix, nilai) {
             let tglHariIni = new Date().getDate(); 
             let el = document.getElementById(idPrefix + tglHariIni);
             if(el) {
                 if (nilai === 0 || nilai === '' || isNaN(nilai)) el.value = '';
                 else if (idPrefix === 't_pc_' || idPrefix === 't_pm_') el.value = formatPersen(nilai);
-                else el.value = formatAngka(nilai);
+                else el.value = formatAngka(nilai); 
             }
         }
 
+        // TAMBAHKAN 'st_transfer' AGAR TER SIMPAN OTOMATIS
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
-        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport'];
+        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer'];
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerDebounce = null;
 
+        // KALKULASI UTAMA
         function hitungSemua() {
             try {
+                // MUAT PARAMETER DARI SETELAN LOCALSTORAGE
+                let cfgDropToko = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropToko')) || 11) / 100;
+                let cfgDropBonus = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus')) || 9) / 100;
+                let cfgStoranPokok = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctStoran')) || 20) / 100;
+                let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
+
+                // Tampilkan teks info rumus sesuai settingan
+                document.getElementById('label_rumus_tambahan').innerText = `Kasbon + (${(cfgDropToko*100)}% × Drop) + Storting = Total`;
+
                 let drRec = document.getElementById('drRec'); let d1_el = document.getElementById('d1');
                 if(drRec && d1_el) { drRec.value = d1_el.value; }
                 let stRec = document.getElementById('stRec'); let s1_el = document.getElementById('s1');
@@ -571,7 +605,7 @@
                 let s1 = getNum('s1'); let s2 = getNum('s2'); let JmlStort = s1 + s2; 
                 let hStort = document.getElementById('hStort'); if(hStort) hStort.innerText = "Jumlah Storting : " + formatAngka(JmlStort);
 
-                let si = getNum('siRec'); let sirk = (d1 * 1.3) - s1 + si; 
+                let si = getNum('siRec'); let sirk = (d1 * cfgFaktorSirkulasi) - s1 + si; 
                 let hSirkulasi = document.getElementById('hSirkulasi');
                 if(hSirkulasi) {
                     hSirkulasi.innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
@@ -591,16 +625,22 @@
                 let drop = getNum('st_drop'); let kasbon = getNum('st_kasbon');
                 let storting = getNum('st_storting'); let transport = getNum('st_transport');
 
-                let persen11Drop = parseFloat((drop * 0.11).toFixed(2));
-                let rumusBaruTotal = parseFloat((kasbon + persen11Drop + storting).toFixed(2));
+                let persenDropToko = parseFloat((drop * cfgDropToko).toFixed(2));
+                let rumusBaruTotal = parseFloat((kasbon + persenDropToko + storting).toFixed(2));
                 let hRumusTambahan = document.getElementById('hasilRumusTambahan');
-                if(hRumusTambahan) hRumusTambahan.innerHTML = `${formatAngka(kasbon)} + ${formatAngka(persen11Drop)} + ${formatAngka(storting)} = <span style="color:#28a745;">${formatAngka(rumusBaruTotal)}</span>`;
+                if(hRumusTambahan) hRumusTambahan.innerHTML = `${formatAngka(kasbon)} + ${formatAngka(persenDropToko)} + ${formatAngka(storting)} = <span style="color:#28a745;">${formatAngka(rumusBaruTotal)}</span>`;
 
-                let storan = (drop * 0.20) + kasbon + storting - drop - transport;
-                let persen9 = drop * 0.09; let tunai = storan - persen9;
+                let storan = (drop * cfgStoranPokok) + kasbon + storting - drop - transport;
+                let persenBonus = drop * cfgDropBonus; let tunai = storan - persenBonus;
 
                 let hasilStoran = document.getElementById('hasilStoran'); if(hasilStoran) hasilStoran.innerHTML = "Storan<br>" + formatAngka(storan);
-                let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = "9% Drop<br>" + formatAngka(persen9);
+                
+                // MENGISI NILAI OTOMATIS KE KALKULATOR SISA UANG
+                let st_storan_auto = document.getElementById('st_storan_auto');
+                if(st_storan_auto) st_storan_auto.value = formatAngka(storan);
+                hitungSisaTransfer();
+
+                let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = `${(cfgDropBonus*100)}% Drop<br>` + formatAngka(persenBonus);
                 
                 let hSel = document.getElementById('hasilSelisih');
                 if(hSel) {
@@ -619,56 +659,87 @@
             } catch (error) { console.error("Error kalkulasi:", error); }
         }
 
+        // FUNGSI BARU UNTUK KALKULASI SISA UANG (Storan - Transfer)
+        function hitungSisaTransfer() {
+            let storan = getNum('st_storan_auto');
+            let transfer = getNum('st_transfer');
+            let sisa = storan - transfer;
+            
+            let hasilEl = document.getElementById('angkaSisaUang');
+            let boxEl = document.getElementById('hasilSisaUang');
+            
+            if (hasilEl) hasilEl.innerText = formatAngka(sisa);
+            
+            if (boxEl) {
+                if(sisa < 0) { 
+                    boxEl.style.background = '#fff0f0'; 
+                    boxEl.style.borderColor = '#dc3545'; 
+                    boxEl.style.color = '#dc3545'; 
+                } else { 
+                    boxEl.style.background = '#d4edda'; 
+                    boxEl.style.borderColor = '#28a745'; 
+                    boxEl.style.color = '#155724'; 
+                }
+            }
+        }
+
         function kalkulasiTabelTarget() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
-            const tanggalMerah = ['01-01', '05-01', '06-01', '08-17', '12-25']; 
+            const tanggalMerah = getTanggalMerahArray(); 
+
+            let manualHkTotal = parseInt(document.getElementById('info-hk-total').value) || 0;
+            let manualHkDilalui = parseInt(document.getElementById('info-hk-lalu').value) || 0;
+            let manualHkSisa = parseInt(document.getElementById('info-hk-sisa').value) || 0;
+
+            let programRow = getNum('tg_program'); 
+            let indexRow = parseFloat(document.getElementById('tg_index').value) || 0; 
 
             let hkJalan = 0;
-            let totalProgBulanIni = 0;
-            let totalDropBulanIni = 0;
-
             for(let i=1; i<=jmlHari; i++) {
                 let currDate = new Date(tahun, bulan, i);
-                let tglBulanFormat = ('0'+(bulan+1)).slice(-2) + '-' + ('0'+i).slice(-2);
+                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2);
                 let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat);
                 
                 if(!isLibur) hkJalan++;
-                let sisaHk = hkTotal - hkJalan;
-
-                let progInput = document.getElementById('tt_prog_'+i);
-                let idxInput = document.getElementById('tt_idx_'+i);
-                if(!progInput || !idxInput) continue;
-
-                let programRow = getNum('tt_prog_'+i);
-                let indexRow = parseFloat(idxInput.value) || 0; 
                 
-                totalProgBulanIni += programRow;
-                
-                let dropAktualRow = getNum('t_d_'+i);
-                if(i === tglHariIni) {
-                    dropAktualRow = getNum('st_drop');
-                }
-                totalDropBulanIni += dropAktualRow;
-
+                let sisaHk = manualHkTotal - hkJalan; 
                 let jmlStortRow = getNum('t_js_'+i);
                 let jmlDropRow = getNum('t_jd_'+i);
 
                 let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
 
                 if(!isLibur) {
-                    // RUMUS DIPERBARUI: (Jumlah Storting / HK Dilalui) * HK Total / (Index / 100)
-                    if(hkJalan > 0 && indexRow > 0) {
-                        k_kekuatan = (jmlStortRow / hkJalan) * hkTotal / (indexRow / 100);
+                    if(i === tglHariIni) {
+                        if(manualHkDilalui > 0) k_kekuatan = (jmlStortRow / manualHkDilalui) * manualHkTotal;
+                        let pembagi = manualHkSisa > 0 ? manualHkSisa : 1; 
+                        k_caridrop = (programRow - jmlDropRow) / pembagi;
+                        k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
+                    } else if (i < tglHariIni) { 
+                        if(hkJalan > 0) k_kekuatan = (jmlStortRow / hkJalan) * manualHkTotal;
+                        let pembagi = sisaHk > 0 ? sisaHk : 1; 
+                        k_caridrop = (programRow - jmlDropRow) / pembagi;
+                        k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                     }
-                    let pembagi = sisaHk > 0 ? sisaHk : 1; 
-                    k_caridrop = (programRow - jmlDropRow) / pembagi;
-                    k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                 }
 
-                document.getElementById('tt_kekuatan_'+i).innerText = formatAngka(k_kekuatan);
-                document.getElementById('tt_caridrop_'+i).innerText = formatAngka(k_caridrop);
-                document.getElementById('tt_targetstort_'+i).innerText = formatAngka(k_targetstort);
+                let elmKek = document.getElementById('tt_kekuatan_'+i);
+                let elmCar = document.getElementById('tt_caridrop_'+i);
+                let elmTar = document.getElementById('tt_targetstort_'+i);
+                
+                if (i > tglHariIni) {
+                    if(elmKek) elmKek.innerText = "";
+                    if(elmCar) elmCar.innerText = "";
+                    if(elmTar) elmTar.innerText = "";
+                } else if (isLibur && i < tglHariIni) {
+                    if(elmKek) elmKek.innerText = "-";
+                    if(elmCar) elmCar.innerText = "-";
+                    if(elmTar) elmTar.innerText = "-";
+                } else {
+                    if(elmKek) elmKek.innerText = formatAngka(k_kekuatan);
+                    if(elmCar) elmCar.innerText = formatAngka(k_caridrop);
+                    if(elmTar) elmTar.innerText = formatAngka(k_targetstort);
+                }
 
                 if(i === tglHariIni && !isLibur) {
                     document.getElementById('disp_kekuatan').innerText = formatAngka(k_kekuatan);
@@ -678,23 +749,37 @@
             }
         }
 
+        // LOGIKA PERPINDAHAN SALDO DI TABEL
         function propagasiSaldoTabel() {
-            let i = new Date().getDate() + 1;
-            let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            if (i > jmlHari) return; 
-            const cp = (id1, id2) => { let p = document.getElementById(id1); let c = document.getElementById(id2); if(p && c && !c.value) c.value = p.value; };
+            let tglHariIni = new Date().getDate();
+            if (tglHariIni <= 1) return; 
+            let tod = tglHariIni;
             
-            cp('t_jc_'+(i-1), 't_jc_'+i); cp('t_sc_'+(i-1), 't_sc_'+i); cp('t_pc_'+(i-1), 't_pc_'+i); 
-            cp('t_jm_'+(i-1), 't_jm_'+i); cp('t_sm_'+(i-1), 't_sm_'+i); cp('t_pm_'+(i-1), 't_pm_'+i); 
-            cp('t_jl_'+(i-1), 't_jl_'+i); cp('t_sl_'+(i-1), 't_sl_'+i); 
+            const findLastValue = (prefix) => {
+                for (let d = tod - 1; d >= 1; d--) {
+                    let el = document.getElementById(prefix + d);
+                    if (el && el.value && el.value.trim() !== "") {
+                        return el.value;
+                    }
+                }
+                return ""; 
+            };
+
+            const applyVal = (prefix) => {
+                let currEl = document.getElementById(prefix + tod);
+                if (currEl && (!currEl.value || currEl.value.trim() === "")) {
+                    let lastVal = findLastValue(prefix);
+                    if (lastVal !== "") { currEl.value = lastVal; }
+                }
+            };
             
-            cp('tt_prog_'+(i-1), 'tt_prog_'+i);
-            cp('tt_idx_'+(i-1), 'tt_idx_'+i);
+            let prefixes = ['t_jc_', 't_sc_', 't_pc_', 't_jm_', 't_sm_', 't_pm_', 't_jl_', 't_sl_'];
+            prefixes.forEach(prefix => applyVal(prefix));
         }
 
         function simpanTabel() {
             let dataTabel = {}; let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_', 'tt_prog_', 'tt_idx_'];
+            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
             localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), JSON.stringify(dataTabel));
         }
@@ -703,14 +788,17 @@
             buatTabelBulanIni();
             let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
             if(saved) { try { let obj = JSON.parse(saved); for(let k in obj) { let el = document.getElementById(k); if(el) el.value = obj[k]; } } catch(e){} }
-            
-            let tglHariIni = new Date().getDate();
-            let tp = document.getElementById('tt_prog_'+tglHariIni);
-            let ti = document.getElementById('tt_idx_'+tglHariIni);
-            if(tp && tp.value) document.getElementById('tg_program').value = tp.value;
-            if(ti && ti.value) document.getElementById('tg_index').value = ti.value;
         }
+
         function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
+
+        function resetTarget() {
+            if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index di menu Target? (Hari kerja Anda akan dipertahankan)")) {
+                document.getElementById('tg_program').value = '';
+                document.getElementById('tg_index').value = '';
+                hitungSemua();
+            }
+        }
 
         function simpanKalkulator() {
             let dataObj = {};
@@ -720,34 +808,44 @@
 
         function muatKalkulator() {
             tampilkanTanggal();
+            muatPengaturan(); 
+            
+            let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
             let savedData = localStorage.getItem('KalkulatorPati_Mini');
+            
             if(savedData) {
                 try {
                     let parsed = JSON.parse(savedData); let todayStr = getTodayString();
                     let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
-                    // LOGIK PERPINDAHAN JAM 12 MALAM (PERGANTIAN HARI) - FIXED & SYNCHRONIZED
                     if (lastDate !== todayStr) {
-                        let totalDrop = (parseFloat(dataObj['d1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['d2']?.replace(/\./g, ''))||0);
-                        let totalStort = (parseFloat(dataObj['s1']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['s2']?.replace(/\./g, ''))||0);
-                        let totalSirk = ((parseFloat(dataObj['drRec']?.replace(/\./g, ''))||0) * 1.3) - (parseFloat(dataObj['stRec']?.replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec']?.replace(/\./g, ''))||0);
+                        let totalDrop = (parseFloat(dataObj['d1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['d2'].replace(/\./g, ''))||0);
+                        let totalStort = (parseFloat(dataObj['s1'].replace(/\./g, ''))||0) + (parseFloat(dataObj['s2'].replace(/\./g, ''))||0);
+                        let totalSirk = ((parseFloat(dataObj['drRec'].replace(/\./g, ''))||0) * cfgFaktorSirkulasi) - (parseFloat(dataObj['stRec'].replace(/\./g, ''))||0) + (parseFloat(dataObj['siRec'].replace(/\./g, ''))||0);
 
-                        dataObj['d2'] = totalDrop !== 0 ? totalDrop.toString() : '';
-                        dataObj['s2'] = totalStort !== 0 ? totalStort.toString() : '';
-                        dataObj['siRec'] = totalSirk !== 0 ? totalSirk.toString() : '';
+                        if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString();
+                        if (totalStort !== 0) dataObj['s2'] = totalStort.toString();
+                        if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString();
                         
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = '';
-                        dataObj['tg_program'] = ''; dataObj['tg_index'] = '';
+                        dataObj['st_transfer'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let a = parseFloat(dataObj['a'+i]?.replace(/\./g, ''))||0; let j = parseFloat(dataObj['j'+i]?.replace(/\./g, ''))||0; let sa = parseFloat(dataObj['sa'+i]?.replace(/\./g, ''))||0;
-                            dataObj['j'+i] = (a+j) !== 0 ? (a+j).toString() : ''; dataObj['sa'+i] = (sa-a) !== 0 ? (sa-a).toString() : ''; dataObj['a'+i] = '';
+                            let a = parseFloat(dataObj['a'+i].replace(/\./g, ''))||0; 
+                            let j = parseFloat(dataObj['j'+i].replace(/\./g, ''))||0; 
+                            let sa = parseFloat(dataObj['sa'+i].replace(/\./g, ''))||0;
+                            
+                            if (a > 0) { 
+                                dataObj['j'+i] = (a+j).toString();
+                                dataObj['sa'+i] = (sa-a).toString();
+                            }
+                            dataObj['a'+i] = '';
                         }
                         
-                        parsed.lastDate = todayStr;
+                        alert("🌅 Hari baru terdeteksi! Sistem memindahkan sisa saldo operasional terakhir secara otomatis.");
+                        parsed.lastDate = todayStr; 
                         localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
-                        alert("🌅 Hari baru terdeteksi! Data input otomatis digeser ke kolom akumulasi lalu.");
                     }
 
                     semuaIds.forEach(id => {
@@ -762,30 +860,35 @@
             hitungSemua(); 
         }
 
-        // TIMER PENGECEKAN HARI BARU (10 detik)
-        setInterval(() => {
-            let todayStr = getTodayString();
-            let savedData = localStorage.getItem('KalkulatorPati_Mini');
-            if(savedData) {
-                try {
-                    let parsed = JSON.parse(savedData);
-                    if(parsed.lastDate && parsed.lastDate !== todayStr) {
-                        muatKalkulator();
-                        hitungHariKerja();
-                        muatTabel();
-                    }
-                } catch(e){}
-            }
-        }, 10000);
+        // MANAGEMENT SEKSI PENGATURAN
+        function simpanPengaturan() {
+            let tm = document.getElementById('cfg_tanggal_merah').value;
+            let pt = document.getElementById('cfg_pct_drop_toko').value;
+            let pb = document.getElementById('cfg_pct_drop_bonus').value;
+            let ps = document.getElementById('cfg_pct_storan').value;
+            let fs = document.getElementById('cfg_faktor_sirkulasi').value;
+            let np = document.getElementById('cfg_nama_petugas').value;
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            let isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('KalkulatorPati_DarkMode', isDark ? '1' : '0');
+            localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm);
+            localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
+            localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9');
+            localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
+            localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3');
+            localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
+
+            alert("✅ Pengaturan Parameter Berhasil Disimpan!");
+            buatTabelBulanIni();
+            muatTabel();
+            hitungSemua();
         }
-        function muatDarkMode() {
-            let savedDark = localStorage.getItem('KalkulatorPati_DarkMode');
-            if (savedDark === '1') document.body.classList.add('dark-mode');
+
+        function muatPengaturan() {
+            document.getElementById('cfg_tanggal_merah').value = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah') || '01-01, 01-05, 01-06, 17-08, 25-12';
+            document.getElementById('cfg_pct_drop_toko').value = localStorage.getItem('KalkulatorPati_Cfg_PctDropToko') || '11';
+            document.getElementById('cfg_pct_drop_bonus').value = localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus') || '9';
+            document.getElementById('cfg_pct_storan').value = localStorage.getItem('KalkulatorPati_Cfg_PctStoran') || '20';
+            document.getElementById('cfg_faktor_sirkulasi').value = localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi') || '1.3';
+            document.getElementById('cfg_nama_petugas').value = localStorage.getItem('KalkulatorPati_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
         }
 
         function hapusData(jenis) {
@@ -804,11 +907,17 @@
             let transport = document.getElementById('st_transport').value || "0";
             
             let tunai = document.getElementById('hasilSelisih').innerText.replace('Tunai\n', '').replace('⚠️ Minus\n', '');
-            let p9 = document.getElementById('hasil9persen').innerText.replace('9% Drop\n', '');
+            let p9 = document.getElementById('hasil9persen').innerText.replace(' Drop\n', ' Drop: ');
             let storan = document.getElementById('hasilStoran').innerText.replace('Storan\n', '');
             let totalHitungan = document.getElementById('hasilRumusTambahan').innerText;
+            
+            // Variabel Baru Untuk Ditambah ke Laporan WA
+            let transferan = document.getElementById('st_transfer').value || "0";
+            let sisaUang = document.getElementById('angkaSisaUang') ? document.getElementById('angkaSisaUang').innerText : "0";
 
-            let teksWA = `*Laporan Storan Pati*\n📅 ${tgl}\n\n` +
+            let namaResort = localStorage.getItem('KalkulatorPati_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
+
+            let teksWA = `*Laporan Storan ${namaResort}*\n📅 ${tgl}\n\n` +
                          `*Input Data:*\n` +
                          `Drop: ${drop}\n` +
                          `Kasbon: ${kasbon}\n` +
@@ -816,9 +925,13 @@
                          `Transport: ${transport}\n\n` +
                          `*Hasil Akhir:*\n` +
                          `Tunai: ${tunai}\n` +
-                         `9% Drop: ${p9}\n` +
+                         `${p9}\n` +
                          `Storan: ${storan}\n\n` +
-                         `*Total Kasbon + 11% Drop + Storting:*\n` +
+                         `*Sisa Uang (Storan - Transfer):*\n` +
+                         `Storan: ${storan}\n` +
+                         `Transfer: ${transferan}\n` +
+                         `Sisa: ${sisaUang}\n\n` +
+                         `*Total Perhitungan Komisi & Kasbon:*\n` +
                          `${totalHitungan}`;
 
             navigator.clipboard.writeText(teksWA).then(() => {
@@ -858,21 +971,10 @@
 
         function exportData() {
             let allData = {};
-            for (let i = 0; i < localStorage.length; i++) { 
-                let key = localStorage.key(i); 
-                if (key && key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); 
-            }
-            if(Object.keys(allData).length === 0) { alert("Tidak ada data untuk dicadangkan."); return; }
-            
-            let blob = new Blob([JSON.stringify(allData, null, 2)], {type: 'application/json'});
-            let url = URL.createObjectURL(blob);
-            let d = document.createElement('a'); 
-            d.href = url;
-            d.download = "backup_kalkulator_pati.json"; 
-            document.body.appendChild(d); 
-            d.click(); 
-            d.remove();
-            URL.revokeObjectURL(url);
+            for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
+            if(Object.keys(allData).length === 0) { alert("Tidak ada data."); return; }
+            let d = document.createElement('a'); d.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
+            d.download = "backup_kalkulator_pati.json"; document.body.appendChild(d); d.click(); d.remove();
         }
 
         function importData(e) {
@@ -883,16 +985,14 @@
                     let data = JSON.parse(evt.target.result);
                     for (let key in data) if (key.includes('KalkulatorPati')) localStorage.setItem(key, data[key]);
                     alert("✅ Data dipulihkan!"); location.reload();
-                } catch (err) { alert("❌ File salah atau rusak."); }
+                } catch (err) { alert("❌ File salah."); }
             }; reader.readAsText(file);
-            e.target.value = '';
         }
 
         window.onload = function() {
             setupPWA();
-            muatDarkMode();
-            hitungHariKerja(); 
             muatTabel();
+            muatHK(); // Panggil fungsi muat Hari Kerja
             muatKalkulator();
         };
     </script>
