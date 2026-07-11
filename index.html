@@ -11,9 +11,12 @@
     <link id="pwa-manifest" rel="manifest">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzE3YTJiOCIvPjx0ZXh0IHg9IjUwIiB5PSI2NCIgZm9udC1zaXplPSI1MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDU8L3RleHQ+PC9zdmc+">
 
+    <!-- Pustaka untuk mengambil Screenshot otomatis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         /* GAYA MINIMALIS & RAPI */
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 6px; margin: 0; font-size: 13px; }
+        body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 6px; margin: 0; font-size: 13px; }
         
         /* TAB MENU */
         .tab-container { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
@@ -36,7 +39,7 @@
         .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #007bff; font-size: 13px; font-weight: bold; color: #333; }
         .res-box.alert-minus { border-left-color: #dc3545; background: #fff0f0; }
 
-        .rumus-box { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; text-align: center; padding: 10px; border-radius: 5px; margin: 10px 0 0 0; font-size: 14px; }
+        .rumus-box { background: #fff8e1; color: #856404; text-align: center; padding: 15px; border-radius: 8px; margin: 0 0 15px 0; font-size: 14px; }
         
         /* TABEL COMPACT (REKAP) */
         .tabel-rekap { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -57,10 +60,21 @@
         /* GAYA STORAN */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .grid-2 label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 3px; }
-        .res-storan { display: flex; gap: 6px; margin-top: 10px; }
-        .res-storan div { flex: 1; padding: 10px 4px; text-align: center; font-weight: bold; color: white; font-size: 12px; border-radius: 5px; transition: 0.3s;}
+        
+        /* GAYA BARU HASIL (MIRIP GAMBAR) */
+        .res-storan { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .res-storan div { flex: 1; padding: 15px 5px; text-align: center; font-weight: bold; color: white; font-size: 14px; border-radius: 6px; transition: 0.3s; line-height: 1.4;}
         .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #6c757d; }
         .bg-minus { background: #8b0000 !important; border: 2px solid #ff4d4d; box-shadow: 0 0 8px rgba(220,53,69,0.5); }
+
+        /* INPUT KHUSUS UI STORAN */
+        .ui-input-box { display: flex; flex-direction: column; text-align: left; }
+        .ui-label { color: #6c757d; font-size: 13px; margin-bottom: 4px; }
+        .ui-input { border: 1px solid #ced4da; padding: 10px; border-radius: 6px; background: #fff; text-align: left !important; font-size: 14px; outline: none;}
+        .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
+
+        /* AREA SCREENSHOT */
+        .capture-container { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
 
         /* TABEL LEDGER & TARGET */
         .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
@@ -104,7 +118,6 @@
         .hk-input { width: 28px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.7); color: white; font-weight: bold; font-size: 12px; text-align: center; margin-left: 4px; padding: 0; outline: none; }
         .hk-input::-webkit-outer-spin-button, .hk-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* GAYA BARU FORM PENGATURAN & LAYOUT RAPI */
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #444;}
         .form-group input { text-align: left; background: #fff; }
@@ -125,52 +138,153 @@
         <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
     </div>
 
+    <!-- TABS STORAN -->
     <div id="menu-storan" class="tab-content active">
-        <div class="card">
-            <h3><span>💰 Kalkulator Storan</span><span class="auto-save">✅ Terhubung ke Rekap</span></h3>
+        <!-- Container card dibersihkan backgroundnya agar fokus ke capture-container -->
+        <div class="card" style="padding: 0; background: transparent; box-shadow: none;">
             
-            <div class="grid-2">
-                <div class="form-group"><label>Drop:</label><input type="text" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
-                <div class="form-group"><label>Kasbon:</label><input type="text" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+            <!-- BLOK INI YANG AKAN DI-SCREENSHOT OTOMATIS OLEH SISTEM (Tampilan Putih Rapi) -->
+            <div id="area-screenshot" class="capture-container">
+                <!-- Header Mirip Referensi -->
+                <div style="margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 18px; color: #343a40;">Data Statistik | Unit Pati 5</h2>
+                    <div style="color: #6c757d; font-size: 13px; margin-top: 4px;">Dashboard &gt; Data Statistik</div>
+                </div>
+
+                <!-- Tombol Hitung -->
+                <button onclick="hitungSemua()" style="width: 100%; background: #38b6ff; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 20px; cursor: pointer;">
+                    Hitung Storting LP
+                </button>
                 
-                <div class="form-group"><label>Storting:</label><input type="text" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0"></div>
-                <div class="form-group"><label>Transport:</label><input type="text" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+                <!-- Input Grid (Digabung Sisa Uang & Storan) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div class="ui-input-box">
+                        <label class="ui-label">Drop</label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()">
+                    </div>
+                    <div class="ui-input-box">
+                        <label class="ui-label">Kasbon</label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()">
+                    </div>
+                    
+                    <div class="ui-input-box">
+                        <label class="ui-label">Transport</label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()">
+                    </div>
+                    <div class="ui-input-box">
+                        <label class="ui-label">SU</label>
+                        <input type="text" class="ui-input" id="st_su" readonly style="background-color: #f8f9fa;">
+                    </div>
+                    
+                    <div class="ui-input-box">
+                        <label class="ui-label">TF</label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();">
+                    </div>
+                    <div class="ui-input-box">
+                        <label class="ui-label">STORTING</label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0" style="font-weight: bold;">
+                    </div>
+                </div>
+
+                <!-- Tombol Tong Sampah -->
+                <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                    <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 10px 45px; border-radius: 6px; cursor: pointer;">
+                        <span style="font-size: 18px;">🗑️</span>
+                    </button>
+                </div>
+            </div>
+            <!-- SELESAI BLOK SCREENSHOT -->
+
+            <!-- Rumus & Hasil (Berada di luar area screenshot) -->
+            <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <!-- Rumus Box -->
+                <div class="rumus-box">
+                    <div id="label_rumus_tambahan" style="font-weight: bold; margin-bottom: 8px; color: #856404;">Kasbon + (11% × Drop) + Storting = Total</div>
+                    <span style="font-size: 20px; font-weight: bold; color: #28a745;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
+                </div>
+                
+                <!-- Hasil Box -->
+                <div class="res-storan">
+                    <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
+                    <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
+                    <div class="bg-1" id="hasilStoran">Storan<br>0</div>
+                </div>
+
+                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 20px; font-size: 14px; background: #25D366; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);">
+                    📤 Kirim ke WA (Gambar & Teks)
+                </button>
             </div>
 
-            <div class="rumus-box">
-                <div id="label_rumus_tambahan" style="font-size: 12px; margin-bottom: 4px; font-weight:bold;">Kasbon + (11% × Drop) + Storting = Total</div>
-                <span style="font-size: 18px; font-weight: bold; color: #d39e00;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
-            </div>
+            <!-- Input tersembunyi agar rumus sisa uang (SU) tetap berjalan -->
+            <input type="hidden" id="st_storan_auto">
+        </div>
+    </div>
+
+    <!-- TABS REKAP -->
+    <div id="menu-rekap" class="tab-content">
+        <div class="card">
+            <h3><span>1. Rekap Harian (Lalu)</span><span class="auto-save">✅ Terhubung ke Storan</span></h3>
             
-            <div class="res-storan">
-                <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
-                <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
-                <div class="bg-1" id="hasilStoran">Storan<br>0</div>
+            <div style="display: none;">
+                <input type="text" id="d1">
+                <input type="text" id="s1">
+                <input type="text" id="drRec">
+                <input type="text" id="stRec">
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Drop Lalu:</label>
+                    <input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Storting Lalu:</label>
+                    <input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Sirkulasi Lalu:</label>
+                    <input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
+                </div>
+            </div>
+
+            <div class="res-box" style="margin-bottom:0; padding: 10px; line-height: 1.6;">
+                <div id="hDrop">Jumlah Drop : 0</div>
+                <div id="hStort">Jumlah Storting : 0</div>
+                <div id="hSirkulasi">Saldo Sirkulasi : 0</div>
             </div>
         </div>
 
         <div class="card">
-            <h3><span>💸 Kalkulator Sisa Uang</span></h3>
-            
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Storan (Otomatis):</label>
-                    <input type="text" id="st_storan_auto" readonly placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>Transferan:</label>
-                    <input type="text" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();" placeholder="0">
-                </div>
-            </div>
-            
-            <div class="res-box" id="hasilSisaUang" style="margin-top: 10px; text-align: center; font-size: 14px; background: #d4edda; border-color: #28a745; color: #155724;">
-                Sisa Uang<br><span style="font-size: 20px; font-weight: bold;" id="angkaSisaUang">0</span>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn-salin" onclick="salinLaporan()">📋 Salin WA</button>
-                <button class="btn-hapus" onclick="hapusData('storan')">🗑️ Reset</button>
-            </div>
+            <h3>2. Perhitungan CM, MB, ML</h3>
+            <table class="tabel-rekap">
+                <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
+                <tr><td class="label-cell">Angsuran</td>
+                    <td><input type="text" inputmode="numeric" id="a1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="a2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="a3" oninput="formatRibuan(this); hitungSemua()"></td>
+                </tr>
+                <tr><td class="label-cell">Jumlah</td>
+                    <td><input type="text" inputmode="numeric" id="j1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="j2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="j3" oninput="formatRibuan(this); hitungSemua()"></td>
+                </tr>
+                <tr><td class="label-cell">Saldo</td>
+                    <td><input type="text" inputmode="numeric" id="sa1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="sa2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="sa3" oninput="formatRibuan(this); hitungSemua()"></td>
+                </tr>
+                <tr><td class="label-cell">Program</td>
+                    <td><input type="text" inputmode="numeric" id="p1" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="numeric" id="p2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td>-</td>
+                </tr>
+                <tr><td class="label-cell">Hasil</td>
+                    <td class="hasil-cell" id="res1">-</td>
+                    <td class="hasil-cell" id="res2">-</td>
+                    <td class="hasil-cell" id="res3">-</td>
+                </tr>
+            </table>
+            <button class="btn-hapus" style="width: 100%; margin-top: 10px;" onclick="hapusData('rekap')">🗑️ Reset Kalkulator Rekap</button>
         </div>
 
         <div class="card" style="padding: 8px;">
@@ -210,64 +324,7 @@
         </div>
     </div>
 
-    <div id="menu-rekap" class="tab-content">
-        <div class="card">
-            <h3><span>1. Rekap Harian</span><span class="auto-save">✅ Terhubung ke Storan</span></h3>
-            
-            <div class="flex-row">
-                <input type="text" inputmode="numeric" id="d1" oninput="formatRibuan(this); syncDariRekap()" placeholder="Drop Hari Ini">
-                <input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="Drop Sebelumnya">
-            </div>
-            <div class="res-box" id="hDrop">Jumlah Drop : 0</div>
-
-            <div class="flex-row">
-                <input type="text" inputmode="numeric" id="s1" oninput="formatRibuan(this); syncDariRekap()" placeholder="Storting Hari Ini">
-                <input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="Storting Sebelumnya">
-            </div>
-            <div class="res-box" id="hStort">Jumlah Storting : 0</div>
-
-            <div class="flex-row">
-                <input type="text" inputmode="numeric" id="drRec" readonly placeholder="Drop (Otomatis)">
-                <input type="text" inputmode="numeric" id="stRec" readonly placeholder="Storting (Otomatis)">
-                <input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="Sirkulasi Sebelumnya">
-            </div>
-            <div class="res-box" style="margin-bottom:0;" id="hSirkulasi">Saldo Sirkulasi : 0</div>
-        </div>
-
-        <div class="card">
-            <h3>2. Perhitungan CM, MB, ML</h3>
-            <table class="tabel-rekap">
-                <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
-                <tr><td class="label-cell">Angsuran</td>
-                    <td><input type="text" inputmode="numeric" id="a1" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="a2" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="a3" oninput="formatRibuan(this); hitungSemua()"></td>
-                </tr>
-                <tr><td class="label-cell">Jumlah</td>
-                    <td><input type="text" inputmode="numeric" id="j1" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="j2" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="j3" oninput="formatRibuan(this); hitungSemua()"></td>
-                </tr>
-                <tr><td class="label-cell">Saldo</td>
-                    <td><input type="text" inputmode="numeric" id="sa1" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="sa2" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="sa3" oninput="formatRibuan(this); hitungSemua()"></td>
-                </tr>
-                <tr><td class="label-cell">Program</td>
-                    <td><input type="text" inputmode="numeric" id="p1" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="p2" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td>-</td>
-                </tr>
-                <tr><td class="label-cell">Hasil</td>
-                    <td class="hasil-cell" id="res1">-</td>
-                    <td class="hasil-cell" id="res2">-</td>
-                    <td class="hasil-cell" id="res3">-</td>
-                </tr>
-            </table>
-            <button class="btn-hapus" style="width: 100%; margin-top: 10px;" onclick="hapusData('rekap')">🗑️ Reset Kalkulator Rekap</button>
-        </div>
-    </div>
-
+    <!-- TABS TARGET -->
     <div id="menu-target" class="tab-content">
         <div class="card">
             <h3><span>🎯 Target & Proyeksi Harian</span></h3>
@@ -333,6 +390,7 @@
         </div>
     </div>
     
+    <!-- TABS PENGATURAN -->
     <div id="menu-pengaturan" class="tab-content">
         <div class="card">
             <h3>⚙️ Pengaturan Parameter Aplikasi</h3>
@@ -389,7 +447,7 @@
         function setupPWA() {
             const manifestData = {
                 "name": "Kalkulator Pati", "short_name": "Pati 5", "start_url": window.location.href, "display": "standalone",
-                "background_color": "#f0f2f5", "theme_color": "#17a2b8",
+                "background_color": "#f4f6f9", "theme_color": "#17a2b8",
                 "icons": [{"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzE3YTJiOCIvPjx0ZXh0IHg9IjUwIiB5PSI2NCIgZm9udC1zaXplPSI1MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDU8L3RleHQ+PC9zdmc+", "sizes": "512x512", "type": "image/svg+xml"}]
             };
             const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'}));
@@ -397,7 +455,7 @@
 
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v6').then(c => c.addAll([location.href]))); self.skipWaiting(); });
+                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v8').then(c => c.addAll([location.href, 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js']))); self.skipWaiting(); });
                     self.addEventListener('activate', e => { self.clients.claim(); });
                     self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)).catch(() => new Response("Offline Mode"))); });
                 `;
@@ -405,12 +463,9 @@
             }
         }
 
-        // FUNGSI UTK AMBIL DAFTAR TANGGAL MERAH DINAMIS (FORMAT: DD-MM)
         function getTanggalMerahArray() {
             let saved = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah');
-            if (saved && saved.trim() !== "") {
-                return saved.split(',').map(s => s.trim());
-            }
+            if (saved && saved.trim() !== "") { return saved.split(',').map(s => s.trim()); }
             return ['01-01', '01-05', '01-06', '17-08', '25-12']; 
         }
 
@@ -419,41 +474,29 @@
             let lalu = parseInt(document.getElementById('info-hk-lalu').value) || 0;
             let sisa = total - lalu;
             document.getElementById('info-hk-sisa').value = sisa;
-            
             localStorage.setItem('KalkulatorPati_HK_Total', total);
             localStorage.setItem('KalkulatorPati_HK_Lalu', lalu);
-            
             hitungSemua(); 
         }
 
         function muatHK() {
             let savedTotal = localStorage.getItem('KalkulatorPati_HK_Total');
             let savedLalu = localStorage.getItem('KalkulatorPati_HK_Lalu');
-            
             document.getElementById('info-hk-total').value = savedTotal !== null ? savedTotal : 27;
             document.getElementById('info-hk-lalu').value = savedLalu !== null ? savedLalu : 9;
-            
             hitungManualHK();
         }
 
-        // AUTO-FORMAT RIBUAN (Mendukung Desimal)
         function formatRibuan(el) {
-            let cursor = el.selectionStart;
-            let oldLen = el.value.length;
-            // Izinkan angka, minus, dan koma desimal
+            let cursor = el.selectionStart; let oldLen = el.value.length;
             let clean = el.value.replace(/[^0-9\-,]/g, ''); 
             if(clean === '' || clean === '-') { el.value = clean; return; }
-            let isNeg = clean.startsWith('-');
-            clean = clean.replace(/\-/g, '');
+            let isNeg = clean.startsWith('-'); clean = clean.replace(/\-/g, '');
             if (clean === '') { el.value = isNeg ? '-' : ''; return; }
-            
-            // Pisahkan bagian bulat dan desimal jika ada koma
             let parts = clean.split(',');
             if(parts[0] !== '') parts[0] = parseInt(parts[0], 10).toString(); 
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            
-            let formatted = (isNeg ? '-' : '') + parts.join(',');
-            el.value = formatted;
+            let formatted = (isNeg ? '-' : '') + parts.join(','); el.value = formatted;
             let newLen = el.value.length;
             if(cursor !== null) { let newPos = cursor + (newLen - oldLen); el.setSelectionRange(newPos, newPos); }
         }
@@ -461,17 +504,14 @@
         function getNum(id) {
             let el = document.getElementById(id);
             if (!el || el.value === "") return 0;
-            // Hapus titik ribuan, ubah koma menjadi titik desimal standar agar bisa dikalkulasi
             let clean = el.value.replace(/\./g, '').replace(/,/g, '.'); 
             let val = parseFloat(clean); 
             return isNaN(val) ? 0 : val;
         }
 
-        // FORMAT ANGKA TANPA MEMBUAT ANGKA DESIMAL HILANG
         function formatAngka(num) {
             if(isNaN(num) || !isFinite(num)) return "0";
             let isNeg = num < 0;
-            // Hindari angka aneh JavaScript (misal 0.3000000004) dengan membulatkan maksimal 2 desimal jika diperlukan, lalu jadikan string
             let strNum = (Math.round(Math.abs(num) * 100) / 100).toString();
             let parts = strNum.split(".");
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -506,33 +546,23 @@
         function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
 
         function buatTabelBulanIni() {
-            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth();
-            let tglHariIni = d.getDate(); 
+            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate(); 
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             
-            let judul = document.getElementById('judul-tabel');
-            if(judul) judul.innerText = '📋 Tabel Rekap ' + namaBulan[bulan] + ' ' + tahun;
-            let judulTarget = document.getElementById('judul-tabel-target');
-            if(judulTarget) judulTarget.innerText = '📋 Tabel Target ' + namaBulan[bulan] + ' ' + tahun;
+            let judul = document.getElementById('judul-tabel'); if(judul) judul.innerText = '📋 Tabel Rekap ' + namaBulan[bulan] + ' ' + tahun;
+            let judulTarget = document.getElementById('judul-tabel-target'); if(judulTarget) judulTarget.innerText = '📋 Tabel Target ' + namaBulan[bulan] + ' ' + tahun;
 
-            let tbody = document.getElementById('body-tabel');
-            let tbodyTarget = document.getElementById('body-tabel-target');
+            let tbody = document.getElementById('body-tabel'); let tbodyTarget = document.getElementById('body-tabel-target');
             if(!tbody || !tbodyTarget) return;
             
             let htmlStoran = ''; let htmlTarget = '';
-            const hariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'];
-            const tanggalMerah = getTanggalMerahArray();
+            const hariSingkat = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb']; const tanggalMerah = getTanggalMerahArray();
 
             for(let i=1; i<=jmlHari; i++) {
-                let currDate = new Date(tahun, bulan, i);
-                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2); 
-                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); 
-                let isHariIni = (i === tglHariIni); 
-                
-                let trClass = '';
-                if(isLibur) trClass += 'baris-libur ';
-                if(isHariIni) trClass += 'baris-hari-ini '; 
+                let currDate = new Date(tahun, bulan, i); let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2); 
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); let isHariIni = (i === tglHariIni); 
+                let trClass = ''; if(isLibur) trClass += 'baris-libur '; if(isHariIni) trClass += 'baris-hari-ini '; 
                 
                 htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
                     <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
@@ -559,29 +589,24 @@
                     <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;"></td>
                 </tr>`;
             }
-            tbody.innerHTML = htmlStoran;
-            tbodyTarget.innerHTML = htmlTarget;
+            tbody.innerHTML = htmlStoran; tbodyTarget.innerHTML = htmlTarget;
         }
 
-        // SINKRONISASI
         function syncDariStoran() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) d1.value = st_d.value;
             let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
-            if(s1 && st_s) s1.value = st_s.value;
-            hitungSemua();
+            if(s1 && st_s) s1.value = st_s.value; hitungSemua();
         }
         function syncDariRekap() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) st_d.value = d1.value;
             let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
-            if(s1 && st_s) st_s.value = s1.value;
-            hitungSemua();
+            if(s1 && st_s) st_s.value = s1.value; hitungSemua();
         }
 
         function setTabel(idPrefix, nilai) {
-            let tglHariIni = new Date().getDate(); 
-            let el = document.getElementById(idPrefix + tglHariIni);
+            let tglHariIni = new Date().getDate(); let el = document.getElementById(idPrefix + tglHariIni);
             if(el) {
                 if (nilai === 0 || nilai === '' || isNaN(nilai)) el.value = '';
                 else if (idPrefix === 't_pc_' || idPrefix === 't_pm_') el.value = formatPersen(nilai);
@@ -595,16 +620,13 @@
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerDebounce = null;
 
-        // KALKULASI UTAMA
         function hitungSemua() {
             try {
-                // MUAT PARAMETER DARI SETELAN LOCALSTORAGE
                 let cfgDropToko = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropToko')) || 11) / 100;
                 let cfgDropBonus = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus')) || 9) / 100;
                 let cfgStoranPokok = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctStoran')) || 20) / 100;
                 let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
 
-                // Tampilkan teks info rumus sesuai settingan
                 document.getElementById('label_rumus_tambahan').innerText = `Kasbon + (${(cfgDropToko*100)}% × Drop) + Storting = Total`;
 
                 let drRec = document.getElementById('drRec'); let d1_el = document.getElementById('d1');
@@ -638,9 +660,7 @@
                 let drop = getNum('st_drop'); let kasbon = getNum('st_kasbon');
                 let storting = getNum('st_storting'); let transport = getNum('st_transport');
 
-                // Hilangkan pembulatan toFixed(2) agar desimal terbaca secara alami oleh formatAngka()
-                let persenDropToko = drop * cfgDropToko;
-                let rumusBaruTotal = kasbon + persenDropToko + storting;
+                let persenDropToko = drop * cfgDropToko; let rumusBaruTotal = kasbon + persenDropToko + storting;
                 let hRumusTambahan = document.getElementById('hasilRumusTambahan');
                 if(hRumusTambahan) hRumusTambahan.innerHTML = `${formatAngka(kasbon)} + ${formatAngka(persenDropToko)} + ${formatAngka(storting)} = <span style="color:#28a745;">${formatAngka(rumusBaruTotal)}</span>`;
 
@@ -648,14 +668,10 @@
                 let persenBonus = drop * cfgDropBonus; let tunai = storan - persenBonus;
 
                 let hasilStoran = document.getElementById('hasilStoran'); if(hasilStoran) hasilStoran.innerHTML = "Storan<br>" + formatAngka(storan);
-                
-                // MENGISI NILAI OTOMATIS KE KALKULATOR SISA UANG
-                let st_storan_auto = document.getElementById('st_storan_auto');
-                if(st_storan_auto) st_storan_auto.value = formatAngka(storan);
+                let st_storan_auto = document.getElementById('st_storan_auto'); if(st_storan_auto) st_storan_auto.value = formatAngka(storan);
                 hitungSisaTransfer();
 
                 let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = `${(cfgDropBonus*100)}% Drop<br>` + formatAngka(persenBonus);
-                
                 let hSel = document.getElementById('hasilSelisih');
                 if(hSel) {
                     hSel.innerHTML = "Tunai<br>" + formatAngka(tunai);
@@ -663,103 +679,56 @@
                     else { hSel.classList.remove('bg-minus'); }
                 }
 
-                // FIX: Menambahkan setTabel untuk Saldo Sirkulasi (t_si_) ke tabel hari ini
                 setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort); setTabel('t_si_', sirk);
-                
-                propagasiSaldoTabel(); 
-                kalkulasiTabelTarget(); 
+                propagasiSaldoTabel(); kalkulasiTabelTarget(); 
 
-                clearTimeout(timerDebounce);
-                timerDebounce = setTimeout(() => { simpanKalkulator(); simpanTabel(); }, 800);
+                clearTimeout(timerDebounce); timerDebounce = setTimeout(() => { simpanKalkulator(); simpanTabel(); }, 800);
             } catch (error) { console.error("Error kalkulasi:", error); }
         }
 
-        // FUNGSI BARU UNTUK KALKULASI SISA UANG (Storan - Transfer)
         function hitungSisaTransfer() {
-            let storan = getNum('st_storan_auto');
-            let transfer = getNum('st_transfer');
+            let storan = getNum('st_storan_auto'); let transfer = getNum('st_transfer');
             let sisa = storan - transfer;
-            
-            let hasilEl = document.getElementById('angkaSisaUang');
-            let boxEl = document.getElementById('hasilSisaUang');
-            
-            if (hasilEl) hasilEl.innerText = formatAngka(sisa);
-            
-            if (boxEl) {
-                if(sisa < 0) { 
-                    boxEl.style.background = '#fff0f0'; 
-                    boxEl.style.borderColor = '#dc3545'; 
-                    boxEl.style.color = '#dc3545'; 
-                } else { 
-                    boxEl.style.background = '#d4edda'; 
-                    boxEl.style.borderColor = '#28a745'; 
-                    boxEl.style.color = '#155724'; 
-                }
-            }
+            let suEl = document.getElementById('st_su'); if(suEl) suEl.value = formatAngka(sisa);
         }
 
-        // PERBARUAN KALKULASI KEKUATAN PROGRAM DIBAGI INDEX
         function kalkulasiTabelTarget() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
-            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
-            const tanggalMerah = getTanggalMerahArray(); 
-
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate(); const tanggalMerah = getTanggalMerahArray(); 
             let manualHkTotal = parseInt(document.getElementById('info-hk-total').value) || 0;
             let manualHkDilalui = parseInt(document.getElementById('info-hk-lalu').value) || 0;
             let manualHkSisa = parseInt(document.getElementById('info-hk-sisa').value) || 0;
-
-            let programRow = getNum('tg_program'); 
-            let indexRow = parseFloat(document.getElementById('tg_index').value) || 0; 
-            
-            // Konversi nilai persentase index (contoh: 120 menjadi 1.2). Jika 0, set menjadi 1 agar tidak error dibagi nol.
+            let programRow = getNum('tg_program'); let indexRow = parseFloat(document.getElementById('tg_index').value) || 0; 
             let faktorIndex = indexRow > 0 ? (indexRow / 100) : 1;
 
             let hkJalan = 0;
             for(let i=1; i<=jmlHari; i++) {
-                let currDate = new Date(tahun, bulan, i);
-                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2);
+                let currDate = new Date(tahun, bulan, i); let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2);
                 let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat);
-                
                 if(!isLibur) hkJalan++;
-                
-                let sisaHk = manualHkTotal - hkJalan; 
-                let jmlStortRow = getNum('t_js_'+i);
-                let jmlDropRow = getNum('t_jd_'+i);
-
+                let sisaHk = manualHkTotal - hkJalan; let jmlStortRow = getNum('t_js_'+i); let jmlDropRow = getNum('t_jd_'+i);
                 let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
 
                 if(!isLibur) {
                     if(i === tglHariIni) {
-                        // KEKUATAN DIBAGI INDEX (Sesuai Permintaan)
                         if(manualHkDilalui > 0) k_kekuatan = ((jmlStortRow / manualHkDilalui) * manualHkTotal) / faktorIndex;
                         let pembagi = manualHkSisa > 0 ? manualHkSisa : 1; 
-                        k_caridrop = (programRow - jmlDropRow) / pembagi;
-                        k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
+                        k_caridrop = (programRow - jmlDropRow) / pembagi; k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                     } else if (i < tglHariIni) { 
-                        // KEKUATAN DIBAGI INDEX (Sesuai Permintaan)
                         if(hkJalan > 0) k_kekuatan = ((jmlStortRow / hkJalan) * manualHkTotal) / faktorIndex;
                         let pembagi = sisaHk > 0 ? sisaHk : 1; 
-                        k_caridrop = (programRow - jmlDropRow) / pembagi;
-                        k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
+                        k_caridrop = (programRow - jmlDropRow) / pembagi; k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                     }
                 }
 
-                let elmKek = document.getElementById('tt_kekuatan_'+i);
-                let elmCar = document.getElementById('tt_caridrop_'+i);
-                let elmTar = document.getElementById('tt_targetstort_'+i);
+                let elmKek = document.getElementById('tt_kekuatan_'+i); let elmCar = document.getElementById('tt_caridrop_'+i); let elmTar = document.getElementById('tt_targetstort_'+i);
                 
                 if (i > tglHariIni) {
-                    if(elmKek) elmKek.innerText = "";
-                    if(elmCar) elmCar.innerText = "";
-                    if(elmTar) elmTar.innerText = "";
+                    if(elmKek) elmKek.innerText = ""; if(elmCar) elmCar.innerText = ""; if(elmTar) elmTar.innerText = "";
                 } else if (isLibur && i < tglHariIni) {
-                    if(elmKek) elmKek.innerText = "-";
-                    if(elmCar) elmCar.innerText = "-";
-                    if(elmTar) elmTar.innerText = "-";
+                    if(elmKek) elmKek.innerText = "-"; if(elmCar) elmCar.innerText = "-"; if(elmTar) elmTar.innerText = "-";
                 } else {
-                    if(elmKek) elmKek.innerText = formatAngka(k_kekuatan);
-                    if(elmCar) elmCar.innerText = formatAngka(k_caridrop);
-                    if(elmTar) elmTar.innerText = formatAngka(k_targetstort);
+                    if(elmKek) elmKek.innerText = formatAngka(k_kekuatan); if(elmCar) elmCar.innerText = formatAngka(k_caridrop); if(elmTar) elmTar.innerText = formatAngka(k_targetstort);
                 }
 
                 if(i === tglHariIni && !isLibur) {
@@ -770,30 +739,20 @@
             }
         }
 
-        // LOGIKA PERPINDAHAN SALDO DI TABEL
         function propagasiSaldoTabel() {
-            let tglHariIni = new Date().getDate();
-            if (tglHariIni <= 1) return; 
-            let tod = tglHariIni;
-            
+            let tglHariIni = new Date().getDate(); if (tglHariIni <= 1) return; let tod = tglHariIni;
             const findLastValue = (prefix) => {
                 for (let d = tod - 1; d >= 1; d--) {
                     let el = document.getElementById(prefix + d);
-                    if (el && el.value && el.value.trim() !== "") {
-                        return el.value;
-                    }
-                }
-                return ""; 
+                    if (el && el.value && el.value.trim() !== "") return el.value;
+                } return ""; 
             };
-
             const applyVal = (prefix) => {
                 let currEl = document.getElementById(prefix + tod);
                 if (currEl && (!currEl.value || currEl.value.trim() === "")) {
-                    let lastVal = findLastValue(prefix);
-                    if (lastVal !== "") { currEl.value = lastVal; }
+                    let lastVal = findLastValue(prefix); if (lastVal !== "") { currEl.value = lastVal; }
                 }
             };
-            
             let prefixes = ['t_jc_', 't_sc_', 't_pc_', 't_jm_', 't_sm_', 't_pm_', 't_jl_', 't_sl_'];
             prefixes.forEach(prefix => applyVal(prefix));
         }
@@ -806,31 +765,22 @@
         }
 
         function muatTabel() {
-            buatTabelBulanIni();
-            let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
+            buatTabelBulanIni(); let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
             if(saved) { try { let obj = JSON.parse(saved); for(let k in obj) { let el = document.getElementById(k); if(el) el.value = obj[k]; } } catch(e){} }
         }
 
         function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
-
         function resetTarget() {
-            if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index di menu Target? (Hari kerja Anda akan dipertahankan)")) {
-                document.getElementById('tg_program').value = '';
-                document.getElementById('tg_index').value = '';
-                hitungSemua();
-            }
+            if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index di menu Target?")) { document.getElementById('tg_program').value = ''; document.getElementById('tg_index').value = ''; hitungSemua(); }
         }
 
         function simpanKalkulator() {
-            let dataObj = {};
-            semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
+            let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
             localStorage.setItem('KalkulatorPati_Mini', JSON.stringify({ lastDate: getTodayString(), values: dataObj }));
         }
 
         function muatKalkulator() {
-            tampilkanTanggal();
-            muatPengaturan(); 
-            
+            tampilkanTanggal(); muatPengaturan(); 
             let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
             let savedData = localStorage.getItem('KalkulatorPati_Mini');
             
@@ -849,26 +799,16 @@
                         if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString();
                         
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
-                        dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = '';
-                        dataObj['st_transfer'] = '';
+                        dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = ''; dataObj['st_transfer'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let a = parseFloat((dataObj['a'+i] || '').replace(/\./g, ''))||0; 
-                            let j = parseFloat((dataObj['j'+i] || '').replace(/\./g, ''))||0; 
-                            let sa = parseFloat((dataObj['sa'+i] || '').replace(/\./g, ''))||0;
-                            
-                            if (a > 0) { 
-                                dataObj['j'+i] = (a+j).toString();
-                                dataObj['sa'+i] = (sa-a).toString();
-                            }
+                            let a = parseFloat((dataObj['a'+i] || '').replace(/\./g, ''))||0; let j = parseFloat((dataObj['j'+i] || '').replace(/\./g, ''))||0; let sa = parseFloat((dataObj['sa'+i] || '').replace(/\./g, ''))||0;
+                            if (a > 0) { dataObj['j'+i] = (a+j).toString(); dataObj['sa'+i] = (sa-a).toString(); }
                             dataObj['a'+i] = '';
                         }
-                        
                         alert("🌅 Hari baru terdeteksi! Sistem memindahkan sisa saldo operasional terakhir secara otomatis.");
-                        parsed.lastDate = todayStr; 
-                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
+                        parsed.lastDate = todayStr; localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
                     }
-
                     semuaIds.forEach(id => {
                         let el = document.getElementById(id);
                         if(el && dataObj[id] !== undefined) {
@@ -881,26 +821,14 @@
             hitungSemua(); 
         }
 
-        // MANAGEMENT SEKSI PENGATURAN
         function simpanPengaturan() {
-            let tm = document.getElementById('cfg_tanggal_merah').value;
-            let pt = document.getElementById('cfg_pct_drop_toko').value;
-            let pb = document.getElementById('cfg_pct_drop_bonus').value;
-            let ps = document.getElementById('cfg_pct_storan').value;
-            let fs = document.getElementById('cfg_faktor_sirkulasi').value;
-            let np = document.getElementById('cfg_nama_petugas').value;
-
-            localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm);
-            localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
-            localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9');
-            localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
-            localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3');
-            localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
-
-            alert("✅ Pengaturan Parameter Berhasil Disimpan!");
-            buatTabelBulanIni();
-            muatTabel();
-            hitungSemua();
+            let tm = document.getElementById('cfg_tanggal_merah').value; let pt = document.getElementById('cfg_pct_drop_toko').value;
+            let pb = document.getElementById('cfg_pct_drop_bonus').value; let ps = document.getElementById('cfg_pct_storan').value;
+            let fs = document.getElementById('cfg_faktor_sirkulasi').value; let np = document.getElementById('cfg_nama_petugas').value;
+            localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm); localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
+            localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
+            localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
+            alert("✅ Pengaturan Parameter Berhasil Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
         }
 
         function muatPengaturan() {
@@ -915,91 +843,109 @@
         function hapusData(jenis) {
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
                 let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
-                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; });
-                hitungSemua();
+                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); hitungSemua();
             }
         }
 
-        function salinLaporan() {
-            let tgl = document.getElementById('tanggal-hari-ini').innerText;
+        // FUNGSI SCREENSHOT OTOMATIS & KIRIM KE APLIKASI WHATSAPP
+        async function kirimKeWA() {
             let drop = document.getElementById('st_drop').value || "0";
-            let kasbon = document.getElementById('st_kasbon').value || "0";
-            let storting = document.getElementById('st_storting').value || "0";
-            let transport = document.getElementById('st_transport').value || "0";
             
-            let tunai = document.getElementById('hasilSelisih').innerText.replace('Tunai\n', '').replace('⚠️ Minus\n', '');
-            let p9 = document.getElementById('hasil9persen').innerText.replace(' Drop\n', ' Drop: ');
-            let storan = document.getElementById('hasilStoran').innerText.replace('Storan\n', '');
-            let totalHitungan = document.getElementById('hasilRumusTambahan').innerText;
+            // Logika format teks (menambahkan teks "drop:" jika tidak 0/kosong)
+            let teksDrop = (drop === "0" || drop === "") ? "StopDrob" : "drop:" + drop + ".";
+
+            let teksWA = `Klp V\n` +
+                         `${teksDrop}\n` +
+                         `murni:\n` +
+                         `Masih melanjutkan maksimalkan penarikan pakk`;
+
+            let captureEl = document.getElementById('area-screenshot');
+            let btn = document.getElementById('btn-kirim-wa');
+            let originalText = btn.innerText;
             
-            let transferan = document.getElementById('st_transfer').value || "0";
-            let sisaUang = document.getElementById('angkaSisaUang') ? document.getElementById('angkaSisaUang').innerText : "0";
+            // Ubah tombol saat memproses
+            btn.innerText = "⏳ Sedang memproses gambar...";
+            btn.disabled = true;
 
-            let namaResort = localStorage.getItem('KalkulatorPati_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
+            try {
+                if (typeof html2canvas === 'undefined') {
+                    alert("⚠️ Library pembuat gambar belum termuat. Pastikan ada koneksi internet dan coba lagi.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
 
-            let teksWA = `*Laporan Storan ${namaResort}*\n📅 ${tgl}\n\n` +
-                         `*Input Data:*\n` +
-                         `Drop: ${drop}\n` +
-                         `Kasbon: ${kasbon}\n` +
-                         `Storting: ${storting}\n` +
-                         `Transport: ${transport}\n\n` +
-                         `*Hasil Akhir:*\n` +
-                         `Tunai: ${tunai}\n` +
-                         `${p9}\n` +
-                         `Storan: ${storan}\n\n` +
-                         `*Sisa Uang (Storan - Transfer):*\n` +
-                         `Storan: ${storan}\n` +
-                         `Transfer: ${transferan}\n` +
-                         `Sisa: ${sisaUang}\n\n` +
-                         `*Total Perhitungan Komisi & Kasbon:*\n` +
-                         `${totalHitungan}`;
+                // Melakukan Screenshot otomatis pada blok tertentu saja, disesuaikan background-nya
+                let canvas = await html2canvas(captureEl, {
+                    scale: 2, 
+                    backgroundColor: "#f8f9fa" 
+                });
 
-            navigator.clipboard.writeText(teksWA).then(() => {
-                alert("✅ Laporan berhasil disalin! Silakan tempel (paste) di WhatsApp.");
-            }).catch(() => {
-                alert("❌ Gagal menyalin laporan, coba lagi.");
-            });
+                // Ubah Canvas menjadi file gambar JPG
+                canvas.toBlob(async function(blob) {
+                    let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                text: teksWA
+                            });
+                        } catch (err) {
+                            console.log("Pengiriman dibatalkan pengguna atau gagal", err);
+                        }
+                    } else {
+                        // Jika dibuka di browser yang tidak dukung Web Share API
+                        navigator.clipboard.writeText(teksWA).then(() => {
+                            let url = window.URL.createObjectURL(blob);
+                            let a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = 'Laporan_Pati5.jpg';
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            
+                            alert("✅ Teks Format WA berhasil disalin ke Papan Klip!\n✅ Gambar Laporan telah diunduh.\n\nKarena browser Anda tidak mendukung bagi-langsung (Share API), silakan buka WA manual, Paste teksnya, dan lampirkan gambar yang baru saja terunduh.");
+                        });
+                    }
+                    
+                    // Kembalikan keadaan tombol
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }, "image/jpeg", 0.9);
+
+            } catch (e) {
+                console.error("Error pembuatan gambar:", e);
+                alert("❌ Gagal membuat gambar dari layar.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function exportKeCSV(tableClass, namaFile) {
-            let tabel = document.querySelector('.' + tableClass);
-            let baris = tabel.querySelectorAll('tr');
-            let csv = [];
-            
+            let tabel = document.querySelector('.' + tableClass); let baris = tabel.querySelectorAll('tr'); let csv = [];
             for (let i = 0; i < baris.length; i++) {
-                let row = [];
-                let cols = baris[i].querySelectorAll('th, td');
-                
+                let row = []; let cols = baris[i].querySelectorAll('th, td');
                 for (let j = 0; j < cols.length; j++) {
-                    let input = cols[j].querySelector('input');
-                    let val = input ? input.value : cols[j].innerText;
-                    val = val.replace(/(\r\n|\n|\r)/gm, " "); 
-                    row.push('"' + val + '"');
-                }
-                csv.push(row.join(','));
+                    let input = cols[j].querySelector('input'); let val = input ? input.value : cols[j].innerText;
+                    val = val.replace(/(\r\n|\n|\r)/gm, " "); row.push('"' + val + '"');
+                } csv.push(row.join(','));
             }
-            
-            let csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
-            let downloadLink = document.createElement('a');
-            downloadLink.download = 'Rekap_' + namaFile + '_Pati5_' + getBulanTahunString() + '.csv';
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.style.display = 'none';
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
+            let csvFile = new Blob([csv.join('\n')], {type: 'text/csv'}); let downloadLink = document.createElement('a');
+            downloadLink.download = 'Rekap_' + namaFile + '_Pati5_' + getBulanTahunString() + '.csv'; downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
         function exportData() {
-            let allData = {};
-            for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
+            let allData = {}; for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
             if(Object.keys(allData).length === 0) { alert("Tidak ada data."); return; }
             let d = document.createElement('a'); d.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
             d.download = "backup_kalkulator_pati.json"; document.body.appendChild(d); d.click(); d.remove();
         }
 
         function importData(e) {
-            let file = e.target.files[0]; if (!file) return;
-            let reader = new FileReader();
+            let file = e.target.files[0]; if (!file) return; let reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     let data = JSON.parse(evt.target.result);
@@ -1010,10 +956,7 @@
         }
 
         window.onload = function() {
-            setupPWA();
-            muatTabel();
-            muatHK(); 
-            muatKalkulator();
+            setupPWA(); muatTabel(); muatHK(); muatKalkulator();
         };
     </script>
 </body>
