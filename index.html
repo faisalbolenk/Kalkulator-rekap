@@ -11,77 +11,79 @@
     <link id="pwa-manifest" rel="manifest">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzE3YTJiOCIvPjx0ZXh0IHg9IjUwIiB5PSI2NCIgZm9udC1zaXplPSI1MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDU8L3RleHQ+PC9zdmc+">
 
-    <!-- Pustaka untuk mengambil Screenshot otomatis -->
+    <!-- Pustaka HTML2Canvas & Firebase (Versi 8 Compat) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* GAYA MINIMALIS & RAPI */
-        body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 6px; margin: 0; font-size: 13px; }
+        /* GAYA MINIMALIS & RAPI (UKURAN DIPERKECIL/PADAT) */
+        body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 4px; margin: 0; font-size: 12px; }
         
         /* TAB MENU */
-        .tab-container { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
-        .tab-btn { flex: 1; padding: 10px 5px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; min-width: 90px;}
-        .tab-btn.active { background: #007bff; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .tab-container { display: flex; gap: 4px; margin-bottom: 6px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
+        .tab-btn { flex: 1; padding: 8px 4px; border: none; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; background: #ddd; color: #555; transition: 0.2s; min-width: 75px;}
+        .tab-btn.active { background: #007bff; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between;}
-        .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        h3 { margin: 0 0 10px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .auto-save { font-size: 11px; color: #28a745; font-weight: normal; }
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 6px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between;}
+        .card { background: white; padding: 8px; border-radius: 6px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        h3 { margin: 0 0 8px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 4px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .auto-save { font-size: 10px; color: #28a745; font-weight: normal; }
         
         /* GAYA INPUT SEJAJAR */
-        .flex-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        input { flex: 1; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center; font-size: 13px; }
+        .flex-row { display: flex; gap: 4px; margin-bottom: 4px; }
+        input { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 12px; }
         input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
-        .res-box { padding: 8px; margin-bottom: 10px; border-radius: 5px; background: #e7f3ff; border-left: 4px solid #007bff; font-size: 13px; font-weight: bold; color: #333; }
+        .res-box { padding: 6px; margin-bottom: 8px; border-radius: 4px; background: #e7f3ff; border-left: 3px solid #007bff; font-size: 12px; font-weight: bold; color: #333; }
         .res-box.alert-minus { border-left-color: #dc3545; background: #fff0f0; }
 
-        .rumus-box { background: #fff8e1; color: #856404; text-align: center; padding: 15px; border-radius: 8px; margin: 0 0 15px 0; font-size: 14px; }
+        .rumus-box { background: #fff8e1; color: #856404; text-align: center; padding: 8px; border-radius: 6px; margin: 0 0 10px 0; font-size: 11px; }
         
         /* TABEL COMPACT (REKAP) */
-        .tabel-rekap { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; }
+        .tabel-rekap { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 3px; text-align: center; vertical-align: middle; }
         .tabel-rekap th { background: #f8f9fa; }
-        .label-cell { text-align: left; font-weight: bold; color: #555; width: 70px; }
-        .hasil-cell { font-size: 11px; line-height: 1.4; font-weight: bold; color: #333; }
+        .label-cell { text-align: left; font-weight: bold; color: #555; width: 60px; }
+        .hasil-cell { font-size: 10px; line-height: 1.3; font-weight: bold; color: #333; }
         .text-minus { color: #dc3545 !important; font-weight: bold; } 
         
         /* TOMBOL AKSI */
-        .btn-group { display: flex; gap: 6px; margin-top: 10px; }
-        .btn-hapus, .btn-salin { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 5px;}
+        .btn-group { display: flex; gap: 4px; margin-top: 8px; }
+        .btn-hapus, .btn-salin { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 4px;}
         .btn-hapus { background: #dc3545; }
         .btn-salin { background: #28a745; }
         .btn-hapus-tabel { background: #ff9800; }
         .btn-salin-tabel { background: #17a2b8; }
 
         /* GAYA STORAN */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .grid-2 label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 3px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .grid-2 label { font-size: 11px; font-weight: bold; color: #555; display: block; margin-bottom: 2px; }
         
         /* GAYA BARU HASIL (MIRIP GAMBAR) */
-        .res-storan { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .res-storan div { flex: 1; padding: 15px 5px; text-align: center; font-weight: bold; color: white; font-size: 14px; border-radius: 6px; transition: 0.3s; line-height: 1.4;}
+        .res-storan { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+        .res-storan div { flex: 1; padding: 10px 4px; text-align: center; font-weight: bold; color: white; font-size: 12px; border-radius: 4px; transition: 0.3s; line-height: 1.3;}
         .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #6c757d; }
-        .bg-minus { background: #8b0000 !important; border: 2px solid #ff4d4d; box-shadow: 0 0 8px rgba(220,53,69,0.5); }
+        .bg-minus { background: #8b0000 !important; border: 2px solid #ff4d4d; box-shadow: 0 0 6px rgba(220,53,69,0.5); }
 
         /* INPUT KHUSUS UI STORAN */
         .ui-input-box { display: flex; flex-direction: column; text-align: left; }
-        .ui-label { color: #6c757d; font-size: 13px; margin-bottom: 4px; }
-        .ui-input { border: 1px solid #ced4da; padding: 10px; border-radius: 6px; background: #fff; text-align: left !important; font-size: 14px; outline: none;}
+        .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; }
+        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left !important; font-size: 13px; outline: none;}
         .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
 
-        /* AREA SCREENSHOT */
-        .capture-container { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+        /* AREA SCREENSHOT (DIPERKEcIL) */
+        .capture-container { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 
         /* TABEL LEDGER & TARGET */
-        .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.2); }
-        .ledger-table { min-width: 1100px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 11px; }
+        .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 350px; border-radius: 4px; box-shadow: 0 0 2px rgba(0,0,0,0.2); }
+        .ledger-table { min-width: 1000px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; }
         .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle;}
         
-        .ledger-table th { background: #007bff; color: white; font-size: 10px; padding: 6px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
+        .ledger-table th { background: #007bff; color: white; font-size: 9px; padding: 4px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
         
         .tabel-storan-ui th:nth-child(7), .tabel-storan-ui th:nth-child(8), .tabel-storan-ui th:nth-child(9), .tabel-storan-ui th:nth-child(10) { background: #d4a017 !important; border-bottom-color: #a87e0f; } 
         .tabel-storan-ui th:nth-child(11), .tabel-storan-ui th:nth-child(12), .tabel-storan-ui th:nth-child(13), .tabel-storan-ui th:nth-child(14) { background: #28a745 !important; border-bottom-color: #1e7e34; } 
@@ -91,37 +93,37 @@
         .tabel-storan-ui td:nth-child(11), .tabel-storan-ui td:nth-child(12), .tabel-storan-ui td:nth-child(13), .tabel-storan-ui td:nth-child(14) { background-color: #eafaf1; } 
         .tabel-storan-ui td:nth-child(15), .tabel-storan-ui td:nth-child(16), .tabel-storan-ui td:nth-child(17) { background-color: #f4ecf9; } 
 
-        .ledger-table input { width: 62px; padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; background: transparent; }
-        .ledger-table .hari-col { min-width: 32px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 2px solid #aaa; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
+        .ledger-table input { width: 55px; padding: 2px; font-size: 10px; border: 1px solid #ddd; border-radius: 2px; background: transparent; }
+        .ledger-table .hari-col { min-width: 25px; font-weight: bold; background: #f1f1f1; position: sticky; left: 0; z-index: 3; border-right: 1px solid #aaa; white-space: nowrap; font-size: 9px; padding: 3px; }
         .ledger-table th.hari-col { z-index: 4; background: #0056b3; } 
         
         .ledger-table .baris-libur { background-color: #fff0f0; }
-        .ledger-table .baris-libur td { border-bottom: 2px solid #dc3545; color: #dc3545; }
+        .ledger-table .baris-libur td { border-bottom: 1px solid #dc3545; color: #dc3545; }
         .ledger-table .baris-libur .hari-col { background: #ffdddd; color: #dc3545; }
         .ledger-table .baris-libur input { color: #dc3545; border-color: #ffb3b3; }
 
-        .ledger-table .baris-hari-ini td { border-bottom: 3px solid #0056b3; border-top: 3px solid #0056b3; background-color: #eaf4ff; padding: 8px 4px; }
-        .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; font-size: 12px; padding: 8px 6px; }
-        .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #0056b3; background-color: #ffffff; padding: 8px 6px; font-size: 13px; box-shadow: 0 0 4px rgba(0,123,255,0.3); }
+        .ledger-table .baris-hari-ini td { border-bottom: 2px solid #0056b3; border-top: 2px solid #0056b3; background-color: #eaf4ff; padding: 4px 2px; }
+        .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; font-size: 10px; padding: 4px 3px; }
+        .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #0056b3; background-color: #ffffff; padding: 4px 2px; font-size: 11px; box-shadow: 0 0 2px rgba(0,123,255,0.3); }
         
-        .tabel-target-ui { min-width: 350px; }
-        .tabel-target-ui .hari-col { min-width: 25px; font-size: 9px; padding: 2px 4px; }
-        .tabel-target-ui th:nth-child(1) { width: 35px; }
+        .tabel-target-ui { min-width: 300px; }
+        .tabel-target-ui .hari-col { min-width: 20px; font-size: 9px; padding: 2px 4px; }
+        .tabel-target-ui th:nth-child(1) { width: 25px; }
         .tabel-target-ui th:nth-child(2) { background: #17a2b8 !important; }
         .tabel-target-ui th:nth-child(3) { background: #d39e00 !important; }
         .tabel-target-ui th:nth-child(4) { background: #28a745 !important; }
-        .tabel-target-ui .baris-hari-ini td { font-size: 14px; color: #004085; }
+        .tabel-target-ui .baris-hari-ini td { font-size: 12px; color: #004085; }
 
-        .btn-backup { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
-        .btn-restore { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; text-align: center;}
-        .info-badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .hk-input { width: 28px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.7); color: white; font-weight: bold; font-size: 12px; text-align: center; margin-left: 4px; padding: 0; outline: none; }
+        .btn-backup { background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
+        .btn-restore { background: #6c757d; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
+        .info-badge { display: inline-flex; align-items: center; padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+        .hk-input { width: 25px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.7); color: white; font-weight: bold; font-size: 11px; text-align: center; margin-left: 2px; padding: 0; outline: none; }
         .hk-input::-webkit-outer-spin-button, .hk-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 4px; color: #444;}
+        .form-group { margin-bottom: 8px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 3px; color: #444; font-size: 11px;}
         .form-group input { text-align: left; background: #fff; }
-        .hint { font-size: 11px; color: #666; margin-top: 2px; display: block; }
+        .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; }
     </style>
 </head>
 <body>
@@ -135,29 +137,25 @@
 
     <div class="date-badge">
         <span id="tanggal-hari-ini">Memuat tanggal...</span>
-        <span style="font-size: 10px; display: flex; align-items: center;">📱 PWA Aktif</span>
+        <span id="status-cloud" style="font-size: 10px; display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 10px;">🔄 Sinkronisasi...</span>
     </div>
 
     <!-- TABS STORAN -->
     <div id="menu-storan" class="tab-content active">
-        <!-- Container card dibersihkan backgroundnya agar fokus ke capture-container -->
         <div class="card" style="padding: 0; background: transparent; box-shadow: none;">
             
-            <!-- BLOK INI YANG AKAN DI-SCREENSHOT OTOMATIS OLEH SISTEM (Tampilan Putih Rapi) -->
+            <!-- BLOK SCREENSHOT OTOMATIS -->
             <div id="area-screenshot" class="capture-container">
-                <!-- Header Mirip Referensi -->
-                <div style="margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 18px; color: #343a40;">Data Statistik | Unit Pati 5</h2>
-                    <div style="color: #6c757d; font-size: 13px; margin-top: 4px;">Dashboard &gt; Data Statistik</div>
+                <div style="margin-bottom: 12px;">
+                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik | Unit Pati 5</h2>
+                    <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">Dashboard &gt; Data Statistik</div>
                 </div>
 
-                <!-- Tombol Hitung -->
-                <button onclick="hitungSemua()" style="width: 100%; background: #38b6ff; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 20px; cursor: pointer;">
+                <button onclick="hitungSemua()" style="width: 100%; background: #38b6ff; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 15px; cursor: pointer;">
                     Hitung Storting LP
                 </button>
                 
-                <!-- Input Grid (Digabung Sisa Uang & Storan) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     <div class="ui-input-box">
                         <label class="ui-label">Drop</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()">
@@ -166,7 +164,6 @@
                         <label class="ui-label">Kasbon</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()">
                     </div>
-                    
                     <div class="ui-input-box">
                         <label class="ui-label">Transport</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()">
@@ -175,7 +172,6 @@
                         <label class="ui-label">SU</label>
                         <input type="text" class="ui-input" id="st_su" readonly style="background-color: #f8f9fa;">
                     </div>
-                    
                     <div class="ui-input-box">
                         <label class="ui-label">TF</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer();">
@@ -186,68 +182,42 @@
                     </div>
                 </div>
 
-                <!-- Tombol Tong Sampah -->
-                <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-                    <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 10px 45px; border-radius: 6px; cursor: pointer;">
-                        <span style="font-size: 18px;">🗑️</span>
-                    </button>
+                <div style="display: flex; justify-content: center; margin-bottom: 5px;">
+                    <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 6px 30px; border-radius: 4px; cursor: pointer; font-size: 14px;">🗑️</button>
                 </div>
             </div>
             <!-- SELESAI BLOK SCREENSHOT -->
 
-            <!-- Rumus, Hasil & Target Murni (Berada di luar area screenshot) -->
-            <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <!-- Rumus Box -->
+            <div style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                 <div class="rumus-box">
-                    <div id="label_rumus_tambahan" style="font-weight: bold; margin-bottom: 8px; color: #856404;">Kasbon + (11% × Drop) + Storting = Total</div>
-                    <span style="font-size: 20px; font-weight: bold; color: #28a745;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
+                    <div id="label_rumus_tambahan" style="font-weight: bold; margin-bottom: 6px; color: #856404;">Kasbon + (11% × Drop) + Storting = Total</div>
+                    <span style="font-size: 16px; font-weight: bold; color: #28a745;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
                 </div>
                 
-                <!-- Hasil Box -->
                 <div class="res-storan">
                     <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
                     <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
                     <div class="bg-1" id="hasilStoran">Storan<br>0</div>
                 </div>
 
-                <!-- TARGET MURNI (BARU) -->
-                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #ccc;">
-                    <h3 style="font-size: 14px; margin-bottom: 12px; color: #343a40;">🎯 Target Murni</h3>
-                    <div class="grid-2" style="gap: 12px;">
-                        <div class="ui-input-box">
-                            <label class="ui-label">Senin</label>
-                            <input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
-                        <div class="ui-input-box">
-                            <label class="ui-label">Selasa</label>
-                            <input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
-                        <div class="ui-input-box">
-                            <label class="ui-label">Rabu</label>
-                            <input type="text" class="ui-input" id="tm_3" value="2.550" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
-                        <div class="ui-input-box">
-                            <label class="ui-label">Kamis</label>
-                            <input type="text" class="ui-input" id="tm_4" value="1.865" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
-                        <div class="ui-input-box">
-                            <label class="ui-label">Jum'at</label>
-                            <input type="text" class="ui-input" id="tm_5" value="1.668" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
-                        <div class="ui-input-box">
-                            <label class="ui-label">Sabtu</label>
-                            <input type="text" class="ui-input" id="tm_6" value="2.447" oninput="formatRibuan(this); hitungSemua()">
-                        </div>
+                <!-- TARGET MURNI -->
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                    <h3 style="font-size: 12px; margin-bottom: 8px; color: #343a40;">🎯 Target Murni</h3>
+                    <div class="grid-2">
+                        <div class="ui-input-box"><label class="ui-label">Senin</label><input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box"><label class="ui-label">Selasa</label><input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box"><label class="ui-label">Rabu</label><input type="text" class="ui-input" id="tm_3" value="2.550" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box"><label class="ui-label">Kamis</label><input type="text" class="ui-input" id="tm_4" value="1.865" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box"><label class="ui-label">Jum'at</label><input type="text" class="ui-input" id="tm_5" value="1.668" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box"><label class="ui-label">Sabtu</label><input type="text" class="ui-input" id="tm_6" value="2.447" oninput="formatRibuan(this); hitungSemua()"></div>
                     </div>
                 </div>
-                <!-- SELESAI TARGET MURNI -->
 
-                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 25px; font-size: 14px; background: #25D366; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);">
+                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 15px; font-size: 13px; background: #25D366; box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);">
                     📤 Kirim ke WA (Gambar & Teks)
                 </button>
             </div>
 
-            <!-- Input tersembunyi agar rumus sisa uang (SU) tetap berjalan -->
             <input type="hidden" id="st_storan_auto">
         </div>
     </div>
@@ -255,39 +225,20 @@
     <!-- TABS REKAP -->
     <div id="menu-rekap" class="tab-content">
         <div class="card">
-            <h3><span>1. Rekap Harian (Lalu)</span><span class="auto-save">✅ Terhubung ke Storan</span></h3>
-            
-            <div style="display: none;">
-                <input type="text" id="d1">
-                <input type="text" id="s1">
-                <input type="text" id="drRec">
-                <input type="text" id="stRec">
-            </div>
-
+            <h3><span>1. Rekap Harian (Lalu)</span><span class="auto-save">✅ Auto</span></h3>
+            <div style="display: none;"><input type="text" id="d1"><input type="text" id="s1"><input type="text" id="drRec"><input type="text" id="stRec"></div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Drop Lalu:</label>
-                    <input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>Storting Lalu:</label>
-                    <input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Sirkulasi Lalu:</label>
-                    <input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="0">
-                </div>
+                <div class="form-group"><label>Drop Lalu:</label><input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+                <div class="form-group"><label>Stort Lalu:</label><input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
+                <div class="form-group" style="grid-column: span 2;"><label>Sirkulasi Lalu:</label><input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="0"></div>
             </div>
-
-            <div class="res-box" style="margin-bottom:0; padding: 10px; line-height: 1.6;">
-                <div id="hDrop">Jumlah Drop : 0</div>
-                <div id="hStort">Jumlah Storting : 0</div>
-                <div id="hSirkulasi">Saldo Sirkulasi : 0</div>
+            <div class="res-box" style="margin-bottom:0; padding: 8px; line-height: 1.4;">
+                <div id="hDrop">Jml Drop : 0</div><div id="hStort">Jml Storting : 0</div><div id="hSirkulasi">Saldo Sirkulasi : 0</div>
             </div>
         </div>
 
         <div class="card">
-            <h3>2. Perhitungan CM, MB, ML</h3>
+            <h3>2. Hitung CM, MB, ML</h3>
             <table class="tabel-rekap">
                 <tr><th>Data</th><th>CM</th><th>MB</th><th>ML</th></tr>
                 <tr><td class="label-cell">Angsuran</td>
@@ -311,42 +262,20 @@
                     <td>-</td>
                 </tr>
                 <tr><td class="label-cell">Hasil</td>
-                    <td class="hasil-cell" id="res1">-</td>
-                    <td class="hasil-cell" id="res2">-</td>
-                    <td class="hasil-cell" id="res3">-</td>
+                    <td class="hasil-cell" id="res1">-</td><td class="hasil-cell" id="res2">-</td><td class="hasil-cell" id="res3">-</td>
                 </tr>
             </table>
-            <button class="btn-hapus" style="width: 100%; margin-top: 10px;" onclick="hapusData('rekap')">🗑️ Reset Kalkulator Rekap</button>
+            <button class="btn-hapus" style="width: 100%; margin-top: 8px;" onclick="hapusData('rekap')">🗑️ Reset Rekap</button>
         </div>
 
-        <div class="card" style="padding: 8px;">
-            <h3 style="margin: 5px;"><span id="judul-tabel">📋 Tabel Rekap</span><span class="auto-save">✅ Terisi Otomatis</span></h3>
-            
+        <div class="card" style="padding: 6px;">
+            <h3 style="margin: 4px;"><span id="judul-tabel">📋 Tabel Rekap</span></h3>
             <div class="table-wrapper">
                 <table class="ledger-table tabel-storan-ui">
                     <thead>
-                        <tr>
-                            <th class="hari-col">Hari</th>
-                            <th>Drop</th>
-                            <th>Jml Drop</th>
-                            <th>Stort</th>
-                            <th>Jml Stort</th>
-                            <th>Sld Sirk</th>
-                            <th>Angs CM</th>
-                            <th>Jml CM</th>
-                            <th>Sld CM</th>
-                            <th>% CM</th>
-                            <th>Angs MB</th>
-                            <th>Jml MB</th>
-                            <th>Sld MB</th>
-                            <th>% MB</th>
-                            <th>Angs ML</th>
-                            <th>Jml ML</th>
-                            <th>Sld ML</th>
-                        </tr>
+                        <tr><th class="hari-col">Hari</th><th>Drop</th><th>Jml Drop</th><th>Stort</th><th>Jml Stort</th><th>Sld Sirk</th><th>Angs CM</th><th>Jml CM</th><th>Sld CM</th><th>% CM</th><th>Angs MB</th><th>Jml MB</th><th>Sld MB</th><th>% MB</th><th>Angs ML</th><th>Jml ML</th><th>Sld ML</th></tr>
                     </thead>
-                    <tbody id="body-tabel">
-                    </tbody>
+                    <tbody id="body-tabel"></tbody>
                 </table>
             </div>
             <div class="btn-group">
@@ -359,65 +288,39 @@
     <!-- TABS TARGET -->
     <div id="menu-target" class="tab-content">
         <div class="card">
-            <h3><span>🎯 Target & Proyeksi Harian</span></h3>
-            
-            <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
-                <div class="info-badge" style="background:#007bff; color:white;">
-                    Total HK: <input type="number" id="info-hk-total" class="hk-input" oninput="hitungManualHK()">
-                </div>
-                <div class="info-badge" style="background:#28a745; color:white;">
-                    Dilalui: <input type="number" id="info-hk-lalu" class="hk-input" oninput="hitungManualHK()">
-                </div>
-                <div class="info-badge" style="background:#dc3545; color:white;">
-                    Sisa HK: <input type="number" id="info-hk-sisa" class="hk-input" readonly>
-                </div>
+            <h3><span>🎯 Target Harian</span></h3>
+            <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 10px;">
+                <div class="info-badge" style="background:#007bff; color:white;">Total HK: <input type="number" id="info-hk-total" class="hk-input" oninput="hitungManualHK()"></div>
+                <div class="info-badge" style="background:#28a745; color:white;">Dilalui: <input type="number" id="info-hk-lalu" class="hk-input" oninput="hitungManualHK()"></div>
+                <div class="info-badge" style="background:#dc3545; color:white;">Sisa HK: <input type="number" id="info-hk-sisa" class="hk-input" readonly></div>
             </div>
 
             <div class="flex-row">
-                <div style="flex:1;">
-                    <label style="font-size:11px; font-weight:bold; color:#555;">Program Drop (Tersimpan):</label>
-                    <input type="text" inputmode="numeric" id="tg_program" oninput="formatRibuan(this); hitungSemua();" placeholder="Isi Program (Rp)">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:11px; font-weight:bold; color:#555;">Index Storting (%):</label>
-                    <input type="number" id="tg_index" oninput="hitungSemua();" placeholder="Contoh: 123">
-                </div>
+                <div style="flex:1;"><label style="font-size:10px; font-weight:bold; color:#555;">Program Drop:</label><input type="text" inputmode="numeric" id="tg_program" oninput="formatRibuan(this); hitungSemua();" placeholder="(Rp)"></div>
+                <div style="flex:1;"><label style="font-size:10px; font-weight:bold; color:#555;">Index (%):</label><input type="number" id="tg_index" oninput="hitungSemua();" placeholder="123"></div>
             </div>
 
-            <div class="res-box" id="res_kekuatan" style="margin-top: 10px; text-align: center;">
-                Kekuatan Program Hari Ini<br><span style="font-size:22px; color:#0056b3;" id="disp_kekuatan">0</span>
+            <div class="res-box" id="res_kekuatan" style="margin-top: 8px; text-align: center;">
+                Kekuatan Program Hari Ini<br><span style="font-size:18px; color:#0056b3;" id="disp_kekuatan">0</span>
             </div>
 
             <div class="grid-2">
-                <div class="res-box" style="margin-bottom:0; background:#fff3cd; border-color:#ffc107; color:#856404; text-align:center;">
-                    Cari Drop / Hari Sisa<br><span style="font-size:16px;" id="disp_caridrop">0</span>
-                </div>
-                <div class="res-box" style="margin-bottom:0; background:#d4edda; border-color:#28a745; color:#155724; text-align:center;">
-                    Target Stort / Hari Sisa<br><span style="font-size:16px;" id="disp_targetstort">0</span>
-                </div>
+                <div class="res-box" style="margin-bottom:0; background:#fff3cd; border-color:#ffc107; color:#856404; text-align:center;">Cari Drop / Sisa<br><span style="font-size:14px;" id="disp_caridrop">0</span></div>
+                <div class="res-box" style="margin-bottom:0; background:#d4edda; border-color:#28a745; color:#155724; text-align:center;">Target Stort / Sisa<br><span style="font-size:14px;" id="disp_targetstort">0</span></div>
             </div>
         </div>
 
-        <div class="card" style="padding: 8px;">
-            <h3 style="margin: 5px;"><span id="judul-tabel-target">📋 Tabel Target Bulan Ini</span></h3>
-            
+        <div class="card" style="padding: 6px;">
+            <h3 style="margin: 4px;"><span id="judul-tabel-target">📋 Tabel Target</span></h3>
             <div class="table-wrapper">
                 <table class="ledger-table tabel-target-ui">
-                    <thead>
-                        <tr>
-                            <th class="hari-col">Hari</th>
-                            <th>Kekuatan</th>
-                            <th>Cari Drop</th>
-                            <th>Stort / Hari</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body-tabel-target">
-                    </tbody>
+                    <thead><tr><th class="hari-col">Hari</th><th>Kekuatan</th><th>Cari Drop</th><th>Stort / Hari</th></tr></thead>
+                    <tbody id="body-tabel-target"></tbody>
                 </table>
             </div>
             <div class="btn-group">
-                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-target-ui', 'Target')">📊 Unduh Excel Target</button>
-                <button class="btn-hapus btn-hapus-tabel" onclick="resetTarget()">⚠️ Reset Data Target</button>
+                <button class="btn-salin btn-salin-tabel" onclick="exportKeCSV('tabel-target-ui', 'Target')">📊 Unduh Excel</button>
+                <button class="btn-hapus btn-hapus-tabel" onclick="resetTarget()">⚠️ Reset</button>
             </div>
         </div>
     </div>
@@ -425,56 +328,50 @@
     <!-- TABS PENGATURAN -->
     <div id="menu-pengaturan" class="tab-content">
         <div class="card">
-            <h3>⚙️ Pengaturan Parameter Aplikasi</h3>
-            
+            <h3>⚙️ Setelan Parameter</h3>
             <div class="form-group">
-                <label>Tanggal Merah Libur Kantor:</label>
-                <input type="text" id="cfg_tanggal_merah" placeholder="Format DD-MM (Contoh: 01-01, 17-08, 25-12)">
-                <span class="hint">*Hari Minggu otomatis dianggap libur oleh sistem. Pisahkan tanggal dengan koma.</span>
+                <label>Tanggal Merah (Libur):</label>
+                <input type="text" id="cfg_tanggal_merah" placeholder="01-01, 17-08, 25-12">
             </div>
-            
-            <div class="grid-2" style="margin-top:15px;">
-                <div class="form-group">
-                    <label>Persen Drop Toko (%):</label>
-                    <input type="number" id="cfg_pct_drop_toko" placeholder="11">
-                </div>
-                <div class="form-group">
-                    <label>Persen Bonus Drop (%):</label>
-                    <input type="number" id="cfg_pct_drop_bonus" placeholder="9">
-                </div>
-                <div class="form-group">
-                    <label>Persen Storan Pokok (%):</label>
-                    <input type="number" id="cfg_pct_storan" placeholder="20">
-                </div>
-                <div class="form-group">
-                    <label>Faktor Sirkulasi:</label>
-                    <input type="number" step="0.1" id="cfg_faktor_sirkulasi" placeholder="1.3">
-                </div>
+            <div class="grid-2" style="margin-top:10px;">
+                <div class="form-group"><label>Drop Toko (%):</label><input type="number" id="cfg_pct_drop_toko" placeholder="11"></div>
+                <div class="form-group"><label>Bonus Drop (%):</label><input type="number" id="cfg_pct_drop_bonus" placeholder="9"></div>
+                <div class="form-group"><label>Storan Pokok (%):</label><input type="number" id="cfg_pct_storan" placeholder="20"></div>
+                <div class="form-group"><label>Faktor Sirkulasi:</label><input type="number" step="0.1" id="cfg_faktor_sirkulasi" placeholder="1.3"></div>
             </div>
-
-            <div class="form-group" style="margin-top:10px;">
-                <label>Nama Petugas / Resort (Untuk WA):</label>
-                <input type="text" id="cfg_nama_petugas" placeholder="Contoh: Sigit Ari Wibowo (Pati 5)">
+            <div class="form-group" style="margin-top:8px;">
+                <label>Nama Petugas (WA):</label>
+                <input type="text" id="cfg_nama_petugas" placeholder="Nama Anda (Pati 5)">
             </div>
-
-            <button class="btn-salin" style="width: 100%; margin-top: 15px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Parameter</button>
-        </div>
-
-        <div class="card">
-            <h3>💾 Cadangkan & Pulihkan Data</h3>
-            <div style="display: flex; gap: 6px;">
-                <button class="btn-backup" onclick="exportData()">📤 Cadangkan (.json)</button>
-                <label class="btn-restore">
-                    📥 Pulihkan
-                    <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
-                </label>
-            </div>
+            <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
         </div>
     </div>
 
-    <div style="text-align:center; font-size:11px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b></div>
+    <div style="text-align:center; font-size:10px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b> | Cloud Sync: ON ☁️</div>
 
     <script>
+        // INISIALISASI FIREBASE (CLOUD DATABASE)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtZvwWnd73eACuFNbcH2Px_o7LWB02PiE",
+            authDomain: "kalkulator-pati-5.firebaseapp.com",
+            databaseURL: "https://kalkulator-pati-5-default-rtdb.firebaseio.com", // Penting untuk koneksi
+            projectId: "kalkulator-pati-5",
+            storageBucket: "kalkulator-pati-5.firebasestorage.app",
+            messagingSenderId: "575843424835",
+            appId: "1:575843424835:web:e80989d11b0781ea8d92f6",
+            measurementId: "G-M24J92YWGT"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // FUNGSI PENYIMPANAN KE CLOUD
+        function simpanKeCloud(path, data) {
+            database.ref('KalkulatorPati5/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
+        }
+
+        // GLOBAL VARIABLE UNTUK MENUNCI TANGGAL AGAR ANGSURAN ROLLOVER BERJALAN BENAR
+        const APP_LOAD_DATE = getTodayString();
+        
         // INIT PWA
         function setupPWA() {
             const manifestData = {
@@ -484,15 +381,6 @@
             };
             const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'}));
             document.getElementById('pwa-manifest').href = manifestUrl;
-
-            if ('serviceWorker' in navigator) {
-                const swCode = `
-                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v9').then(c => c.addAll([location.href, 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js']))); self.skipWaiting(); });
-                    self.addEventListener('activate', e => { self.clients.claim(); });
-                    self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)).catch(() => new Response("Offline Mode"))); });
-                `;
-                navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error);
-            }
         }
 
         function getTanggalMerahArray() {
@@ -506,17 +394,40 @@
             let lalu = parseInt(document.getElementById('info-hk-lalu').value) || 0;
             let sisa = total - lalu;
             document.getElementById('info-hk-sisa').value = sisa;
+            
+            // Simpan Ganda (Lokal + Cloud)
             localStorage.setItem('KalkulatorPati_HK_Total', total);
             localStorage.setItem('KalkulatorPati_HK_Lalu', lalu);
+            simpanKeCloud('HK_Total', total);
+            simpanKeCloud('HK_Lalu', lalu);
+            
             hitungSemua(); 
         }
 
         function muatHK() {
+            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate(); const tanggalMerah = getTanggalMerahArray();
+            let totalHK = 0; let hkLalu = 0;
+            
+            for(let i=1; i<=jmlHari; i++) {
+                let currDate = new Date(tahun, bulan, i); 
+                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2);
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat);
+                
+                if(!isLibur) { 
+                    totalHK++; 
+                    if(i <= tglHariIni) { hkLalu++; }
+                }
+            }
+            
+            // Gunakan nilai manual jika ada dari penyimpanan
             let savedTotal = localStorage.getItem('KalkulatorPati_HK_Total');
             let savedLalu = localStorage.getItem('KalkulatorPati_HK_Lalu');
-            document.getElementById('info-hk-total').value = savedTotal !== null ? savedTotal : 27;
-            document.getElementById('info-hk-lalu').value = savedLalu !== null ? savedLalu : 9;
-            hitungManualHK();
+
+            document.getElementById('info-hk-total').value = savedTotal !== null ? savedTotal : totalHK;
+            document.getElementById('info-hk-lalu').value = savedLalu !== null ? savedLalu : hkLalu;
+            
+            hitungManualHK(); 
         }
 
         function formatRibuan(el) {
@@ -569,7 +480,7 @@
 
         function tampilkanTanggal() {
             const H = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const B = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const B = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             let d = new Date();
             document.getElementById('tanggal-hari-ini').innerText = H[d.getDay()] + ', ' + d.getDate() + ' ' + B[d.getMonth()] + ' ' + d.getFullYear();
         }
@@ -582,8 +493,8 @@
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             
-            let judul = document.getElementById('judul-tabel'); if(judul) judul.innerText = '📋 Tabel Rekap ' + namaBulan[bulan] + ' ' + tahun;
-            let judulTarget = document.getElementById('judul-tabel-target'); if(judulTarget) judulTarget.innerText = '📋 Tabel Target ' + namaBulan[bulan] + ' ' + tahun;
+            let judul = document.getElementById('judul-tabel'); if(judul) judul.innerText = '📋 Rekap ' + namaBulan[bulan] + ' ' + tahun;
+            let judulTarget = document.getElementById('judul-tabel-target'); if(judulTarget) judulTarget.innerText = '📋 Target ' + namaBulan[bulan] + ' ' + tahun;
 
             let tbody = document.getElementById('body-tabel'); let tbodyTarget = document.getElementById('body-tabel-target');
             if(!tbody || !tbodyTarget) return;
@@ -630,18 +541,17 @@
             let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
             if(s1 && st_s) s1.value = st_s.value; hitungSemua();
         }
-        function syncDariRekap() {
-            let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
-            if(d1 && st_d) st_d.value = d1.value;
-            let s1 = document.getElementById('s1'); let st_s = document.getElementById('st_storting');
-            if(s1 && st_s) st_s.value = s1.value; hitungSemua();
-        }
 
         function setTabel(idPrefix, nilai) {
-            let tglHariIni = new Date().getDate(); let el = document.getElementById(idPrefix + tglHariIni);
-            if(el) {
-                if (nilai === 0 || nilai === '' || isNaN(nilai)) el.value = '';
-                else if (idPrefix === 't_pc_' || idPrefix === 't_pm_') el.value = formatPersen(nilai);
+            let tglHariIni = new Date().getDate(); 
+            let el = document.getElementById(idPrefix + tglHariIni);
+            
+            if(el && document.activeElement !== el) {
+                if (isNaN(nilai) || nilai === '') { el.value = ''; return; }
+                if (nilai === 0 && !['t_sc_', 't_sm_', 't_sl_', 't_si_', 't_jc_', 't_jm_', 't_jl_'].includes(idPrefix)) { 
+                    el.value = ''; return; 
+                }
+                if (idPrefix === 't_pc_' || idPrefix === 't_pm_') el.value = (nilai === 0) ? "" : formatPersen(nilai);
                 else el.value = formatAngka(nilai); 
             }
         }
@@ -654,6 +564,15 @@
 
         function hitungSemua() {
             try {
+                if (getTodayString() !== APP_LOAD_DATE) {
+                    let btnWA = document.getElementById('btn-kirim-wa');
+                    if(btnWA) {
+                        btnWA.innerHTML = "⚠️ HARI BERGANTI - REFRESH HALAMAN DULU";
+                        btnWA.style.background = "#dc3545";
+                        btnWA.disabled = true;
+                    }
+                }
+
                 let cfgDropToko = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropToko')) || 11) / 100;
                 let cfgDropBonus = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus')) || 9) / 100;
                 let cfgStoranPokok = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctStoran')) || 20) / 100;
@@ -667,26 +586,38 @@
                 if(stRec && s1_el) { stRec.value = s1_el.value; }
 
                 let d1 = getNum('d1'); let d2 = getNum('d2'); let JmlDrop = d1 + d2; 
-                let hDrop = document.getElementById('hDrop'); if(hDrop) hDrop.innerText = "Jumlah Drop : " + formatAngka(JmlDrop);
+                let hDrop = document.getElementById('hDrop'); if(hDrop) hDrop.innerText = "Jml Drop : " + formatAngka(JmlDrop);
 
                 let s1 = getNum('s1'); let s2 = getNum('s2'); let JmlStort = s1 + s2; 
-                let hStort = document.getElementById('hStort'); if(hStort) hStort.innerText = "Jumlah Storting : " + formatAngka(JmlStort);
+                let hStort = document.getElementById('hStort'); if(hStort) hStort.innerText = "Jml Storting : " + formatAngka(JmlStort);
 
                 let si = getNum('siRec'); let sirk = (d1 * cfgFaktorSirkulasi) - s1 + si; 
                 let hSirkulasi = document.getElementById('hSirkulasi');
                 if(hSirkulasi) {
                     hSirkulasi.innerText = "Saldo Sirkulasi : " + formatAngka(sirk);
-                    if(sirk < 0) { hSirkulasi.classList.add('alert-minus'); hSirkulasi.innerHTML = "⚠️ Saldo Sirkulasi : " + formatAngka(sirk); } 
+                    if(sirk < 0) { hSirkulasi.classList.add('alert-minus'); hSirkulasi.innerHTML = "⚠️ Saldo Sirk : " + formatAngka(sirk); } 
                     else { hSirkulasi.classList.remove('alert-minus'); }
                 }
 
                 for(let i=1; i<=3; i++) {
                     let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i); let p = getNum('p'+(i==3?1:i)) || 1;
-                    let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
-                    let persentase = (i == 3) ? "" : ("<br>Persentase: " + formatPersen(pctRaw));
+                    let hasil = a + j; let sisa = sa - a; 
+                    
+                    // PERBAIKAN BUG PERSENTASE DI SINI (Dihilangkan * 100)
+                    let pctRaw = (sisa / p); 
+
+                    let persentase = (i == 3) ? "" : ("<br>Persen: " + formatPersen(pctRaw));
                     let saldoStr = sisa < 0 ? `<span class="text-minus">⚠️ ${formatAngka(sisa)}</span>` : formatAngka(sisa);
                     let resBox = document.getElementById('res'+i);
                     if(resBox) resBox.innerHTML = `Jumlah: ${formatAngka(hasil)}<br>Saldo: ${saldoStr}${persentase}`;
+
+                    if (i === 1) { 
+                        setTabel('t_ac_', a); setTabel('t_jc_', hasil); setTabel('t_sc_', sisa); setTabel('t_pc_', pctRaw);
+                    } else if (i === 2) { 
+                        setTabel('t_am_', a); setTabel('t_jm_', hasil); setTabel('t_sm_', sisa); setTabel('t_pm_', pctRaw);
+                    } else if (i === 3) { 
+                        setTabel('t_al_', a); setTabel('t_jl_', hasil); setTabel('t_sl_', sisa);
+                    }
                 }
 
                 let drop = getNum('st_drop'); let kasbon = getNum('st_kasbon');
@@ -793,7 +724,11 @@
             let dataTabel = {}; let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
             let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
-            localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), JSON.stringify(dataTabel));
+            
+            // Simpan Ganda
+            let jsonString = JSON.stringify(dataTabel);
+            localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), jsonString);
+            simpanKeCloud('Tabel_' + getBulanTahunString(), jsonString);
         }
 
         function muatTabel() {
@@ -803,12 +738,16 @@
 
         function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
         function resetTarget() {
-            if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index di menu Target?")) { document.getElementById('tg_program').value = ''; document.getElementById('tg_index').value = ''; hitungSemua(); }
+            if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index?")) { document.getElementById('tg_program').value = ''; document.getElementById('tg_index').value = ''; hitungSemua(); }
         }
 
         function simpanKalkulator() {
             let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
-            localStorage.setItem('KalkulatorPati_Mini', JSON.stringify({ lastDate: getTodayString(), values: dataObj }));
+            
+            // Simpan Ganda
+            let dataSave = { lastDate: APP_LOAD_DATE, values: dataObj };
+            localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(dataSave));
+            simpanKeCloud('Kalkulator_Mini', JSON.stringify(dataSave));
         }
 
         function muatKalkulator() {
@@ -816,31 +755,42 @@
             let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
             let savedData = localStorage.getItem('KalkulatorPati_Mini');
             
+            const parseSaved = (val) => parseFloat((val || '').replace(/[^0-9\-,]/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
+
             if(savedData) {
                 try {
                     let parsed = JSON.parse(savedData); let todayStr = getTodayString();
                     let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
 
                     if (lastDate !== todayStr) {
-                        let totalDrop = (parseFloat((dataObj['d1'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['d2'] || '').replace(/\./g, ''))||0);
-                        let totalStort = (parseFloat((dataObj['s1'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['s2'] || '').replace(/\./g, ''))||0);
-                        let totalSirk = ((parseFloat((dataObj['drRec'] || '').replace(/\./g, ''))||0) * cfgFaktorSirkulasi) - (parseFloat((dataObj['stRec'] || '').replace(/\./g, ''))||0) + (parseFloat((dataObj['siRec'] || '').replace(/\./g, ''))||0);
+                        let totalDrop = parseSaved(dataObj['d1']) + parseSaved(dataObj['d2']);
+                        let totalStort = parseSaved(dataObj['s1']) + parseSaved(dataObj['s2']);
+                        let totalSirk = (parseSaved(dataObj['drRec']) * cfgFaktorSirkulasi) - parseSaved(dataObj['stRec']) + parseSaved(dataObj['siRec']);
 
-                        if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString();
-                        if (totalStort !== 0) dataObj['s2'] = totalStort.toString();
-                        if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString();
+                        if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString().replace('.', ',');
+                        if (totalStort !== 0) dataObj['s2'] = totalStort.toString().replace('.', ',');
+                        if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString().replace('.', ',');
                         
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = ''; dataObj['st_transfer'] = '';
 
                         for(let i=1; i<=3; i++) {
-                            let a = parseFloat((dataObj['a'+i] || '').replace(/\./g, ''))||0; let j = parseFloat((dataObj['j'+i] || '').replace(/\./g, ''))||0; let sa = parseFloat((dataObj['sa'+i] || '').replace(/\./g, ''))||0;
-                            if (a > 0) { dataObj['j'+i] = (a+j).toString(); dataObj['sa'+i] = (sa-a).toString(); }
+                            let a = parseSaved(dataObj['a'+i]); 
+                            let j = parseSaved(dataObj['j'+i]); 
+                            let sa = parseSaved(dataObj['sa'+i]);
+                            if (a > 0) { 
+                                dataObj['j'+i] = (a+j).toString().replace('.', ','); 
+                                dataObj['sa'+i] = (sa-a).toString().replace('.', ','); 
+                            }
                             dataObj['a'+i] = '';
                         }
-                        alert("🌅 Hari baru terdeteksi! Sistem memindahkan sisa saldo operasional terakhir secara otomatis.");
-                        parsed.lastDate = todayStr; localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
+                        alert("🌅 Hari baru terdeteksi! Sistem memindahkan sisa saldo operasional terakhir dan nilai angsuran secara otomatis.");
+                        parsed.lastDate = todayStr; 
+                        
+                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
+                        simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
                     }
+
                     semuaIds.forEach(id => {
                         let el = document.getElementById(id);
                         if(el && dataObj[id] !== undefined) {
@@ -857,10 +807,16 @@
             let tm = document.getElementById('cfg_tanggal_merah').value; let pt = document.getElementById('cfg_pct_drop_toko').value;
             let pb = document.getElementById('cfg_pct_drop_bonus').value; let ps = document.getElementById('cfg_pct_storan').value;
             let fs = document.getElementById('cfg_faktor_sirkulasi').value; let np = document.getElementById('cfg_nama_petugas').value;
+            
+            // Simpan Lokal
             localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm); localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
             localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
             localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
-            alert("✅ Pengaturan Parameter Berhasil Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
+            
+            // Simpan Cloud
+            simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np}));
+
+            alert("✅ Pengaturan Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
         }
 
         function muatPengaturan() {
@@ -879,28 +835,20 @@
             }
         }
 
-        // FUNGSI SCREENSHOT OTOMATIS & KIRIM KE APLIKASI WHATSAPP
         async function kirimKeWA() {
             let drop = getNum('st_drop');
             let storting = getNum('st_storting');
-            
-            // Logika format teks Drop
             let rawDropStr = document.getElementById('st_drop').value || "0";
             let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr;
 
-            // AMBIL DATA TARGET MURNI HARI INI
-            let dayOfWeek = new Date().getDay(); // 0 = Minggu, 1 = Senin, dst
+            let dayOfWeek = new Date().getDay(); 
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            // RUMUS MURNI BARU PERBAIKAN: storting - (murni + (drop * 0.13 * 2))
-            let hasilKurung = storting - (targetHariIni + (drop * 0.13 * 2));
-            
-            // Format string disesuaikan
+            let hasilKurung = storting - targetHariIni + (drop * 0.13 * 2);
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
-            // Susunan teks WA baru
             let teksWA = `Klp V\n` +
                          `${teksDrop}\n` +
                          `${stringMurni}\n` +
@@ -910,63 +858,42 @@
             let btn = document.getElementById('btn-kirim-wa');
             let originalText = btn.innerText;
             
-            // Ubah tombol saat memproses
-            btn.innerText = "⏳ Sedang memproses gambar...";
+            btn.innerText = "⏳ Memproses...";
             btn.disabled = true;
 
             try {
                 if (typeof html2canvas === 'undefined') {
-                    alert("⚠️ Library pembuat gambar belum termuat. Pastikan ada koneksi internet dan coba lagi.");
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    return;
+                    alert("⚠️ Library pembuat gambar belum termuat. Pastikan ada koneksi internet.");
+                    btn.innerText = originalText; btn.disabled = false; return;
                 }
 
-                // Melakukan Screenshot otomatis pada blok input
-                let canvas = await html2canvas(captureEl, {
-                    scale: 2, 
-                    backgroundColor: "#f8f9fa" 
-                });
+                let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: "#f8f9fa" });
 
-                // Ubah Canvas menjadi file gambar JPG
                 canvas.toBlob(async function(blob) {
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
                     
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
-                            await navigator.share({
-                                files: [file],
-                                text: teksWA
-                            });
-                        } catch (err) {
-                            console.log("Pengiriman dibatalkan pengguna atau gagal", err);
-                        }
+                            await navigator.share({ files: [file], text: teksWA });
+                        } catch (err) { console.log("Pengiriman dibatalkan pengguna atau gagal"); }
                     } else {
-                        // Jika dibuka di browser yang tidak dukung Web Share API
                         navigator.clipboard.writeText(teksWA).then(() => {
                             let url = window.URL.createObjectURL(blob);
-                            let a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = 'Laporan_Pati5.jpg';
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
+                            let a = document.createElement('a'); a.style.display = 'none';
+                            a.href = url; a.download = 'Laporan_Pati5.jpg';
+                            document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
                             
-                            alert("✅ Teks Format WA berhasil disalin ke Papan Klip!\n✅ Gambar Laporan telah diunduh.\n\nKarena browser Anda tidak mendukung bagi-langsung (Share API), silakan buka WA manual, Paste teksnya, dan lampirkan gambar yang baru saja terunduh.");
+                            alert("✅ Teks berhasil disalin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
                         });
                     }
                     
-                    // Kembalikan keadaan tombol
-                    btn.innerText = originalText;
-                    btn.disabled = false;
+                    btn.innerText = originalText; btn.disabled = false;
                 }, "image/jpeg", 0.9);
 
             } catch (e) {
                 console.error("Error pembuatan gambar:", e);
                 alert("❌ Gagal membuat gambar dari layar.");
-                btn.innerText = originalText;
-                btn.disabled = false;
+                btn.innerText = originalText; btn.disabled = false;
             }
         }
 
@@ -984,26 +911,49 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
-        function exportData() {
-            let allData = {}; for (let i = 0; i < localStorage.length; i++) { let key = localStorage.key(i); if (key.includes('KalkulatorPati')) allData[key] = localStorage.getItem(key); }
-            if(Object.keys(allData).length === 0) { alert("Tidak ada data."); return; }
-            let d = document.createElement('a'); d.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData));
-            d.download = "backup_kalkulator_pati.json"; document.body.appendChild(d); d.click(); d.remove();
-        }
-
-        function importData(e) {
-            let file = e.target.files[0]; if (!file) return; let reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    let data = JSON.parse(evt.target.result);
-                    for (let key in data) if (key.includes('KalkulatorPati')) localStorage.setItem(key, data[key]);
-                    alert("✅ Data dipulihkan!"); location.reload();
-                } catch (err) { alert("❌ File salah."); }
-            }; reader.readAsText(file);
-        }
-
+        // FUNGSI UTAMA: MENARIK DATA DARI CLOUD SEBELUM HALAMAN DIMUAT
         window.onload = function() {
-            setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+            let statusEl = document.getElementById('status-cloud');
+            
+            // Tarik data dari Firebase sekali saat loading
+            database.ref('KalkulatorPati5').once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    
+                    // Timpa localStorage dengan data dari Cloud (jika ada)
+                    if(data['Tabel_' + getBulanTahunString()]) localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), data['Tabel_' + getBulanTahunString()]);
+                    if(data['Kalkulator_Mini']) localStorage.setItem('KalkulatorPati_Mini', data['Kalkulator_Mini']);
+                    
+                    if(data['Pengaturan']) {
+                        let cfg = JSON.parse(data['Pengaturan']);
+                        if(cfg.tm) localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', cfg.tm);
+                        if(cfg.pt) localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', cfg.pt);
+                        if(cfg.pb) localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', cfg.pb);
+                        if(cfg.ps) localStorage.setItem('KalkulatorPati_Cfg_PctStoran', cfg.ps);
+                        if(cfg.fs) localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', cfg.fs);
+                        if(cfg.np) localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', cfg.np);
+                    }
+                    if(data['HK_Total'] !== undefined) localStorage.setItem('KalkulatorPati_HK_Total', data['HK_Total']);
+                    if(data['HK_Lalu'] !== undefined) localStorage.setItem('KalkulatorPati_HK_Lalu', data['HK_Lalu']);
+                    
+                    statusEl.innerText = "☁️ Cloud OK";
+                    statusEl.style.background = "rgba(40, 167, 69, 0.9)";
+                } else {
+                    statusEl.innerText = "☁️ Database Baru";
+                    statusEl.style.background = "rgba(23, 162, 184, 0.9)";
+                }
+                
+                // Setelah selesai sinkronisasi, muat UI seperti biasa
+                setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+                
+            }).catch((error) => {
+                console.error("Gagal sinkronisasi cloud:", error);
+                statusEl.innerText = "⚠️ Offline Mode";
+                statusEl.style.background = "rgba(220, 53, 69, 0.9)";
+                
+                // Fallback (Tetap jalan pakai data lokal kalau internet mati)
+                setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+            });
         };
     </script>
 </body>
