@@ -195,7 +195,7 @@
             </div>
             <!-- SELESAI BLOK SCREENSHOT -->
 
-            <!-- Rumus & Hasil (Berada di luar area screenshot) -->
+            <!-- Rumus, Hasil & Target Murni (Berada di luar area screenshot) -->
             <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <!-- Rumus Box -->
                 <div class="rumus-box">
@@ -210,7 +210,39 @@
                     <div class="bg-1" id="hasilStoran">Storan<br>0</div>
                 </div>
 
-                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 20px; font-size: 14px; background: #25D366; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);">
+                <!-- TARGET MURNI (BARU) -->
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                    <h3 style="font-size: 14px; margin-bottom: 12px; color: #343a40;">🎯 Target Murni</h3>
+                    <div class="grid-2" style="gap: 12px;">
+                        <div class="ui-input-box">
+                            <label class="ui-label">Senin</label>
+                            <input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label">Selasa</label>
+                            <input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label">Rabu</label>
+                            <input type="text" class="ui-input" id="tm_3" value="2.550" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label">Kamis</label>
+                            <input type="text" class="ui-input" id="tm_4" value="1.865" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label">Jum'at</label>
+                            <input type="text" class="ui-input" id="tm_5" value="1.668" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label">Sabtu</label>
+                            <input type="text" class="ui-input" id="tm_6" value="2.447" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                    </div>
+                </div>
+                <!-- SELESAI TARGET MURNI -->
+
+                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 25px; font-size: 14px; background: #25D366; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);">
                     📤 Kirim ke WA (Gambar & Teks)
                 </button>
             </div>
@@ -455,7 +487,7 @@
 
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v8').then(c => c.addAll([location.href, 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js']))); self.skipWaiting(); });
+                    self.addEventListener('install', e => { e.waitUntil(caches.open('pati5-v9').then(c => c.addAll([location.href, 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js']))); self.skipWaiting(); });
                     self.addEventListener('activate', e => { self.clients.claim(); });
                     self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)).catch(() => new Response("Offline Mode"))); });
                 `;
@@ -615,7 +647,8 @@
         }
 
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
-        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer'];
+        // Ditambahkan tm_1 s.d tm_6 ke list penyimpanan data
+        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerDebounce = null;
@@ -849,14 +882,28 @@
 
         // FUNGSI SCREENSHOT OTOMATIS & KIRIM KE APLIKASI WHATSAPP
         async function kirimKeWA() {
-            let drop = document.getElementById('st_drop').value || "0";
+            let drop = getNum('st_drop');
+            let storting = getNum('st_storting');
             
-            // Logika format teks (menambahkan teks "drop:" jika tidak 0/kosong)
-            let teksDrop = (drop === "0" || drop === "") ? "StopDrob" : "drop:" + drop + ".";
+            // Logika format teks Drop
+            let rawDropStr = document.getElementById('st_drop').value || "0";
+            let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr + ".";
+
+            // AMBIL DATA TARGET MURNI HARI INI
+            let dayOfWeek = new Date().getDay(); // 0 = Minggu, 1 = Senin, dst
+            let targetInput = document.getElementById('tm_' + dayOfWeek);
+            let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
+            
+            // RUMUS MURNI: (Drop * 0.13 * 2) + TargetMurniHariIni - Storting = HasilMurni
+            let nilaiAwalMurni = (drop * 0.13 * 2) + targetHariIni;
+            let hasilMurni = nilaiAwalMurni - storting;
+            
+            let tanda = hasilMurni < 0 ? "" : "+"; 
+            let stringMurni = `murni:${formatAngka(nilaiAwalMurni)}-${formatAngka(storting)}(${tanda}${formatAngka(hasilMurni)})`;
 
             let teksWA = `Klp V\n` +
                          `${teksDrop}\n` +
-                         `murni:\n` +
+                         `${stringMurni}\n` +
                          `Masih melanjutkan maksimalkan penarikan pakk`;
 
             let captureEl = document.getElementById('area-screenshot');
@@ -875,7 +922,7 @@
                     return;
                 }
 
-                // Melakukan Screenshot otomatis pada blok tertentu saja, disesuaikan background-nya
+                // Melakukan Screenshot otomatis pada blok input
                 let canvas = await html2canvas(captureEl, {
                     scale: 2, 
                     backgroundColor: "#f8f9fa" 
