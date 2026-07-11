@@ -647,7 +647,6 @@
         }
 
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
-        // Ditambahkan tm_1 s.d tm_6 ke list penyimpanan data
         const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
@@ -887,24 +886,25 @@
             
             // Logika format teks Drop
             let rawDropStr = document.getElementById('st_drop').value || "0";
-            let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr + ".";
+            let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr;
 
             // AMBIL DATA TARGET MURNI HARI INI
             let dayOfWeek = new Date().getDay(); // 0 = Minggu, 1 = Senin, dst
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            // RUMUS MURNI: (Drop * 0.13 * 2) + TargetMurniHariIni - Storting = HasilMurni
-            let nilaiAwalMurni = (drop * 0.13 * 2) + targetHariIni;
-            let hasilMurni = nilaiAwalMurni - storting;
+            // RUMUS MURNI BARU PERBAIKAN: storting - (murni + (drop * 0.13 * 2))
+            let hasilKurung = storting - (targetHariIni + (drop * 0.13 * 2));
             
-            let tanda = hasilMurni < 0 ? "" : "+"; 
-            let stringMurni = `murni:${formatAngka(nilaiAwalMurni)}-${formatAngka(storting)}(${tanda}${formatAngka(hasilMurni)})`;
+            // Format string disesuaikan
+            let tanda = hasilKurung <= 0 ? "" : "+"; 
+            let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
+            // Susunan teks WA baru
             let teksWA = `Klp V\n` +
                          `${teksDrop}\n` +
                          `${stringMurni}\n` +
-                         `Masih melanjutkan maksimalkan penarikan pakk`;
+                         `Masih melanjutkan maksimalkan penarikan pakk .`;
 
             let captureEl = document.getElementById('area-screenshot');
             let btn = document.getElementById('btn-kirim-wa');
