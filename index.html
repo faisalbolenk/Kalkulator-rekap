@@ -354,12 +354,15 @@
         const firebaseConfig = {
             apiKey: "AIzaSyBtZvwWnd73eACuFNbcH2Px_o7LWB02PiE",
             authDomain: "kalkulator-pati-5.firebaseapp.com",
-            databaseURL: "https://kalkulator-pati-5-default-rtdb.firebaseio.com", // PASTIKAN BARIS INI ADA
+            // Pastikan URL Database di bawah ini sudah benar (sesuai lokasi server Anda). 
+            // Jika Anda pakai server Asia, biasanya: https://kalkulator-pati-5-default-rtdb.asia-southeast1.firebasedatabase.app
+            databaseURL: "https://kalkulator-pati-5-default-rtdb.asia-southeast1.firebasedatabase.app", 
             projectId: "kalkulator-pati-5",
             storageBucket: "kalkulator-pati-5.firebasestorage.app",
             messagingSenderId: "575843424835",
             appId: "1:575843424835:web:e80989d11b0781ea8d92f6",
             measurementId: "G-M24J92YWGT"
+        };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -882,7 +885,7 @@
                             a.href = url; a.download = 'Laporan_Pati5.jpg';
                             document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
                             
-                            alert("✅ Teks berhasil disalin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
+                            alert("✅ Teks berhasil salin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
                         });
                     }
                     
@@ -913,9 +916,27 @@
         // FUNGSI UTAMA: MENARIK DATA DARI CLOUD SEBELUM HALAMAN DIMUAT
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
-            
-            // Tarik data dari Firebase sekali saat loading
+            let isLoaded = false; // Penanda agar tidak memuat ganda
+
+            // 1. TIMEOUT 5 DETIK: Jika Firebase loading terus, paksa ke Mode Offline
+            let fallbackTimeout = setTimeout(() => {
+                if (!isLoaded) {
+                    isLoaded = true;
+                    console.warn("Koneksi Firebase lambat/terputus (Timeout). Beralih ke Offline Mode.");
+                    statusEl.innerText = "⚠️ Offline Mode";
+                    statusEl.style.background = "rgba(220, 53, 69, 0.9)";
+                    
+                    // Lanjut muat aplikasi dengan data lokal
+                    setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+                }
+            }, 5000); // 5000 ms = 5 detik (Bisa Anda ubah jika perlu)
+
+            // 2. Tarik data dari Firebase
             database.ref('KalkulatorPati5').once('value').then((snapshot) => {
+                if (isLoaded) return; // Abaikan jika sudah timeout duluan
+                isLoaded = true;
+                clearTimeout(fallbackTimeout); // Batalkan hitung mundur timeout
+
                 if (snapshot.exists()) {
                     let data = snapshot.val();
                     
@@ -946,11 +967,15 @@
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                 
             }).catch((error) => {
+                if (isLoaded) return; // Abaikan jika sudah timeout
+                isLoaded = true;
+                clearTimeout(fallbackTimeout);
+
                 console.error("Gagal sinkronisasi cloud:", error);
-                statusEl.innerText = "⚠️ Offline Mode";
+                statusEl.innerText = "⚠️ Ditolak (Rules/Offline)";
                 statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                 
-                // Fallback (Tetap jalan pakai data lokal kalau internet mati)
+                // Fallback (Tetap jalan pakai data lokal)
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
             });
         };
