@@ -161,11 +161,9 @@
                     <div class="ui-input-box" id="box_drop_container">
                         <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
                         <div style="display: flex; gap: 4px;">
-                            <!-- Kotak Drop Baru & Lunas Berdampingan dalam 1 Kolom -->
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center !important;">
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center !important;">
                         </div>
-                        <!-- Nilai Total Drop disembunyikan di sini agar rumus bawaan tetap jalan -->
                         <input type="hidden" id="st_drop">
                     </div>
 
@@ -968,6 +966,30 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
+        // FUNGSI BARU: MENANGKAP DATA DARI TAMPERMONKEY
+        function cekDataDariURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let hasData = false;
+            
+            if (urlParams.has('storting')) { document.getElementById('st_storting').value = urlParams.get('storting'); hasData = true; }
+            if (urlParams.has('cm')) { document.getElementById('a1').value = urlParams.get('cm'); hasData = true; }
+            if (urlParams.has('mb')) { document.getElementById('a2').value = urlParams.get('mb'); hasData = true; }
+            if (urlParams.has('ml')) { document.getElementById('a3').value = urlParams.get('ml'); hasData = true; }
+            
+            if (hasData) {
+                if(document.getElementById('st_storting').value) formatRibuan(document.getElementById('st_storting'));
+                if(document.getElementById('a1').value) formatRibuan(document.getElementById('a1'));
+                if(document.getElementById('a2').value) formatRibuan(document.getElementById('a2'));
+                if(document.getElementById('a3').value) formatRibuan(document.getElementById('a3'));
+                
+                syncDariStoran();
+                hitungSemua();
+                
+                window.history.replaceState({}, document.title, window.location.pathname);
+                alert("✅ Data berhasil ditarik otomatis dari web!");
+            }
+        }
+
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
             let isLoaded = false; 
@@ -981,6 +1003,7 @@
                     
                     setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                     cekVisibilitasDropBaru(); 
+                    cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
                 }
             }, 5000); 
 
@@ -1016,6 +1039,7 @@
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                 cekVisibilitasDropBaru(); 
+                cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
                 
             }).catch((error) => {
                 if (isLoaded) return;
@@ -1028,6 +1052,7 @@
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                 cekVisibilitasDropBaru(); 
+                cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
             });
         };
     </script>
