@@ -71,8 +71,8 @@
 
         /* INPUT KHUSUS UI STORAN */
         .ui-input-box { display: flex; flex-direction: column; text-align: left; }
-        .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; }
-        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left !important; font-size: 13px; outline: none;}
+        .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; font-weight: bold;}
+        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left !important; font-size: 13px; outline: none; transition: 0.3s;}
         .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
 
         /* AREA SCREENSHOT (DIPERKEcIL) */
@@ -155,11 +155,20 @@
                     Hitung Storting LP
                 </button>
                 
+                <!-- SUSUNAN BARU: HANYA 6 KOTAK, DROP BARU/LUNAS DIGABUNG -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-                    <div class="ui-input-box">
-                        <label class="ui-label">Drop</label>
-                        <input type="text" class="ui-input" inputmode="numeric" id="st_drop" oninput="formatRibuan(this); syncDariStoran()">
+                    
+                    <div class="ui-input-box" id="box_drop_container">
+                        <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
+                        <div style="display: flex; gap: 4px;">
+                            <!-- Kotak Drop Baru & Lunas Berdampingan dalam 1 Kolom -->
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center !important;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center !important;">
+                        </div>
+                        <!-- Nilai Total Drop disembunyikan di sini agar rumus bawaan tetap jalan -->
+                        <input type="hidden" id="st_drop">
                     </div>
+
                     <div class="ui-input-box">
                         <label class="ui-label">Kasbon</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()">
@@ -354,8 +363,6 @@
         const firebaseConfig = {
             apiKey: "AIzaSyBtZvwWnd73eACuFNbcH2Px_o7LWB02PiE",
             authDomain: "kalkulator-pati-5.firebaseapp.com",
-            // Pastikan URL Database di bawah ini sudah benar (sesuai lokasi server Anda). 
-            // Jika Anda pakai server Asia, biasanya: https://kalkulator-pati-5-default-rtdb.asia-southeast1.firebasedatabase.app
             databaseURL: "https://kalkulator-pati-5-default-rtdb.asia-southeast1.firebasedatabase.app", 
             projectId: "kalkulator-pati-5",
             storageBucket: "kalkulator-pati-5.firebasestorage.app",
@@ -366,15 +373,12 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // FUNGSI PENYIMPANAN KE CLOUD
         function simpanKeCloud(path, data) {
             database.ref('KalkulatorPati5/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
         }
 
-        // GLOBAL VARIABLE UNTUK MENUNCI TANGGAL AGAR ANGSURAN ROLLOVER BERJALAN BENAR
         const APP_LOAD_DATE = getTodayString();
         
-        // INIT PWA
         function setupPWA() {
             const manifestData = {
                 "name": "Kalkulator Pati", "short_name": "Pati 5", "start_url": window.location.href, "display": "standalone",
@@ -397,7 +401,6 @@
             let sisa = total - lalu;
             document.getElementById('info-hk-sisa').value = sisa;
             
-            // Simpan Ganda (Lokal + Cloud)
             localStorage.setItem('KalkulatorPati_HK_Total', total);
             localStorage.setItem('KalkulatorPati_HK_Lalu', lalu);
             simpanKeCloud('HK_Total', total);
@@ -422,7 +425,6 @@
                 }
             }
             
-            // Gunakan nilai manual jika ada dari penyimpanan
             let savedTotal = localStorage.getItem('KalkulatorPati_HK_Total');
             let savedLalu = localStorage.getItem('KalkulatorPati_HK_Lalu');
 
@@ -537,6 +539,56 @@
             tbody.innerHTML = htmlStoran; tbodyTarget.innerHTML = htmlTarget;
         }
 
+        // FUNGSI BARU: HITUNG TOTAL DROP DARI DUA KOTAK
+        function hitungTotalDrop() {
+            let baru = getNum('st_drop_baru');
+            let lunas = getNum('st_drop_pelunasan');
+            let total = baru + lunas;
+            let elTotal = document.getElementById('st_drop');
+            if(elTotal) elTotal.value = total === 0 ? "" : formatAngka(total);
+            syncDariStoran(); 
+        }
+
+        // FUNGSI BARU: CEK VISIBILITAS UNTUK 7 HARI KERJA
+        function cekVisibilitasDropBaru() {
+            let d = new Date(); 
+            let tahun = d.getFullYear(); 
+            let bulan = d.getMonth(); 
+            let tglHariIni = d.getDate();
+            const tanggalMerah = getTanggalMerahArray();
+            let hkBerjalan = 0;
+            
+            for(let i = 1; i <= tglHariIni; i++) {
+                let currDate = new Date(tahun, bulan, i); 
+                let tglBulanFormat = ('0'+i).slice(-2) + '-' + ('0'+(bulan+1)).slice(-2);
+                let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat);
+                
+                if(!isLibur) hkBerjalan++;
+            }
+            
+            let inputDropBaru = document.getElementById('st_drop_baru');
+            let labelDrop = document.getElementById('label_drop');
+            let inputDropLunas = document.getElementById('st_drop_pelunasan');
+
+            if(inputDropBaru && labelDrop && inputDropLunas) {
+                if(hkBerjalan <= 7) {
+                    inputDropBaru.style.display = 'block'; 
+                    labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
+                    inputDropLunas.placeholder = 'Lunas';
+                    inputDropLunas.style.borderColor = '#007bff';
+                    inputDropLunas.style.color = '#007bff';
+                } else {
+                    inputDropBaru.style.display = 'none'; // Sembunyikan Kotak Baru
+                    inputDropBaru.value = ''; // Kosongkan diam-diam
+                    labelDrop.innerHTML = 'Drop';
+                    inputDropLunas.placeholder = '0'; // Kembali seperti kotak drop biasa
+                    inputDropLunas.style.borderColor = '#ced4da'; // Warna default abu
+                    inputDropLunas.style.color = '#333'; // Warna default teks
+                    hitungTotalDrop(); 
+                }
+            }
+        }
+
         function syncDariStoran() {
             let d1 = document.getElementById('d1'); let st_d = document.getElementById('st_drop');
             if(d1 && st_d) d1.value = st_d.value;
@@ -559,7 +611,7 @@
         }
 
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
-        const storanIds = ['st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
+        const storanIds = ['st_drop_baru', 'st_drop_pelunasan', 'st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerDebounce = null;
@@ -605,7 +657,6 @@
                     let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i); let p = getNum('p'+(i==3?1:i)) || 1;
                     let hasil = a + j; let sisa = sa - a; 
                     
-                    // PERBAIKAN BUG PERSENTASE DI SINI (Dihilangkan * 100)
                     let pctRaw = (sisa / p); 
 
                     let persentase = (i == 3) ? "" : ("<br>Persen: " + formatPersen(pctRaw));
@@ -727,7 +778,6 @@
             let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
             
-            // Simpan Ganda
             let jsonString = JSON.stringify(dataTabel);
             localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), jsonString);
             simpanKeCloud('Tabel_' + getBulanTahunString(), jsonString);
@@ -746,7 +796,6 @@
         function simpanKalkulator() {
             let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
             
-            // Simpan Ganda
             let dataSave = { lastDate: APP_LOAD_DATE, values: dataObj };
             localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(dataSave));
             simpanKeCloud('Kalkulator_Mini', JSON.stringify(dataSave));
@@ -775,6 +824,7 @@
                         
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = ''; dataObj['st_transfer'] = '';
+                        dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
 
                         for(let i=1; i<=3; i++) {
                             let a = parseSaved(dataObj['a'+i]); 
@@ -810,12 +860,10 @@
             let pb = document.getElementById('cfg_pct_drop_bonus').value; let ps = document.getElementById('cfg_pct_storan').value;
             let fs = document.getElementById('cfg_faktor_sirkulasi').value; let np = document.getElementById('cfg_nama_petugas').value;
             
-            // Simpan Lokal
             localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm); localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
             localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
             localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
             
-            // Simpan Cloud
             simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np}));
 
             alert("✅ Pengaturan Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
@@ -838,8 +886,10 @@
         }
 
         async function kirimKeWA() {
-            let drop = getNum('st_drop');
+            let drop = getNum('st_drop'); // Total Drop 
+            let dropPelunasan = getNum('st_drop_pelunasan'); // UNTUK MURNI
             let storting = getNum('st_storting');
+            
             let rawDropStr = document.getElementById('st_drop').value || "0";
             let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr;
 
@@ -847,14 +897,19 @@
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            let hasilKurung = storting - targetHariIni + (drop * 0.13 * 2);
+            let hasilKurung = storting - targetHariIni + (dropPelunasan * 0.13 * 2);
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
-            let teksWA = `Klp V\n` +
-                         `${teksDrop}\n` +
-                         `${stringMurni}\n` +
-                         `Masih melanjutkan maksimalkan penarikan pakk .`;
+            // STRUKTUR PESAN WA
+            let teksWA = `Klp V\n` + `${teksDrop}\n`;
+            
+            // TAMBAHKAN TEKS DROP BARU JIKA ADA ISINYA DAN BELUM LEWAT 7 HK
+            if (getNum('st_drop_baru') > 0) {
+                teksWA += `drop baru:${document.getElementById('st_drop_baru').value}\n`;
+            }
+
+            teksWA += `${stringMurni}\n` + `Masih melanjutkan maksimalkan penarikan pakk .`;
 
             let captureEl = document.getElementById('area-screenshot');
             let btn = document.getElementById('btn-kirim-wa');
@@ -885,7 +940,7 @@
                             a.href = url; a.download = 'Laporan_Pati5.jpg';
                             document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
                             
-                            alert("✅ Teks berhasil salin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
+                            alert("✅ Teks berhasil disalin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
                         });
                     }
                     
@@ -913,12 +968,10 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
-        // FUNGSI UTAMA: MENARIK DATA DARI CLOUD SEBELUM HALAMAN DIMUAT
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
-            let isLoaded = false; // Penanda agar tidak memuat ganda
+            let isLoaded = false; 
 
-            // 1. TIMEOUT 5 DETIK: Jika Firebase loading terus, paksa ke Mode Offline
             let fallbackTimeout = setTimeout(() => {
                 if (!isLoaded) {
                     isLoaded = true;
@@ -926,21 +979,19 @@
                     statusEl.innerText = "⚠️ Offline Mode";
                     statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                     
-                    // Lanjut muat aplikasi dengan data lokal
                     setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+                    cekVisibilitasDropBaru(); 
                 }
-            }, 5000); // 5000 ms = 5 detik (Bisa Anda ubah jika perlu)
+            }, 5000); 
 
-            // 2. Tarik data dari Firebase
             database.ref('KalkulatorPati5').once('value').then((snapshot) => {
-                if (isLoaded) return; // Abaikan jika sudah timeout duluan
+                if (isLoaded) return; 
                 isLoaded = true;
-                clearTimeout(fallbackTimeout); // Batalkan hitung mundur timeout
+                clearTimeout(fallbackTimeout); 
 
                 if (snapshot.exists()) {
                     let data = snapshot.val();
                     
-                    // Timpa localStorage dengan data dari Cloud (jika ada)
                     if(data['Tabel_' + getBulanTahunString()]) localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), data['Tabel_' + getBulanTahunString()]);
                     if(data['Kalkulator_Mini']) localStorage.setItem('KalkulatorPati_Mini', data['Kalkulator_Mini']);
                     
@@ -963,11 +1014,11 @@
                     statusEl.style.background = "rgba(23, 162, 184, 0.9)";
                 }
                 
-                // Setelah selesai sinkronisasi, muat UI seperti biasa
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+                cekVisibilitasDropBaru(); 
                 
             }).catch((error) => {
-                if (isLoaded) return; // Abaikan jika sudah timeout
+                if (isLoaded) return;
                 isLoaded = true;
                 clearTimeout(fallbackTimeout);
 
@@ -975,8 +1026,8 @@
                 statusEl.innerText = "⚠️ Ditolak (Rules/Offline)";
                 statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                 
-                // Fallback (Tetap jalan pakai data lokal)
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
+                cekVisibilitasDropBaru(); 
             });
         };
     </script>
