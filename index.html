@@ -371,6 +371,8 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        let isAppReady = false; // KUNCI PENGAMAN LOADING (BARU)
+
         function simpanKeCloud(path, data) {
             database.ref('KalkulatorPati5/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
         }
@@ -387,15 +389,11 @@
             document.getElementById('pwa-manifest').href = manifestUrl;
         }
 
-        // =========================================================================
-        // FUNGSI BARU: PENANGKAP DATA OTOMATIS DARI NOTIFIKASI/URL APLIKASI LAIN
-        // =========================================================================
         function bacaParameterURL() {
             try {
                 let params = new URLSearchParams(window.location.search);
                 let adaDataMasuk = false;
 
-                // Menangkap berbagai kemungkinan format penamaan dari aplikasi lain
                 let valStorting = params.get('storting') || params.get('stort');
                 let valCM = params.get('cm') || params.get('angsurancm');
                 let valMB = params.get('mb') || params.get('angsuranmb');
@@ -409,23 +407,18 @@
                 if (valDrop) { document.getElementById('st_drop_baru').value = valDrop; hitungTotalDrop(); adaDataMasuk = true; }
 
                 if (adaDataMasuk) {
-                    // Otomatis ubah formatnya jadi ribuan (titik)
                     ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru'].forEach(id => {
                         let el = document.getElementById(id);
                         if(el && el.value) { formatRibuan(el); }
                     });
                     
-                    hitungSemua(); // Update seluruh rumus & UI
-                    
-                    // Bersihkan URL agar jika pengguna refresh web, angkanya tidak ter-input ulang dobel
+                    hitungSemua(); 
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    console.log("Data penarikan berhasil ditangkap dari URL/Notifikasi!");
                 }
             } catch (e) {
                 console.error("Gagal membaca parameter URL:", e);
             }
         }
-        // =========================================================================
 
         function getTanggalMerahArray() {
             let saved = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah');
@@ -441,9 +434,11 @@
             
             localStorage.setItem('KalkulatorPati_HK_Total', total);
             localStorage.setItem('KalkulatorPati_HK_Lalu', lalu);
-            simpanKeCloud('HK_Total', total);
-            simpanKeCloud('HK_Lalu', lalu);
             
+            if (isAppReady) {
+                simpanKeCloud('HK_Total', total);
+                simpanKeCloud('HK_Lalu', lalu);
+            }
             hitungSemua(); 
         }
 
@@ -577,7 +572,6 @@
             tbody.innerHTML = htmlStoran; tbodyTarget.innerHTML = htmlTarget;
         }
 
-        // FUNGSI BARU: HITUNG TOTAL DROP DARI DUA KOTAK
         function hitungTotalDrop() {
             let baru = getNum('st_drop_baru');
             let lunas = getNum('st_drop_pelunasan');
@@ -587,13 +581,11 @@
             syncDariStoran(); 
         }
 
-        // FUNGSI BARU: AUTO-ISI DEFAULTS KASBON & TRANSPORT
         function setDefaultsOtomatis() {
             let trEl = document.getElementById('st_transport');
             let kbEl = document.getElementById('st_kasbon');
-            let day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 4=Thu
+            let day = new Date().getDay(); 
             
-            // Transport otomatis 35 jika Kamis(4), selain itu 25
             let defTransport = (day === 4) ? "35" : "25";
             let defKasbon = "100";
 
@@ -610,7 +602,6 @@
             if (changed) { hitungSemua(); }
         }
 
-        // FUNGSI BARU: CEK VISIBILITAS UNTUK 7 HARI KERJA & PERBAIKAN UI DROP
         function cekVisibilitasDropBaru() {
             let d = new Date(); 
             let tahun = d.getFullYear(); 
@@ -763,7 +754,14 @@
                 setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort); setTabel('t_si_', sirk);
                 propagasiSaldoTabel(); kalkulasiTabelTarget(); 
 
-                clearTimeout(timerDebounce); timerDebounce = setTimeout(() => { simpanKalkulator(); simpanTabel(); }, 800);
+                clearTimeout(timerDebounce); 
+                timerDebounce = setTimeout(() => { 
+                    // CEGAH PENYIMPANAN DATA SAAT APLIKASI BELUM SELESAI LOADING
+                    if(isAppReady) {
+                        simpanKalkulator(); 
+                        simpanTabel(); 
+                    }
+                }, 800);
             } catch (error) { console.error("Error kalkulasi:", error); }
         }
 
@@ -892,7 +890,6 @@
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_transfer'] = '';
                         dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
                         
-                        // SET OTOMATIS SAAT HARI BERGANTI
                         dataObj['st_kasbon'] = '100'; 
                         dataObj['st_transport'] = (new Date().getDay() === 4) ? '35' : '25';
 
@@ -910,7 +907,7 @@
                         parsed.lastDate = todayStr; 
                         
                         localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
-                        simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
+                        if(isAppReady) simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
                     }
 
                     semuaIds.forEach(id => {
@@ -923,12 +920,8 @@
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
             
-            setDefaultsOtomatis(); // Pastikan default terisi jika belum ada
-            
-            // JALANKAN PEMBACAAN NOTIFIKASI / URL DISINI
+            setDefaultsOtomatis(); 
             bacaParameterURL(); 
-            
-            // Perhitungan terakhir untuk semua elemen
             hitungSemua(); 
         }
 
@@ -941,7 +934,7 @@
             localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
             localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
             
-            simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np}));
+            if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np}));
 
             alert("✅ Pengaturan Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
         }
@@ -959,17 +952,13 @@
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
                 let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
                 targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); 
-                
-                if (jenis === 'storan') {
-                    setDefaultsOtomatis(); // Kembalikan nilai 100 & 25 setelah menekan tong sampah
-                }
-                
+                if (jenis === 'storan') setDefaultsOtomatis(); 
                 hitungSemua();
             }
         }
 
         async function kirimKeWA() {
-            let drop = getNum('st_drop'); // Total Drop 
+            let drop = getNum('st_drop'); 
             let storting = getNum('st_storting');
             
             let rawDropStr = document.getElementById('st_drop').value || "0";
@@ -983,56 +972,30 @@
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
-            // STRUKTUR PESAN WA
             let teksWA = `Klp V\n` + `${teksDrop}\n`;
-            
-            if (getNum('st_drop_baru') > 0) {
-                teksWA += `drop baru:${document.getElementById('st_drop_baru').value}\n`;
-            }
-
+            if (getNum('st_drop_baru') > 0) { teksWA += `drop baru:${document.getElementById('st_drop_baru').value}\n`; }
             teksWA += `${stringMurni}\n` + `Masih melanjutkan maksimalkan penarikan pakk .`;
 
-            let captureEl = document.getElementById('area-screenshot');
-            let btn = document.getElementById('btn-kirim-wa');
-            let originalText = btn.innerText;
-            
-            btn.innerText = "⏳ Memproses...";
-            btn.disabled = true;
+            let captureEl = document.getElementById('area-screenshot'); let btn = document.getElementById('btn-kirim-wa');
+            let originalText = btn.innerText; btn.innerText = "⏳ Memproses..."; btn.disabled = true;
 
             try {
-                if (typeof html2canvas === 'undefined') {
-                    alert("⚠️ Library pembuat gambar belum termuat. Pastikan ada koneksi internet.");
-                    btn.innerText = originalText; btn.disabled = false; return;
-                }
-
+                if (typeof html2canvas === 'undefined') { alert("⚠️ Library pembuat gambar belum termuat."); btn.innerText = originalText; btn.disabled = false; return; }
                 let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: "#f8f9fa" });
-
                 canvas.toBlob(async function(blob) {
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
-                    
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            await navigator.share({ files: [file], text: teksWA });
-                        } catch (err) { console.log("Pengiriman dibatalkan pengguna atau gagal"); }
+                        try { await navigator.share({ files: [file], text: teksWA }); } catch (err) { }
                     } else {
                         navigator.clipboard.writeText(teksWA).then(() => {
-                            let url = window.URL.createObjectURL(blob);
-                            let a = document.createElement('a'); a.style.display = 'none';
-                            a.href = url; a.download = 'Laporan_Pati5.jpg';
-                            document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
-                            
-                            alert("✅ Teks berhasil disalin!\n✅ Gambar telah diunduh.\nSilakan buka WA, Paste teksnya, dan lampirkan gambar.");
+                            let url = window.URL.createObjectURL(blob); let a = document.createElement('a'); a.style.display = 'none';
+                            a.href = url; a.download = 'Laporan_Pati5.jpg'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
+                            alert("✅ Teks disalin! Gambar diunduh.\nSilakan buka WA.");
                         });
                     }
-                    
                     btn.innerText = originalText; btn.disabled = false;
                 }, "image/jpeg", 0.9);
-
-            } catch (e) {
-                console.error("Error pembuatan gambar:", e);
-                alert("❌ Gagal membuat gambar dari layar.");
-                btn.innerText = originalText; btn.disabled = false;
-            }
+            } catch (e) { alert("❌ Gagal membuat gambar."); btn.innerText = originalText; btn.disabled = false; }
         }
 
         function exportKeCSV(tableClass, namaFile) {
@@ -1053,15 +1016,15 @@
             let statusEl = document.getElementById('status-cloud');
             let isLoaded = false; 
 
+            // TIMER JIKA INTERNET LAMBAT
             let fallbackTimeout = setTimeout(() => {
                 if (!isLoaded) {
                     isLoaded = true;
-                    console.warn("Koneksi Firebase lambat/terputus (Timeout). Beralih ke Offline Mode.");
                     statusEl.innerText = "⚠️ Offline Mode";
                     statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                     
-                    setupPWA(); muatTabel(); muatHK(); muatKalkulator();
-                    cekVisibilitasDropBaru(); 
+                    setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
+                    setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
                 }
             }, 5000); 
 
@@ -1095,20 +1058,19 @@
                     statusEl.style.background = "rgba(23, 162, 184, 0.9)";
                 }
                 
-                setupPWA(); muatTabel(); muatHK(); muatKalkulator();
-                cekVisibilitasDropBaru(); 
+                setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
+                setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
                 
             }).catch((error) => {
                 if (isLoaded) return;
                 isLoaded = true;
                 clearTimeout(fallbackTimeout);
 
-                console.error("Gagal sinkronisasi cloud:", error);
                 statusEl.innerText = "⚠️ Ditolak (Rules/Offline)";
                 statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                 
-                setupPWA(); muatTabel(); muatHK(); muatKalkulator();
-                cekVisibilitasDropBaru(); 
+                setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru(); 
+                setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
             });
         };
     </script>
