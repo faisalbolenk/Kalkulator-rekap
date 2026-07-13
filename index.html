@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* GAYA MINIMALIS & RAPI (UKURAN DIPERKECIL/PADAT) */
+        /* GAYA MINIMALIS & RAPI */
         body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 4px; margin: 0; font-size: 12px; }
         
         /* TAB MENU */
@@ -72,10 +72,10 @@
         /* INPUT KHUSUS UI STORAN */
         .ui-input-box { display: flex; flex-direction: column; text-align: left; }
         .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; font-weight: bold;}
-        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left !important; font-size: 13px; outline: none; transition: 0.3s;}
+        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left; font-size: 13px; outline: none; transition: 0.3s;}
         .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
 
-        /* AREA SCREENSHOT (DIPERKEcIL) */
+        /* AREA SCREENSHOT */
         .capture-container { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 
         /* TABEL LEDGER & TARGET */
@@ -161,9 +161,11 @@
                     <div class="ui-input-box" id="box_drop_container">
                         <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
                         <div style="display: flex; gap: 4px;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center !important;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center !important;">
+                            <!-- Kotak Drop Baru & Lunas Berdampingan dalam 1 Kolom -->
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
                         </div>
+                        <!-- Nilai Total Drop disembunyikan di sini agar rumus bawaan tetap jalan -->
                         <input type="hidden" id="st_drop">
                     </div>
 
@@ -547,7 +549,30 @@
             syncDariStoran(); 
         }
 
-        // FUNGSI BARU: CEK VISIBILITAS UNTUK 7 HARI KERJA
+        // FUNGSI BARU: AUTO-ISI DEFAULTS KASBON & TRANSPORT
+        function setDefaultsOtomatis() {
+            let trEl = document.getElementById('st_transport');
+            let kbEl = document.getElementById('st_kasbon');
+            let day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 4=Thu
+            
+            // Transport otomatis 35 jika Kamis(4), selain itu 25
+            let defTransport = (day === 4) ? "35" : "25";
+            let defKasbon = "100";
+
+            let changed = false;
+            if (trEl && (!trEl.value || trEl.value === "")) { 
+                trEl.value = defTransport; 
+                changed = true; 
+            }
+            if (kbEl && (!kbEl.value || kbEl.value === "")) { 
+                kbEl.value = defKasbon; 
+                changed = true; 
+            }
+            
+            if (changed) { hitungSemua(); }
+        }
+
+        // FUNGSI BARU: CEK VISIBILITAS UNTUK 7 HARI KERJA & PERBAIKAN UI DROP
         function cekVisibilitasDropBaru() {
             let d = new Date(); 
             let tahun = d.getFullYear(); 
@@ -570,18 +595,24 @@
 
             if(inputDropBaru && labelDrop && inputDropLunas) {
                 if(hkBerjalan <= 7) {
+                    // MODE DUA KOLOM (0-7 HARI)
                     inputDropBaru.style.display = 'block'; 
                     labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
                     inputDropLunas.placeholder = 'Lunas';
                     inputDropLunas.style.borderColor = '#007bff';
                     inputDropLunas.style.color = '#007bff';
+                    inputDropLunas.style.textAlign = 'center';
+                    inputDropLunas.style.fontWeight = 'bold';
                 } else {
+                    // MODE SATU KOLOM PENGGABUNGAN (>7 HARI KERJA)
                     inputDropBaru.style.display = 'none'; // Sembunyikan Kotak Baru
                     inputDropBaru.value = ''; // Kosongkan diam-diam
                     labelDrop.innerHTML = 'Drop';
                     inputDropLunas.placeholder = '0'; // Kembali seperti kotak drop biasa
-                    inputDropLunas.style.borderColor = '#ced4da'; // Warna default abu
-                    inputDropLunas.style.color = '#333'; // Warna default teks
+                    inputDropLunas.style.borderColor = '#ced4da'; // Warna border default abu
+                    inputDropLunas.style.color = '#333'; // Warna teks default hitam
+                    inputDropLunas.style.textAlign = 'left'; // Rata Kiri seperti kasbon/transport
+                    inputDropLunas.style.fontWeight = 'normal'; // Font reguler
                     hitungTotalDrop(); 
                 }
             }
@@ -821,8 +852,13 @@
                         if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString().replace('.', ',');
                         
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
-                        dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_kasbon'] = ''; dataObj['st_transport'] = ''; dataObj['st_transfer'] = '';
+                        
+                        dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_transfer'] = '';
                         dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
+                        
+                        // SET OTOMATIS SAAT HARI BERGANTI
+                        dataObj['st_kasbon'] = '100'; 
+                        dataObj['st_transport'] = (new Date().getDay() === 4) ? '35' : '25';
 
                         for(let i=1; i<=3; i++) {
                             let a = parseSaved(dataObj['a'+i]); 
@@ -850,6 +886,8 @@
                     });
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
+            
+            setDefaultsOtomatis(); // Pastikan default terisi jika belum ada
             hitungSemua(); 
         }
 
@@ -879,7 +917,13 @@
         function hapusData(jenis) {
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
                 let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
-                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); hitungSemua();
+                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); 
+                
+                if (jenis === 'storan') {
+                    setDefaultsOtomatis(); // Kembalikan nilai 100 & 25 setelah menekan tong sampah
+                }
+                
+                hitungSemua();
             }
         }
 
@@ -966,30 +1010,6 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
-        // FUNGSI BARU: MENANGKAP DATA DARI TAMPERMONKEY
-        function cekDataDariURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let hasData = false;
-            
-            if (urlParams.has('storting')) { document.getElementById('st_storting').value = urlParams.get('storting'); hasData = true; }
-            if (urlParams.has('cm')) { document.getElementById('a1').value = urlParams.get('cm'); hasData = true; }
-            if (urlParams.has('mb')) { document.getElementById('a2').value = urlParams.get('mb'); hasData = true; }
-            if (urlParams.has('ml')) { document.getElementById('a3').value = urlParams.get('ml'); hasData = true; }
-            
-            if (hasData) {
-                if(document.getElementById('st_storting').value) formatRibuan(document.getElementById('st_storting'));
-                if(document.getElementById('a1').value) formatRibuan(document.getElementById('a1'));
-                if(document.getElementById('a2').value) formatRibuan(document.getElementById('a2'));
-                if(document.getElementById('a3').value) formatRibuan(document.getElementById('a3'));
-                
-                syncDariStoran();
-                hitungSemua();
-                
-                window.history.replaceState({}, document.title, window.location.pathname);
-                alert("✅ Data berhasil ditarik otomatis dari web!");
-            }
-        }
-
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
             let isLoaded = false; 
@@ -1003,7 +1023,6 @@
                     
                     setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                     cekVisibilitasDropBaru(); 
-                    cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
                 }
             }, 5000); 
 
@@ -1039,7 +1058,6 @@
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                 cekVisibilitasDropBaru(); 
-                cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
                 
             }).catch((error) => {
                 if (isLoaded) return;
@@ -1052,7 +1070,6 @@
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator();
                 cekVisibilitasDropBaru(); 
-                cekDataDariURL(); // PEMANGGILAN PENANGKAP DATA
             });
         };
     </script>
