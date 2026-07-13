@@ -161,11 +161,9 @@
                     <div class="ui-input-box" id="box_drop_container">
                         <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
                         <div style="display: flex; gap: 4px;">
-                            <!-- Kotak Drop Baru & Lunas Berdampingan dalam 1 Kolom -->
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
                         </div>
-                        <!-- Nilai Total Drop disembunyikan di sini agar rumus bawaan tetap jalan -->
                         <input type="hidden" id="st_drop">
                     </div>
 
@@ -359,7 +357,7 @@
     <div style="text-align:center; font-size:10px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b> | Cloud Sync: ON ☁️</div>
 
     <script>
-        // INISIALISASI FIREBASE (CLOUD DATABASE)
+        // INISIALISASI FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBtZvwWnd73eACuFNbcH2Px_o7LWB02PiE",
             authDomain: "kalkulator-pati-5.firebaseapp.com",
@@ -595,7 +593,6 @@
 
             if(inputDropBaru && labelDrop && inputDropLunas) {
                 if(hkBerjalan <= 7) {
-                    // MODE DUA KOLOM (0-7 HARI)
                     inputDropBaru.style.display = 'block'; 
                     labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
                     inputDropLunas.placeholder = 'Lunas';
@@ -604,15 +601,14 @@
                     inputDropLunas.style.textAlign = 'center';
                     inputDropLunas.style.fontWeight = 'bold';
                 } else {
-                    // MODE SATU KOLOM PENGGABUNGAN (>7 HARI KERJA)
-                    inputDropBaru.style.display = 'none'; // Sembunyikan Kotak Baru
-                    inputDropBaru.value = ''; // Kosongkan diam-diam
+                    inputDropBaru.style.display = 'none'; 
+                    inputDropBaru.value = ''; 
                     labelDrop.innerHTML = 'Drop';
-                    inputDropLunas.placeholder = '0'; // Kembali seperti kotak drop biasa
-                    inputDropLunas.style.borderColor = '#ced4da'; // Warna border default abu
-                    inputDropLunas.style.color = '#333'; // Warna teks default hitam
-                    inputDropLunas.style.textAlign = 'left'; // Rata Kiri seperti kasbon/transport
-                    inputDropLunas.style.fontWeight = 'normal'; // Font reguler
+                    inputDropLunas.placeholder = '0'; 
+                    inputDropLunas.style.borderColor = '#ced4da'; 
+                    inputDropLunas.style.color = '#333'; 
+                    inputDropLunas.style.textAlign = 'left'; 
+                    inputDropLunas.style.fontWeight = 'normal'; 
                     hitungTotalDrop(); 
                 }
             }
@@ -929,7 +925,6 @@
 
         async function kirimKeWA() {
             let drop = getNum('st_drop'); // Total Drop 
-            let dropPelunasan = getNum('st_drop_pelunasan'); // UNTUK MURNI
             let storting = getNum('st_storting');
             
             let rawDropStr = document.getElementById('st_drop').value || "0";
@@ -939,7 +934,9 @@
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            let hasilKurung = storting - targetHariIni + (dropPelunasan * 0.13 * 2);
+            // PERBAIKAN RUMUS MURNI: Storting - Target - (26% x Drop Total)
+            let hasilKurung = storting - targetHariIni - (drop * 0.26);
+            
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
