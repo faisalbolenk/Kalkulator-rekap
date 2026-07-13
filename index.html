@@ -387,6 +387,46 @@
             document.getElementById('pwa-manifest').href = manifestUrl;
         }
 
+        // =========================================================================
+        // FUNGSI BARU: PENANGKAP DATA OTOMATIS DARI NOTIFIKASI/URL APLIKASI LAIN
+        // =========================================================================
+        function bacaParameterURL() {
+            try {
+                let params = new URLSearchParams(window.location.search);
+                let adaDataMasuk = false;
+
+                // Menangkap berbagai kemungkinan format penamaan dari aplikasi lain
+                let valStorting = params.get('storting') || params.get('stort');
+                let valCM = params.get('cm') || params.get('angsurancm');
+                let valMB = params.get('mb') || params.get('angsuranmb');
+                let valML = params.get('ml') || params.get('angsuranml');
+                let valDrop = params.get('drop') || params.get('dropbaru');
+
+                if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
+                if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
+                if (valMB) { document.getElementById('a2').value = valMB; adaDataMasuk = true; }
+                if (valML) { document.getElementById('a3').value = valML; adaDataMasuk = true; }
+                if (valDrop) { document.getElementById('st_drop_baru').value = valDrop; hitungTotalDrop(); adaDataMasuk = true; }
+
+                if (adaDataMasuk) {
+                    // Otomatis ubah formatnya jadi ribuan (titik)
+                    ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru'].forEach(id => {
+                        let el = document.getElementById(id);
+                        if(el && el.value) { formatRibuan(el); }
+                    });
+                    
+                    hitungSemua(); // Update seluruh rumus & UI
+                    
+                    // Bersihkan URL agar jika pengguna refresh web, angkanya tidak ter-input ulang dobel
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    console.log("Data penarikan berhasil ditangkap dari URL/Notifikasi!");
+                }
+            } catch (e) {
+                console.error("Gagal membaca parameter URL:", e);
+            }
+        }
+        // =========================================================================
+
         function getTanggalMerahArray() {
             let saved = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah');
             if (saved && saved.trim() !== "") { return saved.split(',').map(s => s.trim()); }
@@ -884,6 +924,11 @@
             }
             
             setDefaultsOtomatis(); // Pastikan default terisi jika belum ada
+            
+            // JALANKAN PEMBACAAN NOTIFIKASI / URL DISINI
+            bacaParameterURL(); 
+            
+            // Perhitungan terakhir untuk semua elemen
             hitungSemua(); 
         }
 
@@ -934,16 +979,13 @@
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            // PERBAIKAN RUMUS MURNI: Storting - Target - (26% x Drop Total)
             let hasilKurung = storting - targetHariIni - (drop * 0.26);
-            
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
             // STRUKTUR PESAN WA
             let teksWA = `Klp V\n` + `${teksDrop}\n`;
             
-            // TAMBAHKAN TEKS DROP BARU JIKA ADA ISINYA DAN BELUM LEWAT 7 HK
             if (getNum('st_drop_baru') > 0) {
                 teksWA += `drop baru:${document.getElementById('st_drop_baru').value}\n`;
             }
