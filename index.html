@@ -35,7 +35,7 @@
         
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 4px; margin-bottom: 4px; }
-        input { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 12px; }
+        input, select { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 12px; }
         input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
         .res-box { padding: 6px; margin-bottom: 8px; border-radius: 4px; background: #e7f3ff; border-left: 3px solid #007bff; font-size: 12px; font-weight: bold; color: #333; }
@@ -72,7 +72,7 @@
         /* INPUT KHUSUS UI STORAN */
         .ui-input-box { display: flex; flex-direction: column; text-align: left; }
         .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; font-weight: bold;}
-        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left; font-size: 13px; outline: none; transition: 0.3s;}
+        .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: center; font-size: 13px; outline: none; transition: 0.3s;}
         .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
 
         /* AREA SCREENSHOT */
@@ -122,7 +122,7 @@
         
         .form-group { margin-bottom: 8px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 3px; color: #444; font-size: 11px;}
-        .form-group input { text-align: left; background: #fff; }
+        .form-group input, .form-group select { text-align: left; background: #fff; }
         .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; }
     </style>
 </head>
@@ -155,7 +155,6 @@
                     Hitung Storting LP
                 </button>
                 
-                <!-- SUSUNAN BARU: HANYA 6 KOTAK, DROP BARU/LUNAS DIGABUNG -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     
                     <div class="ui-input-box" id="box_drop_container">
@@ -209,7 +208,13 @@
 
                 <!-- TARGET MURNI -->
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
-                    <h3 style="font-size: 12px; margin-bottom: 8px; color: #343a40;">🎯 Target Murni</h3>
+                    <h3 style="font-size: 12px; margin-bottom: 4px; color: #343a40;">🎯 Target Murni</h3>
+                    
+                    <!-- DISPLAY BREAKDOWN RUMUS MURNI (BARU) -->
+                    <div id="detail_rumus_murni" style="background: #eaf4ff; color: #004085; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 8px; font-weight: bold; font-size: 12px; border-left: 3px solid #007bff; letter-spacing: 0.5px;">
+                        0 - 0 - 0 = 0
+                    </div>
+
                     <div class="grid-2">
                         <div class="ui-input-box"><label class="ui-label">Senin</label><input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()"></div>
                         <div class="ui-input-box"><label class="ui-label">Selasa</label><input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()"></div>
@@ -350,6 +355,13 @@
                 <label>Nama Petugas (WA):</label>
                 <input type="text" id="cfg_nama_petugas" placeholder="Nama Anda (Pati 5)">
             </div>
+            <div class="form-group" style="margin-top:8px;">
+                <label>Tampilkan Drop Baru & Pelunasan:</label>
+                <select id="cfg_tampilkan_drop_baru" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; background: white;">
+                    <option value="on">ON (Tampilkan Baru & Lunas)</option>
+                    <option value="off">OFF (Tampilkan Drop Saja)</option>
+                </select>
+            </div>
             <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
         </div>
     </div>
@@ -371,7 +383,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let isAppReady = false; // KUNCI PENGAMAN LOADING (BARU)
+        let isAppReady = false; 
 
         function simpanKeCloud(path, data) {
             database.ref('KalkulatorPati5/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
@@ -413,6 +425,8 @@
                     });
                     
                     hitungSemua(); 
+                    simpanKalkulator(); // Langsung simpan di local storage agar saat direfresh tidak hilang
+                    simpanTabel();      // Memastikan rekap data langsung tercover sebelum URL diganti
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             } catch (e) {
@@ -544,23 +558,27 @@
                 let isLibur = (currDate.getDay() === 0) || tanggalMerah.includes(tglBulanFormat); let isHariIni = (i === tglHariIni); 
                 let trClass = ''; if(isLibur) trClass += 'baris-libur '; if(isHariIni) trClass += 'baris-hari-ini '; 
                 
+                // Set setiap kolom untuk hari Minggu bernilai "-" (ReadOnly)
+                let isMinggu = (currDate.getDay() === 0);
+                let m = isMinggu ? 'value="-" readonly tabindex="-1" style="color:#dc3545; text-align:center; font-weight:bold;"' : '';
+
                 htmlStoran += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
-                    <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jd_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_s_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_js_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_si_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_ac_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" id="t_pc_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="text" inputmode="numeric" id="t_am_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" id="t_pm_${i}" onchange="simpanTabel()"></td>
-                    <td><input type="text" inputmode="numeric" id="t_al_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_jl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
-                    <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();"></td>
+                    <td><input type="text" inputmode="numeric" id="t_d_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_jd_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_s_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_js_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_si_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_ac_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_jc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_sc_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" id="t_pc_${i}" onchange="simpanTabel()" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_am_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_jm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_sm_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" id="t_pm_${i}" onchange="simpanTabel()" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_al_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_jl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this)" onchange="simpanTabel(); hitungSemua();" ${m}></td>
                 </tr>`;
 
                 htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
@@ -602,7 +620,7 @@
             if (changed) { hitungSemua(); }
         }
 
-        function cekVisibilitasDropBaru() {
+        function getHKBerjalanHariIni() {
             let d = new Date(); 
             let tahun = d.getFullYear(); 
             let bulan = d.getMonth(); 
@@ -617,13 +635,18 @@
                 
                 if(!isLibur) hkBerjalan++;
             }
+            return hkBerjalan;
+        }
+
+        function cekVisibilitasDropBaru() {
+            let mode = localStorage.getItem('KalkulatorPati_Cfg_DropBaruMode') || 'on';
             
             let inputDropBaru = document.getElementById('st_drop_baru');
             let labelDrop = document.getElementById('label_drop');
             let inputDropLunas = document.getElementById('st_drop_pelunasan');
 
             if(inputDropBaru && labelDrop && inputDropLunas) {
-                if(hkBerjalan <= 7) {
+                if(mode === 'on') {
                     inputDropBaru.style.display = 'block'; 
                     labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
                     inputDropLunas.placeholder = 'Lunas';
@@ -638,7 +661,7 @@
                     inputDropLunas.placeholder = '0'; 
                     inputDropLunas.style.borderColor = '#ced4da'; 
                     inputDropLunas.style.color = '#333'; 
-                    inputDropLunas.style.textAlign = 'left'; 
+                    inputDropLunas.style.textAlign = 'center'; 
                     inputDropLunas.style.fontWeight = 'normal'; 
                     hitungTotalDrop(); 
                 }
@@ -751,12 +774,30 @@
                     else { hSel.classList.remove('bg-minus'); }
                 }
 
+                // --- KOTAK LIVE PERHITUNGAN RUMUS MURNI (BARU) ---
+                let dayOfWeek = new Date().getDay(); 
+                let targetInput = document.getElementById('tm_' + dayOfWeek);
+                let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
+                
+                // MENGGUNAKAN PELUNASAN SAJA UNTUK RUMUS MURNI
+                // Nilai st_drop_pelunasan selalu Lunas (jika ON) atau Total (jika OFF)
+                let dropMurni = getNum('st_drop_pelunasan'); 
+
+                let drop26 = dropMurni * 0.26;
+                let hasilMurni = storting - targetHariIni - drop26;
+                let tandaMurni = hasilMurni <= 0 ? "" : "+"; 
+                
+                let elDetailMurni = document.getElementById('detail_rumus_murni');
+                if(elDetailMurni) {
+                    elDetailMurni.innerHTML = `${formatAngka(storting)} - ${formatAngka(targetHariIni)} - ${formatAngka(drop26)} = <span style="color:${hasilMurni <= 0 ? '#dc3545' : '#28a745'}; font-weight:bold;">${tandaMurni}${formatAngka(hasilMurni)}</span>`;
+                }
+                // --------------------------------------------------
+
                 setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort); setTabel('t_si_', sirk);
                 propagasiSaldoTabel(); kalkulasiTabelTarget(); 
 
                 clearTimeout(timerDebounce); 
                 timerDebounce = setTimeout(() => { 
-                    // CEGAH PENYIMPANAN DATA SAAT APLIKASI BELUM SELESAI LOADING
                     if(isAppReady) {
                         simpanKalkulator(); 
                         simpanTabel(); 
@@ -848,7 +889,16 @@
 
         function muatTabel() {
             buatTabelBulanIni(); let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
-            if(saved) { try { let obj = JSON.parse(saved); for(let k in obj) { let el = document.getElementById(k); if(el) el.value = obj[k]; } } catch(e){} }
+            if(saved) { 
+                try { 
+                    let obj = JSON.parse(saved); 
+                    for(let k in obj) { 
+                        let el = document.getElementById(k); 
+                        // Mencegah tanda '-' (Minggu) tergantikan
+                        if(el && !el.hasAttribute('readonly')) el.value = obj[k]; 
+                    } 
+                } catch(e){} 
+            }
         }
 
         function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
@@ -929,14 +979,16 @@
             let tm = document.getElementById('cfg_tanggal_merah').value; let pt = document.getElementById('cfg_pct_drop_toko').value;
             let pb = document.getElementById('cfg_pct_drop_bonus').value; let ps = document.getElementById('cfg_pct_storan').value;
             let fs = document.getElementById('cfg_faktor_sirkulasi').value; let np = document.getElementById('cfg_nama_petugas').value;
+            let tdb = document.getElementById('cfg_tampilkan_drop_baru').value;
             
             localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm); localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
             localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
             localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
+            localStorage.setItem('KalkulatorPati_Cfg_DropBaruMode', tdb);
             
-            if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np}));
+            if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np, tdb}));
 
-            alert("✅ Pengaturan Disimpan!"); buatTabelBulanIni(); muatTabel(); hitungSemua();
+            alert("✅ Pengaturan Disimpan!"); buatTabelBulanIni(); muatTabel(); cekVisibilitasDropBaru(); hitungSemua();
         }
 
         function muatPengaturan() {
@@ -946,6 +998,7 @@
             document.getElementById('cfg_pct_storan').value = localStorage.getItem('KalkulatorPati_Cfg_PctStoran') || '20';
             document.getElementById('cfg_faktor_sirkulasi').value = localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi') || '1.3';
             document.getElementById('cfg_nama_petugas').value = localStorage.getItem('KalkulatorPati_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
+            document.getElementById('cfg_tampilkan_drop_baru').value = localStorage.getItem('KalkulatorPati_Cfg_DropBaruMode') || 'on';
         }
 
         function hapusData(jenis) {
@@ -958,7 +1011,8 @@
         }
 
         async function kirimKeWA() {
-            let drop = getNum('st_drop'); 
+            let dropTotal = getNum('st_drop'); 
+            let dropLunas = getNum('st_drop_pelunasan');
             let storting = getNum('st_storting');
             
             let rawDropStr = document.getElementById('st_drop').value || "0";
@@ -968,7 +1022,10 @@
             let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            let hasilKurung = storting - targetHariIni - (drop * 0.26);
+            // Rumus Murni Hanya Ambil Angka Pelunasan Saat Disalin ke WA
+            let dropMurni = getNum('st_drop_pelunasan'); 
+            
+            let hasilKurung = storting - targetHariIni - (dropMurni * 0.26);
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
@@ -1016,7 +1073,6 @@
             let statusEl = document.getElementById('status-cloud');
             let isLoaded = false; 
 
-            // TIMER JIKA INTERNET LAMBAT
             let fallbackTimeout = setTimeout(() => {
                 if (!isLoaded) {
                     isLoaded = true;
@@ -1024,7 +1080,7 @@
                     statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                     
                     setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
-                    setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
+                    setTimeout(() => { isAppReady = true; }, 1000); 
                 }
             }, 5000); 
 
@@ -1047,6 +1103,7 @@
                         if(cfg.ps) localStorage.setItem('KalkulatorPati_Cfg_PctStoran', cfg.ps);
                         if(cfg.fs) localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', cfg.fs);
                         if(cfg.np) localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', cfg.np);
+                        if(cfg.tdb) localStorage.setItem('KalkulatorPati_Cfg_DropBaruMode', cfg.tdb);
                     }
                     if(data['HK_Total'] !== undefined) localStorage.setItem('KalkulatorPati_HK_Total', data['HK_Total']);
                     if(data['HK_Lalu'] !== undefined) localStorage.setItem('KalkulatorPati_HK_Lalu', data['HK_Lalu']);
@@ -1059,7 +1116,7 @@
                 }
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
-                setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
+                setTimeout(() => { isAppReady = true; }, 1000); 
                 
             }).catch((error) => {
                 if (isLoaded) return;
@@ -1070,7 +1127,7 @@
                 statusEl.style.background = "rgba(220, 53, 69, 0.9)";
                 
                 setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru(); 
-                setTimeout(() => { isAppReady = true; }, 1000); // Buka gembok save
+                setTimeout(() => { isAppReady = true; }, 1000); 
             });
         };
     </script>
