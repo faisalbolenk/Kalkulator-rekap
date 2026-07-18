@@ -442,6 +442,13 @@
                     });
                     
                     hitungSemua(); 
+                    
+                    // --- TAMBAHAN KODE PERBAIKAN ---
+                    // Paksa simpan ke memori HP saat itu juga
+                    simpanKalkulator();
+                    simpanTabel();
+                    // -------------------------------
+                    
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             } catch (e) {
