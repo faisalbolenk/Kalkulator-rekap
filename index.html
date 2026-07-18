@@ -441,13 +441,14 @@
                         if(el && el.value) { formatRibuan(el); }
                     });
                     
-                    hitungSemua(); 
+                    // --- PERBAIKAN FINAL ---
+                    // Paksa buka gembok Cloud agar sinkronisasi tidak terblokir
+                    isAppReady = true; 
                     
-                    // --- TAMBAHAN KODE PERBAIKAN ---
-                    // Paksa simpan ke memori HP saat itu juga
+                    hitungSemua(); 
                     simpanKalkulator();
                     simpanTabel();
-                    // -------------------------------
+                    // -----------------------
                     
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
