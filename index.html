@@ -467,8 +467,13 @@
 
         function simpanKeCloud(path, data) {
             if (!USER_ID) return;
-            // STRUKTUR BARU: Menyimpan ke "Laci" spesifik berdasarkan USER_ID
-            database.ref('KalkulatorPati5/DataPengguna/' + USER_ID + '/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
+            
+            // JIKA ADMIN, simpan di tempat lama. JIKA BUKAN, simpan di laci masing-masing.
+            let dbPath = (USER_ID === "adminpati5") ? 
+                'KalkulatorPati5/' + path : 
+                'KalkulatorPati5/DataPengguna/' + USER_ID + '/' + path;
+                
+            database.ref(dbPath).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
         }
 
         const APP_LOAD_DATE = getTodayString();
@@ -1160,7 +1165,12 @@
         }
 
         function loadDataCloud(fallbackTimeout, statusEl, isLoaded) {
-            database.ref('KalkulatorPati5/DataPengguna/' + USER_ID).once('value').then((snapshot) => {
+            // JIKA ADMIN, baca dari tempat lama. JIKA BUKAN, baca laci masing-masing.
+            let dbPath = (USER_ID === "adminpati5") ? 
+                'KalkulatorPati5' : 
+                'KalkulatorPati5/DataPengguna/' + USER_ID;
+
+            database.ref(dbPath).once('value').then((snapshot) => {
                 if (isLoaded) return; 
                 isLoaded = true;
                 clearTimeout(fallbackTimeout); 
