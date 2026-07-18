@@ -420,13 +420,18 @@
         let isAppReady = false; 
         let USER_ID = null;
 
-        // ================= KODE AKSES LOGIN =================
+        function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+        function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
+
+        // ================= KODE AKSES LOGIN (1X SEHARI) =================
         function cekKodeAkses() {
             let inputKode = document.getElementById('input-kode-akses').value.trim();
             if(!inputKode) return;
 
+            // MASTER KEY (Gunakan password ini jika Anda terkunci dari Firebase)
             if (inputKode === "adminpati5") {
                 localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
+                localStorage.setItem('KalkulatorPati_TanggalLogin', getTodayString());
                 window.location.reload();
                 return;
             }
@@ -434,9 +439,11 @@
             let btn = document.getElementById('btn-login');
             btn.innerText = "Mengecek Server..."; btn.disabled = true;
 
+            // Cek ke folder DaftarAkses di Firebase
             database.ref('KalkulatorPati5/DaftarAkses/' + inputKode).once('value').then((snapshot) => {
                 if (snapshot.exists() && snapshot.val() === "aktif") {
                     localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
+                    localStorage.setItem('KalkulatorPati_TanggalLogin', getTodayString());
                     window.location.reload();
                 } else {
                     document.getElementById('pesan-error').style.display = 'block';
@@ -452,6 +459,7 @@
         function logoutAkun() {
             if(confirm("⚠️ Keluar dari akun ini? Anda harus memasukkan kode akses lagi nanti.")) {
                 localStorage.removeItem('KalkulatorPati_KodeAkses');
+                localStorage.removeItem('KalkulatorPati_TanggalLogin');
                 window.location.reload();
             }
         }
@@ -596,9 +604,6 @@
             document.getElementById('tanggal-hari-ini').innerText = H[d.getDay()] + ', ' + d.getDate() + ' ' + B[d.getMonth()] + ' ' + d.getFullYear();
         }
 
-        function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-        function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
-
         function buatTabelBulanIni() {
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate(); 
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
@@ -735,7 +740,6 @@
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         
-        // DEBOUNCE HANYA UNTUK CLOUD
         let timerCloudSimpan = null;
 
         function triggerSimpanCloud() {
@@ -760,16 +764,16 @@
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
             
             let jsonString = JSON.stringify(dataTabel);
-            localStorage.setItem(USER_ID + '_Tabel_' + getBulanTahunString(), jsonString); // INSTAN
-            triggerSimpanCloud(); // DEBOUNCE
+            localStorage.setItem(USER_ID + '_Tabel_' + getBulanTahunString(), jsonString); 
+            triggerSimpanCloud(); 
         }
 
         function simpanKalkulator() {
             let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
             
             let dataSave = { lastDate: APP_LOAD_DATE, values: dataObj };
-            localStorage.setItem(USER_ID + '_Mini', JSON.stringify(dataSave)); // INSTAN
-            triggerSimpanCloud(); // DEBOUNCE
+            localStorage.setItem(USER_ID + '_Mini', JSON.stringify(dataSave)); 
+            triggerSimpanCloud(); 
         }
 
         function hitungSemua() {
@@ -1136,7 +1140,7 @@
                 } csv.push(row.join(','));
             }
             let csvFile = new Blob([csv.join('\n')], {type: 'text/csv'}); let downloadLink = document.createElement('a');
-            downloadLink.download = 'Rekap_' + namaFile + '_Pati5_' + getBulanTahunString() + '.csv'; downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.download = 'Rekap_' + namaFile + '_' + USER_ID + '_' + getBulanTahunString() + '.csv'; downloadLink.href = window.URL.createObjectURL(csvFile);
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
@@ -1150,7 +1154,6 @@
             muatKalkulator(); 
             cekVisibilitasDropBaru();
             
-            // Eksekusi tarikan data URL HANYA setelah login divalidasi
             bacaParameterURL(); 
             
             setTimeout(() => { isAppReady = true; }, 1000); 
@@ -1201,12 +1204,16 @@
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
             USER_ID = localStorage.getItem('KalkulatorPati_KodeAkses');
+            let tglLoginTerakhir = localStorage.getItem('KalkulatorPati_TanggalLogin');
 
-            // JIKA BELUM ADA KODE AKSES, HENTIKAN PROSES MUAT & TAMPILKAN LOGIN
-            if (!USER_ID) {
+            // --- LOGIKA 1X LOGIN SEHARI ---
+            if (!USER_ID || tglLoginTerakhir !== getTodayString()) {
                 document.getElementById('layar-kunci').style.display = 'flex';
-                return; 
+                return; // Berhenti di sini, tunggu user memasukkan kode
             }
+            
+            // Sembunyikan layar kunci sementara mengecek keabsahan akun di Cloud
+            document.getElementById('layar-kunci').style.display = 'none';
 
             let isLoaded = false; 
             let fallbackTimeout = setTimeout(() => {
@@ -1214,14 +1221,12 @@
                     isLoaded = true;
                     statusEl.innerText = "⚠️ Offline Mode";
                     statusEl.style.background = "rgba(220, 53, 69, 0.9)";
-                    document.getElementById('layar-kunci').style.display = 'none';
                     initAppUI();
                 }
             }, 5000); 
 
-            // JIKA ADA KODE AKSES, VALIDASI DULU KE FIREBASE
             if (USER_ID === "adminpati5") {
-                 loadDataCloud(fallbackTimeout, statusEl, isLoaded); // Langsung berikan akses ke master key
+                 loadDataCloud(fallbackTimeout, statusEl, isLoaded); 
             } else {
                  database.ref('KalkulatorPati5/DaftarAkses/' + USER_ID).once('value').then(snap => {
                      if(snap.exists() && snap.val() === "aktif") {
@@ -1230,12 +1235,13 @@
                          // Akses telah dihapus atau diblokir admin
                          clearTimeout(fallbackTimeout);
                          localStorage.removeItem('KalkulatorPati_KodeAkses');
+                         localStorage.removeItem('KalkulatorPati_TanggalLogin');
                          document.getElementById('layar-kunci').style.display = 'flex';
                          document.getElementById('pesan-error').innerText = "⚠️ Akses Anda telah dicabut oleh Admin!";
                          document.getElementById('pesan-error').style.display = 'block';
                      }
                  }).catch(e => { 
-                     // Error jaringan akan ditangani oleh fallbackTimeout (Offline mode)
+                     // Error jaringan -> Offline mode
                  });
             }
         };
