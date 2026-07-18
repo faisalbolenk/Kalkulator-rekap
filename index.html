@@ -375,6 +375,20 @@
                 <div class="form-group"><label>Storan Pokok (%):</label><input type="number" id="cfg_pct_storan" placeholder="20"></div>
                 <div class="form-group"><label>Faktor Sirkulasi:</label><input type="number" step="0.1" id="cfg_faktor_sirkulasi" placeholder="1.3"></div>
             </div>
+
+            <!-- BLOK BARU: NOMINAL TRANSPORT HARIAN -->
+            <div class="form-group" style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
+                <label>Nominal Transport Harian (Otomatis):</label>
+                <div class="grid-3">
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Senin</span><input type="number" id="cfg_tr_1" placeholder="25"></div>
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Selasa</span><input type="number" id="cfg_tr_2" placeholder="25"></div>
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Rabu</span><input type="number" id="cfg_tr_3" placeholder="25"></div>
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Kamis</span><input type="number" id="cfg_tr_4" placeholder="35"></div>
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Jum'at</span><input type="number" id="cfg_tr_5" placeholder="25"></div>
+                    <div><span class="hint" style="margin-bottom:2px; font-weight:bold;">Sabtu</span><input type="number" id="cfg_tr_6" placeholder="25"></div>
+                </div>
+            </div>
+            
             <div class="form-group" style="margin-top:8px;">
                 <label>Nama Petugas (WA):</label>
                 <input type="text" id="cfg_nama_petugas" placeholder="Nama Anda (Pati 5)">
@@ -673,7 +687,15 @@
             let kbEl = document.getElementById('st_kasbon');
             let day = new Date().getDay(); 
             
-            let defTransport = (day === 4) ? "35" : "25";
+            // BACA DARI SETELAN TRANSPORT HARIAN
+            let defTransport = "0";
+            if (day === 1) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr1') || "25";
+            else if (day === 2) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr2') || "25";
+            else if (day === 3) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr3') || "25";
+            else if (day === 4) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr4') || "35";
+            else if (day === 5) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr5') || "25";
+            else if (day === 6) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr6') || "25";
+
             let defKasbon = "100";
 
             let changed = false;
@@ -1011,7 +1033,17 @@
                         dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
                         
                         dataObj['st_kasbon'] = '100'; 
-                        dataObj['st_transport'] = (new Date().getDay() === 4) ? '35' : '25';
+                        
+                        // AUTO TRANSPORT BERDASARKAN HARI BARU
+                        let dayNew = new Date().getDay();
+                        let defTr = "25";
+                        if (dayNew === 1) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr1') || "25";
+                        else if (dayNew === 2) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr2') || "25";
+                        else if (dayNew === 3) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr3') || "25";
+                        else if (dayNew === 4) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr4') || "35";
+                        else if (dayNew === 5) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr5') || "25";
+                        else if (dayNew === 6) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr6') || "25";
+                        dataObj['st_transport'] = defTr;
 
                         for(let i=1; i<=3; i++) {
                             let a = parseSaved(dataObj['a'+i]); 
@@ -1045,11 +1077,21 @@
         }
 
         function simpanPengaturan() {
-            let tm = document.getElementById('cfg_tanggal_merah').value; let pt = document.getElementById('cfg_pct_drop_toko').value;
-            let pb = document.getElementById('cfg_pct_drop_bonus').value; let ps = document.getElementById('cfg_pct_storan').value;
-            let fs = document.getElementById('cfg_faktor_sirkulasi').value; let np = document.getElementById('cfg_nama_petugas').value;
+            let tm = document.getElementById('cfg_tanggal_merah').value; 
+            let pt = document.getElementById('cfg_pct_drop_toko').value;
+            let pb = document.getElementById('cfg_pct_drop_bonus').value; 
+            let ps = document.getElementById('cfg_pct_storan').value;
+            let fs = document.getElementById('cfg_faktor_sirkulasi').value; 
+            let np = document.getElementById('cfg_nama_petugas').value;
             let tdb = document.getElementById('cfg_tampilkan_drop_baru').value;
             let wa = document.getElementById('cfg_wa_template').value;
+            
+            let tr1 = document.getElementById('cfg_tr_1').value;
+            let tr2 = document.getElementById('cfg_tr_2').value;
+            let tr3 = document.getElementById('cfg_tr_3').value;
+            let tr4 = document.getElementById('cfg_tr_4').value;
+            let tr5 = document.getElementById('cfg_tr_5').value;
+            let tr6 = document.getElementById('cfg_tr_6').value;
             
             localStorage.setItem(USER_ID + '_Cfg_TanggalMerah', tm); 
             localStorage.setItem(USER_ID + '_Cfg_PctDropToko', pt || '11');
@@ -1059,8 +1101,15 @@
             localStorage.setItem(USER_ID + '_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
             localStorage.setItem(USER_ID + '_Cfg_DropBaruMode', tdb);
             localStorage.setItem(USER_ID + '_Cfg_WATemplate', wa);
+
+            localStorage.setItem(USER_ID + '_Cfg_Tr1', tr1 || '25');
+            localStorage.setItem(USER_ID + '_Cfg_Tr2', tr2 || '25');
+            localStorage.setItem(USER_ID + '_Cfg_Tr3', tr3 || '25');
+            localStorage.setItem(USER_ID + '_Cfg_Tr4', tr4 || '35');
+            localStorage.setItem(USER_ID + '_Cfg_Tr5', tr5 || '25');
+            localStorage.setItem(USER_ID + '_Cfg_Tr6', tr6 || '25');
             
-            if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np, tdb, wa}));
+            if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np, tdb, wa, tr1, tr2, tr3, tr4, tr5, tr6}));
 
             alert("✅ Pengaturan Disimpan!"); muatHK(); buatTabelBulanIni(); muatTabel(); cekVisibilitasDropBaru(); hitungSemua();
         }
@@ -1074,6 +1123,13 @@
             document.getElementById('cfg_nama_petugas').value = localStorage.getItem(USER_ID + '_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
             document.getElementById('cfg_tampilkan_drop_baru').value = localStorage.getItem(USER_ID + '_Cfg_DropBaruMode') || 'on';
             document.getElementById('cfg_wa_template').value = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+
+            document.getElementById('cfg_tr_1').value = localStorage.getItem(USER_ID + '_Cfg_Tr1') || '25';
+            document.getElementById('cfg_tr_2').value = localStorage.getItem(USER_ID + '_Cfg_Tr2') || '25';
+            document.getElementById('cfg_tr_3').value = localStorage.getItem(USER_ID + '_Cfg_Tr3') || '25';
+            document.getElementById('cfg_tr_4').value = localStorage.getItem(USER_ID + '_Cfg_Tr4') || '35';
+            document.getElementById('cfg_tr_5').value = localStorage.getItem(USER_ID + '_Cfg_Tr5') || '25';
+            document.getElementById('cfg_tr_6').value = localStorage.getItem(USER_ID + '_Cfg_Tr6') || '25';
         }
 
         function hapusData(jenis) {
@@ -1191,6 +1247,13 @@
                         if(cfg.np) localStorage.setItem(USER_ID + '_Cfg_NamaPetugas', cfg.np);
                         if(cfg.tdb) localStorage.setItem(USER_ID + '_Cfg_DropBaruMode', cfg.tdb);
                         if(cfg.wa) localStorage.setItem(USER_ID + '_Cfg_WATemplate', cfg.wa);
+                        
+                        if(cfg.tr1) localStorage.setItem(USER_ID + '_Cfg_Tr1', cfg.tr1);
+                        if(cfg.tr2) localStorage.setItem(USER_ID + '_Cfg_Tr2', cfg.tr2);
+                        if(cfg.tr3) localStorage.setItem(USER_ID + '_Cfg_Tr3', cfg.tr3);
+                        if(cfg.tr4) localStorage.setItem(USER_ID + '_Cfg_Tr4', cfg.tr4);
+                        if(cfg.tr5) localStorage.setItem(USER_ID + '_Cfg_Tr5', cfg.tr5);
+                        if(cfg.tr6) localStorage.setItem(USER_ID + '_Cfg_Tr6', cfg.tr6);
                     }
                     
                     statusEl.innerText = "☁️ Cloud OK";
@@ -1219,7 +1282,7 @@
             // --- LOGIKA 1X LOGIN SEHARI ---
             if (!USER_ID || tglLoginTerakhir !== getTodayString()) {
                 document.getElementById('layar-kunci').style.display = 'flex';
-                return; // Berhenti di sini, tunggu user memasukkan kode
+                return; 
             }
             
             // Sembunyikan layar kunci sementara mengecek keabsahan akun di Cloud
