@@ -130,6 +130,21 @@
 </head>
 <body>
 
+    <!-- ================= LAYAR KUNCI KEAMANAN ================= -->
+    <div id="layar-kunci" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(23, 162, 184, 0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; backdrop-filter: blur(5px);">
+        <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2); text-align:center; width:90%; max-width:320px;">
+            <h2 style="color:#004085; margin:0 0 5px 0;">🔒 Akses Terbatas</h2>
+            <p style="font-size:12px; color:#6c757d; margin-bottom:20px;">Aplikasi Khusus Unit Pati 5</p>
+            
+            <input type="password" id="input-kode-akses" placeholder="Masukkan Kode Akses..." style="width:100%; padding:12px; font-size:16px; text-align:center; border:2px solid #ced4da; border-radius:6px; box-sizing:border-box; margin-bottom:15px; outline:none; transition:0.3s;">
+            
+            <button id="btn-login" onclick="cekKodeAkses()" style="width:100%; background:#007bff; color:white; border:none; padding:12px; font-size:14px; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow:0 2px 4px rgba(0,123,255,0.3);">Buka Aplikasi</button>
+            
+            <p id="pesan-error" style="color:#dc3545; font-size:12px; margin-top:15px; display:none; font-weight:bold;">⚠️ Kode Salah atau Akses Dicabut!</p>
+        </div>
+    </div>
+    <!-- ======================================================== -->
+
     <div class="tab-container">
         <button class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
@@ -149,7 +164,7 @@
             <!-- BLOK SCREENSHOT OTOMATIS -->
             <div id="area-screenshot" class="capture-container">
                 <div style="margin-bottom: 12px;">
-                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik | Unit Pati 5</h2>
+                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik | <span id="nama_pengguna_ui" style="color:#007bff;">Pati 5</span></h2>
                     <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">Dashboard &gt; Data Statistik</div>
                 </div>
 
@@ -380,6 +395,8 @@
             </div>
 
             <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
+            
+            <button class="btn-hapus" style="width: 100%; margin-top: 15px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
         </div>
     </div>
 
@@ -401,9 +418,49 @@
         const database = firebase.database();
 
         let isAppReady = false; 
+        let USER_ID = null;
+
+        // ================= KODE AKSES LOGIN =================
+        function cekKodeAkses() {
+            let inputKode = document.getElementById('input-kode-akses').value.trim();
+            if(!inputKode) return;
+
+            if (inputKode === "adminpati5") {
+                localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
+                window.location.reload();
+                return;
+            }
+
+            let btn = document.getElementById('btn-login');
+            btn.innerText = "Mengecek Server..."; btn.disabled = true;
+
+            database.ref('KalkulatorPati5/DaftarAkses/' + inputKode).once('value').then((snapshot) => {
+                if (snapshot.exists() && snapshot.val() === "aktif") {
+                    localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
+                    window.location.reload();
+                } else {
+                    document.getElementById('pesan-error').style.display = 'block';
+                    btn.innerText = "Buka Aplikasi"; btn.disabled = false;
+                }
+            }).catch(e => {
+                document.getElementById('pesan-error').innerText = "⚠️ Gagal koneksi, cek internet Anda!";
+                document.getElementById('pesan-error').style.display = 'block';
+                btn.innerText = "Buka Aplikasi"; btn.disabled = false;
+            });
+        }
+
+        function logoutAkun() {
+            if(confirm("⚠️ Keluar dari akun ini? Anda harus memasukkan kode akses lagi nanti.")) {
+                localStorage.removeItem('KalkulatorPati_KodeAkses');
+                window.location.reload();
+            }
+        }
+        // ====================================================
 
         function simpanKeCloud(path, data) {
-            database.ref('KalkulatorPati5/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
+            if (!USER_ID) return;
+            // STRUKTUR BARU: Menyimpan ke "Laci" spesifik berdasarkan USER_ID
+            database.ref('KalkulatorPati5/DataPengguna/' + USER_ID + '/' + path).set(data).catch(err => console.error("Gagal simpan ke cloud:", err));
         }
 
         const APP_LOAD_DATE = getTodayString();
@@ -441,14 +498,11 @@
                         if(el && el.value) { formatRibuan(el); }
                     });
                     
-                    // --- PERBAIKAN FINAL ---
-                    // Paksa buka gembok Cloud agar sinkronisasi tidak terblokir
                     isAppReady = true; 
                     
                     hitungSemua(); 
                     simpanKalkulator();
                     simpanTabel();
-                    // -----------------------
                     
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
@@ -458,7 +512,7 @@
         }
 
         function getTanggalMerahArray() {
-            let saved = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah');
+            let saved = localStorage.getItem(USER_ID + '_Cfg_TanggalMerah');
             if (saved && saved.trim() !== "") { return saved.split(',').map(s => s.trim()); }
             return ['01-01', '01-05', '01-06', '17-08', '25-12']; 
         }
@@ -626,7 +680,7 @@
         }
 
         function cekVisibilitasDropBaru() {
-            let mode = localStorage.getItem('KalkulatorPati_Cfg_DropBaruMode') || 'on';
+            let mode = localStorage.getItem(USER_ID + '_Cfg_DropBaruMode') || 'on';
             
             let inputDropBaru = document.getElementById('st_drop_baru');
             let labelDrop = document.getElementById('label_drop');
@@ -706,7 +760,7 @@
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
             
             let jsonString = JSON.stringify(dataTabel);
-            localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), jsonString); // INSTAN
+            localStorage.setItem(USER_ID + '_Tabel_' + getBulanTahunString(), jsonString); // INSTAN
             triggerSimpanCloud(); // DEBOUNCE
         }
 
@@ -714,7 +768,7 @@
             let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
             
             let dataSave = { lastDate: APP_LOAD_DATE, values: dataObj };
-            localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(dataSave)); // INSTAN
+            localStorage.setItem(USER_ID + '_Mini', JSON.stringify(dataSave)); // INSTAN
             triggerSimpanCloud(); // DEBOUNCE
         }
 
@@ -729,10 +783,10 @@
                     }
                 }
 
-                let cfgDropToko = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropToko')) || 11) / 100;
-                let cfgDropBonus = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus')) || 9) / 100;
-                let cfgStoranPokok = (parseFloat(localStorage.getItem('KalkulatorPati_Cfg_PctStoran')) || 20) / 100;
-                let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
+                let cfgDropToko = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropToko')) || 11) / 100;
+                let cfgDropBonus = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropBonus')) || 9) / 100;
+                let cfgStoranPokok = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctStoran')) || 20) / 100;
+                let cfgFaktorSirkulasi = parseFloat(localStorage.getItem(USER_ID + '_Cfg_FaktorSirkulasi')) || 1.3;
 
                 document.getElementById('label_rumus_tambahan').innerText = `Kasbon + (${(cfgDropToko*100)}% × Drop) + Storting = Total`;
 
@@ -745,7 +799,6 @@
                 let s1 = getNum('s1'); let s2 = getNum('s2'); let JmlStort = s1 + s2; 
                 let si = getNum('siRec'); let sirk = (d1 * cfgFaktorSirkulasi) - s1 + si; 
 
-                // UPDATE TAMPILAN KOTAK REKAP RINGKAS (MIRIP TARGET MURNI)
                 let boxRekap = document.getElementById('box_rumus_rekap');
                 if(boxRekap) {
                     boxRekap.innerHTML = `
@@ -806,7 +859,6 @@
                     else { hSel.classList.remove('bg-minus'); }
                 }
 
-                // --- KOTAK LIVE PERHITUNGAN RUMUS MURNI (BARU) ---
                 let dayOfWeek = new Date().getDay(); 
                 let targetInput = document.getElementById('tm_' + dayOfWeek);
                 let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
@@ -821,12 +873,10 @@
                 if(elDetailMurni) {
                     elDetailMurni.innerHTML = `${formatAngka(storting)} - ${formatAngka(targetHariIni)} - ${formatAngka(drop26)} = <span style="color:${hasilMurni <= 0 ? '#dc3545' : '#28a745'}; font-weight:bold;">${tandaMurni}${formatAngka(hasilMurni)}</span>`;
                 }
-                // --------------------------------------------------
 
                 setTabel('t_d_', d1); setTabel('t_jd_', JmlDrop); setTabel('t_s_', s1); setTabel('t_js_', JmlStort); setTabel('t_si_', sirk);
                 propagasiSaldoTabel(); kalkulasiTabelTarget(); 
 
-                // TRIGGER SIMPAN INSTAN LOKAL SETIAP KALI ANGKA BERUBAH
                 if(isAppReady) {
                     simpanKalkulator();
                     simpanTabel();
@@ -844,7 +894,6 @@
             let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate(); const tanggalMerah = getTanggalMerahArray(); 
             
-            // Ambil dari UI yang sekarang dikalkulasi otomatis
             let manualHkTotal = parseInt(document.getElementById('info-hk-total').value) || 0;
             let manualHkDilalui = parseInt(document.getElementById('info-hk-lalu').value) || 0;
             let manualHkSisa = parseInt(document.getElementById('info-hk-sisa').value) || 0;
@@ -909,28 +958,27 @@
         }
 
         function muatTabel() {
-            buatTabelBulanIni(); let saved = localStorage.getItem('KalkulatorPati_Tabel_' + getBulanTahunString());
+            buatTabelBulanIni(); let saved = localStorage.getItem(USER_ID + '_Tabel_' + getBulanTahunString());
             if(saved) { 
                 try { 
                     let obj = JSON.parse(saved); 
                     for(let k in obj) { 
                         let el = document.getElementById(k); 
-                        // Mencegah tanda '-' (Minggu) tergantikan
                         if(el && !el.hasAttribute('readonly')) el.value = obj[k]; 
                     } 
                 } catch(e){} 
             }
         }
 
-        function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem('KalkulatorPati_Tabel_' + getBulanTahunString()); muatTabel(); } }
+        function hapusTabel() { if(confirm("⚠️ Yakin ingin menghapus SELURUH isi Tabel bulan ini?")) { localStorage.removeItem(USER_ID + '_Tabel_' + getBulanTahunString()); muatTabel(); } }
         function resetTarget() {
             if(confirm("⚠️ Yakin ingin mengosongkan input Program dan Index?")) { document.getElementById('tg_program').value = ''; document.getElementById('tg_index').value = ''; hitungSemua(); }
         }
 
         function muatKalkulator() {
             tampilkanTanggal(); muatPengaturan(); 
-            let cfgFaktorSirkulasi = parseFloat(localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi')) || 1.3;
-            let savedData = localStorage.getItem('KalkulatorPati_Mini');
+            let cfgFaktorSirkulasi = parseFloat(localStorage.getItem(USER_ID + '_Cfg_FaktorSirkulasi')) || 1.3;
+            let savedData = localStorage.getItem(USER_ID + '_Mini');
             
             const parseSaved = (val) => parseFloat((val || '').replace(/[^0-9\-,]/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
 
@@ -969,7 +1017,7 @@
                         alert("🌅 Hari baru terdeteksi! Sistem memindahkan sisa saldo operasional terakhir dan nilai angsuran secara otomatis.");
                         parsed.lastDate = todayStr; 
                         
-                        localStorage.setItem('KalkulatorPati_Mini', JSON.stringify(parsed));
+                        localStorage.setItem(USER_ID + '_Mini', JSON.stringify(parsed));
                         if(isAppReady) simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
                     }
 
@@ -984,7 +1032,6 @@
             }
             
             setDefaultsOtomatis(); 
-            bacaParameterURL(); 
             hitungSemua(); 
         }
 
@@ -995,11 +1042,14 @@
             let tdb = document.getElementById('cfg_tampilkan_drop_baru').value;
             let wa = document.getElementById('cfg_wa_template').value;
             
-            localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', tm); localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', pt || '11');
-            localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', pb || '9'); localStorage.setItem('KalkulatorPati_Cfg_PctStoran', ps || '20');
-            localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', fs || '1.3'); localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
-            localStorage.setItem('KalkulatorPati_Cfg_DropBaruMode', tdb);
-            localStorage.setItem('KalkulatorPati_Cfg_WATemplate', wa);
+            localStorage.setItem(USER_ID + '_Cfg_TanggalMerah', tm); 
+            localStorage.setItem(USER_ID + '_Cfg_PctDropToko', pt || '11');
+            localStorage.setItem(USER_ID + '_Cfg_PctDropBonus', pb || '9'); 
+            localStorage.setItem(USER_ID + '_Cfg_PctStoran', ps || '20');
+            localStorage.setItem(USER_ID + '_Cfg_FaktorSirkulasi', fs || '1.3'); 
+            localStorage.setItem(USER_ID + '_Cfg_NamaPetugas', np || 'Sigit Ari Wibowo (Pati 5)');
+            localStorage.setItem(USER_ID + '_Cfg_DropBaruMode', tdb);
+            localStorage.setItem(USER_ID + '_Cfg_WATemplate', wa);
             
             if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np, tdb, wa}));
 
@@ -1007,14 +1057,14 @@
         }
 
         function muatPengaturan() {
-            document.getElementById('cfg_tanggal_merah').value = localStorage.getItem('KalkulatorPati_Cfg_TanggalMerah') || '01-01, 01-05, 01-06, 17-08, 25-12';
-            document.getElementById('cfg_pct_drop_toko').value = localStorage.getItem('KalkulatorPati_Cfg_PctDropToko') || '11';
-            document.getElementById('cfg_pct_drop_bonus').value = localStorage.getItem('KalkulatorPati_Cfg_PctDropBonus') || '9';
-            document.getElementById('cfg_pct_storan').value = localStorage.getItem('KalkulatorPati_Cfg_PctStoran') || '20';
-            document.getElementById('cfg_faktor_sirkulasi').value = localStorage.getItem('KalkulatorPati_Cfg_FaktorSirkulasi') || '1.3';
-            document.getElementById('cfg_nama_petugas').value = localStorage.getItem('KalkulatorPati_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
-            document.getElementById('cfg_tampilkan_drop_baru').value = localStorage.getItem('KalkulatorPati_Cfg_DropBaruMode') || 'on';
-            document.getElementById('cfg_wa_template').value = localStorage.getItem('KalkulatorPati_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+            document.getElementById('cfg_tanggal_merah').value = localStorage.getItem(USER_ID + '_Cfg_TanggalMerah') || '01-01, 01-05, 01-06, 17-08, 25-12';
+            document.getElementById('cfg_pct_drop_toko').value = localStorage.getItem(USER_ID + '_Cfg_PctDropToko') || '11';
+            document.getElementById('cfg_pct_drop_bonus').value = localStorage.getItem(USER_ID + '_Cfg_PctDropBonus') || '9';
+            document.getElementById('cfg_pct_storan').value = localStorage.getItem(USER_ID + '_Cfg_PctStoran') || '20';
+            document.getElementById('cfg_faktor_sirkulasi').value = localStorage.getItem(USER_ID + '_Cfg_FaktorSirkulasi') || '1.3';
+            document.getElementById('cfg_nama_petugas').value = localStorage.getItem(USER_ID + '_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
+            document.getElementById('cfg_tampilkan_drop_baru').value = localStorage.getItem(USER_ID + '_Cfg_DropBaruMode') || 'on';
+            document.getElementById('cfg_wa_template').value = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
         }
 
         function hapusData(jenis) {
@@ -1045,15 +1095,13 @@
 
             let strDropBaru = getNum('st_drop_baru') > 0 ? `drop baru:${document.getElementById('st_drop_baru').value}` : "";
 
-            // AMBIL TEMPLATE WA DARI SETELAN (Atau Default jika kosong)
-            let waTemplate = localStorage.getItem('KalkulatorPati_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+            let waTemplate = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
 
             let teksWA = waTemplate
                 .replace('{teksDrop}', teksDrop)
                 .replace('{teksDropBaru}', strDropBaru)
                 .replace('{teksMurni}', stringMurni);
 
-            // Bersihkan baris kosong (jika {teksDropBaru} kosong, template agar tidak lompat spasi 2 kali)
             teksWA = teksWA.replace(/\n\s*\n/g, '\n'); 
 
             let captureEl = document.getElementById('area-screenshot'); let btn = document.getElementById('btn-kirim-wa');
@@ -1092,42 +1140,44 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
-        window.onload = function() {
-            let statusEl = document.getElementById('status-cloud');
-            let isLoaded = false; 
+        // ================= ALUR INISIALISASI (BOOTING) =================
+        function initAppUI() {
+            document.getElementById('nama_pengguna_ui').innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
+            
+            setupPWA(); 
+            muatTabel(); 
+            muatHK(); 
+            muatKalkulator(); 
+            cekVisibilitasDropBaru();
+            
+            // Eksekusi tarikan data URL HANYA setelah login divalidasi
+            bacaParameterURL(); 
+            
+            setTimeout(() => { isAppReady = true; }, 1000); 
+        }
 
-            let fallbackTimeout = setTimeout(() => {
-                if (!isLoaded) {
-                    isLoaded = true;
-                    statusEl.innerText = "⚠️ Offline Mode";
-                    statusEl.style.background = "rgba(220, 53, 69, 0.9)";
-                    
-                    setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
-                    setTimeout(() => { isAppReady = true; }, 1000); 
-                }
-            }, 5000); 
-
-            database.ref('KalkulatorPati5').once('value').then((snapshot) => {
+        function loadDataCloud(fallbackTimeout, statusEl, isLoaded) {
+            database.ref('KalkulatorPati5/DataPengguna/' + USER_ID).once('value').then((snapshot) => {
                 if (isLoaded) return; 
                 isLoaded = true;
                 clearTimeout(fallbackTimeout); 
+                document.getElementById('layar-kunci').style.display = 'none';
 
                 if (snapshot.exists()) {
                     let data = snapshot.val();
-                    
-                    if(data['Tabel_' + getBulanTahunString()]) localStorage.setItem('KalkulatorPati_Tabel_' + getBulanTahunString(), data['Tabel_' + getBulanTahunString()]);
-                    if(data['Kalkulator_Mini']) localStorage.setItem('KalkulatorPati_Mini', data['Kalkulator_Mini']);
+                    if(data['Tabel_' + getBulanTahunString()]) localStorage.setItem(USER_ID + '_Tabel_' + getBulanTahunString(), data['Tabel_' + getBulanTahunString()]);
+                    if(data['Kalkulator_Mini']) localStorage.setItem(USER_ID + '_Mini', data['Kalkulator_Mini']);
                     
                     if(data['Pengaturan']) {
                         let cfg = JSON.parse(data['Pengaturan']);
-                        if(cfg.tm) localStorage.setItem('KalkulatorPati_Cfg_TanggalMerah', cfg.tm);
-                        if(cfg.pt) localStorage.setItem('KalkulatorPati_Cfg_PctDropToko', cfg.pt);
-                        if(cfg.pb) localStorage.setItem('KalkulatorPati_Cfg_PctDropBonus', cfg.pb);
-                        if(cfg.ps) localStorage.setItem('KalkulatorPati_Cfg_PctStoran', cfg.ps);
-                        if(cfg.fs) localStorage.setItem('KalkulatorPati_Cfg_FaktorSirkulasi', cfg.fs);
-                        if(cfg.np) localStorage.setItem('KalkulatorPati_Cfg_NamaPetugas', cfg.np);
-                        if(cfg.tdb) localStorage.setItem('KalkulatorPati_Cfg_DropBaruMode', cfg.tdb);
-                        if(cfg.wa) localStorage.setItem('KalkulatorPati_Cfg_WATemplate', cfg.wa);
+                        if(cfg.tm) localStorage.setItem(USER_ID + '_Cfg_TanggalMerah', cfg.tm);
+                        if(cfg.pt) localStorage.setItem(USER_ID + '_Cfg_PctDropToko', cfg.pt);
+                        if(cfg.pb) localStorage.setItem(USER_ID + '_Cfg_PctDropBonus', cfg.pb);
+                        if(cfg.ps) localStorage.setItem(USER_ID + '_Cfg_PctStoran', cfg.ps);
+                        if(cfg.fs) localStorage.setItem(USER_ID + '_Cfg_FaktorSirkulasi', cfg.fs);
+                        if(cfg.np) localStorage.setItem(USER_ID + '_Cfg_NamaPetugas', cfg.np);
+                        if(cfg.tdb) localStorage.setItem(USER_ID + '_Cfg_DropBaruMode', cfg.tdb);
+                        if(cfg.wa) localStorage.setItem(USER_ID + '_Cfg_WATemplate', cfg.wa);
                     }
                     
                     statusEl.innerText = "☁️ Cloud OK";
@@ -1137,20 +1187,57 @@
                     statusEl.style.background = "rgba(23, 162, 184, 0.9)";
                 }
                 
-                setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru();
-                setTimeout(() => { isAppReady = true; }, 1000); 
-                
-            }).catch((error) => {
+                initAppUI();
+            }).catch(e => {
                 if (isLoaded) return;
                 isLoaded = true;
                 clearTimeout(fallbackTimeout);
-
-                statusEl.innerText = "⚠️ Ditolak (Rules/Offline)";
+                statusEl.innerText = "⚠️ Ditolak / Offline";
                 statusEl.style.background = "rgba(220, 53, 69, 0.9)";
-                
-                setupPWA(); muatTabel(); muatHK(); muatKalkulator(); cekVisibilitasDropBaru(); 
-                setTimeout(() => { isAppReady = true; }, 1000); 
+                initAppUI(); 
             });
+        }
+
+        window.onload = function() {
+            let statusEl = document.getElementById('status-cloud');
+            USER_ID = localStorage.getItem('KalkulatorPati_KodeAkses');
+
+            // JIKA BELUM ADA KODE AKSES, HENTIKAN PROSES MUAT & TAMPILKAN LOGIN
+            if (!USER_ID) {
+                document.getElementById('layar-kunci').style.display = 'flex';
+                return; 
+            }
+
+            let isLoaded = false; 
+            let fallbackTimeout = setTimeout(() => {
+                if (!isLoaded) {
+                    isLoaded = true;
+                    statusEl.innerText = "⚠️ Offline Mode";
+                    statusEl.style.background = "rgba(220, 53, 69, 0.9)";
+                    document.getElementById('layar-kunci').style.display = 'none';
+                    initAppUI();
+                }
+            }, 5000); 
+
+            // JIKA ADA KODE AKSES, VALIDASI DULU KE FIREBASE
+            if (USER_ID === "adminpati5") {
+                 loadDataCloud(fallbackTimeout, statusEl, isLoaded); // Langsung berikan akses ke master key
+            } else {
+                 database.ref('KalkulatorPati5/DaftarAkses/' + USER_ID).once('value').then(snap => {
+                     if(snap.exists() && snap.val() === "aktif") {
+                         loadDataCloud(fallbackTimeout, statusEl, isLoaded);
+                     } else {
+                         // Akses telah dihapus atau diblokir admin
+                         clearTimeout(fallbackTimeout);
+                         localStorage.removeItem('KalkulatorPati_KodeAkses');
+                         document.getElementById('layar-kunci').style.display = 'flex';
+                         document.getElementById('pesan-error').innerText = "⚠️ Akses Anda telah dicabut oleh Admin!";
+                         document.getElementById('pesan-error').style.display = 'block';
+                     }
+                 }).catch(e => { 
+                     // Error jaringan akan ditangani oleh fallbackTimeout (Offline mode)
+                 });
+            }
         };
     </script>
 </body>
