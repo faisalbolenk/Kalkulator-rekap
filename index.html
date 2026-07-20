@@ -645,15 +645,26 @@
                 let valMB = params.get('mb') || params.get('angsuranmb');
                 let valML = params.get('ml') || params.get('angsuranml');
                 let valDrop = params.get('drop') || params.get('dropbaru');
+                let valTF = params.get('tf'); // <--- PENGAMBILAN DATA TF DARI URL
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
                 if (valMB) { document.getElementById('a2').value = valMB; adaDataMasuk = true; }
                 if (valML) { document.getElementById('a3').value = valML; adaDataMasuk = true; }
                 if (valDrop) { document.getElementById('st_drop_baru').value = valDrop; hitungTotalDrop(); adaDataMasuk = true; }
+                
+                // --- PENYUNTIKAN TF KE KOLOM KALKULATOR ---
+                if (valTF) {
+                    let elTF = document.getElementById('st_transfer');
+                    if(elTF) {
+                        elTF.value = valTF;
+                        formatRibuan(elTF);
+                        adaDataMasuk = true;
+                    }
+                }
 
                 if (adaDataMasuk) {
-                    ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru'].forEach(id => {
+                    ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru', 'st_transfer'].forEach(id => {
                         let el = document.getElementById(id);
                         if(el && el.value) { formatRibuan(el); }
                     });
