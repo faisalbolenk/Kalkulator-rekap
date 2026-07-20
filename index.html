@@ -465,8 +465,12 @@
         <!-- Modal Riwayat Nasabah -->
         <div id="modal-riwayat" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
             <div style="background:white; padding:15px; border-radius:8px; width:90%; max-width:400px; max-height:85%; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-                <h3 id="judul-riwayat" style="color:#111; margin-bottom:10px;">Riwayat Pembayaran</h3>
-                <div style="font-size:11px; color:#555; margin-bottom:10px;">Klik <b>+ Bayar Manual</b> jika ingin bayar dengan nominal khusus.</div>
+                <h3 id="judul-riwayat" style="color:#111; margin-bottom:5px;">Riwayat Pembayaran</h3>
+                
+                <!-- Info Tambahan Nasabah (Dipindah dari luar) -->
+                <div id="info-nasabah-modal" style="font-size:11px; color:#333; margin-bottom:10px; background:#f8f9fa; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                    <!-- Konten diisi oleh JS saat lihatRiwayat() dipanggil -->
+                </div>
                 
                 <ul id="list-riwayat" style="list-style:none; padding:0; font-size:12px; margin-bottom:15px; border-top:1px solid #ddd;"></ul>
                 
@@ -814,7 +818,6 @@
             container.innerHTML = '';
             
             let filtered = dataNasabah.filter(n => n.nama.toLowerCase().includes(filter) || n.nik.includes(filter));
-            let todayStr = getTodayString();
             
             filtered.forEach((n, idx) => {
                 let badge_a = formatAngka(n.a / 1000); 
@@ -823,23 +826,9 @@
                     lastPayDate = n.riwayat[n.riwayat.length-1].tglpendek;
                 }
                 
-                // Kalkulasi Angsuran yang masuk HARI INI
-                let sumToday = 0;
-                let countToday = 0;
-                if(n.riwayat) {
-                    n.riwayat.forEach(r => {
-                        // Memastikan kompatibel dengan format lama (ada jam) atau baru (hanya tgl)
-                        if(r.tgl.startsWith(todayStr)) {
-                            sumToday += r.bayar;
-                            countToday++;
-                        }
-                    });
-                }
-                
-                let txtA = countToday === 0 ? "0" : `<sup>${countToday}</sup>.${formatAngka(sumToday)}`;
-                
-                let tglPnjmFormat = n.tglPinjam ? n.tglPinjam : '-';
-                let hrByrFormat = n.hariBayar ? n.hariBayar : '-';
+                // MENGUBAH A DI HALAMAN LUAR MENJADI TOTAL YANG SUDAH DIBAYARKAN (P - S)
+                let totalDibayar = n.p - n.s;
+                let txtA = formatAngka(totalDibayar);
 
                 let html = `
                 <div class="nasabah-item">
@@ -853,11 +842,10 @@
                         <button class="ns-btn-bayar" onclick="bayarKustom('${n.id}')">Bayar</button>
                     </div>
                     
+                    <!-- Alamat dan Detail Pinjaman dikosongkan/dihapus dari bagian ini -->
                     <div class="ns-mid" onclick="lihatRiwayat('${n.id}')" title="Klik untuk lihat rincian & riwayat">
                         <div class="ns-name">${n.nama}</div>
                         <div class="ns-sub">${n.nik}</div>
-                        <div class="ns-sub" style="font-style:italic;">${n.alamat}</div>
-                        <div class="ns-sub" style="color:#17a2b8; font-weight:bold; margin-top:2px;">Pinjam: ${tglPnjmFormat} | Hari: ${hrByrFormat}</div>
                     </div>
                     
                     <div class="ns-right">
@@ -935,7 +923,21 @@
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
             
-            document.getElementById('judul-riwayat').innerText = "Riwayat: " + n.nama;
+            document.getElementById('judul-riwayat').innerText = n.nama;
+            
+            // Menyusun Info Tambahan yang dipindah ke dalam modal
+            let tglPnjmFormat = n.tglPinjam ? n.tglPinjam : '-';
+            let hrByrFormat = n.hariBayar ? n.hariBayar : '-';
+            
+            document.getElementById('info-nasabah-modal').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span><b>NIK:</b> ${n.nik}</span>
+                    <button onclick="editNIKModal('${n.id}')" style="background:#ffc107; color:#000; border:none; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">✏️ Edit NIK</button>
+                </div>
+                <div style="margin-bottom:2px;"><b>Alamat:</b> <span style="font-style:italic;">${n.alamat || '-'}</span></div>
+                <div style="color:#17a2b8; font-weight:bold;">Pinjam: ${tglPnjmFormat} | Hari: ${hrByrFormat}</div>
+            `;
+
             let list = document.getElementById('list-riwayat');
             list.innerHTML = '';
             
@@ -959,6 +961,21 @@
                 list.innerHTML = html;
             }
             document.getElementById('modal-riwayat').style.display = 'flex';
+        }
+
+        // FUNGSI BARU UNTUK EDIT NIK
+        function editNIKModal(id) {
+            let n = dataNasabah.find(x => x.id === id);
+            if(!n) return;
+            
+            let nikBaru = prompt(`Ubah No Rekening / NIK untuk ${n.nama}:`, n.nik);
+            if(nikBaru !== null && nikBaru.trim() !== "") {
+                n.nik = nikBaru.trim();
+                saveNasabahCloudLocal();
+                renderNasabah();
+                lihatRiwayat(id); // Segarkan tampilan info modal
+                showToast("NIK berhasil diperbarui!");
+            }
         }
 
         function tutupModalRiwayat() {
