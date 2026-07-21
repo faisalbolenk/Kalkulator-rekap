@@ -18,7 +18,7 @@
 
     <style>
         /* GAYA MINIMALIS & RAPI */
-        body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 4px; margin: 0; font-size: 12px; }
+        body { font-family: -apple-system, sans-serif; background: #f4f6f9; padding: 4px; margin: 0; font-size: 12px; transition: background 0.3s, color 0.3s; }
         
         /* TAB MENU */
         .tab-container { display: flex; gap: 4px; margin-bottom: 6px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px;}
@@ -29,24 +29,24 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .date-badge { background: #17a2b8; color: white; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 6px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between;}
-        .card { background: white; padding: 8px; border-radius: 6px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 8px; border-radius: 6px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: background 0.3s; }
         h3 { margin: 0 0 8px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 4px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
         .auto-save { font-size: 10px; color: #28a745; font-weight: normal; }
         
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 4px; margin-bottom: 4px; }
-        input, select, textarea { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 12px; }
+        input, select, textarea { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 12px; transition: 0.3s; }
         input[type="text"], input[type="number"] { text-align: center; }
         input[readonly] { background-color: #f8f9fa; color: #888; border-color: #eee; font-weight: bold;}
         
-        .res-box { padding: 6px; margin-bottom: 8px; border-radius: 4px; background: #e7f3ff; border-left: 3px solid #007bff; font-size: 12px; font-weight: bold; color: #333; }
+        .res-box { padding: 6px; margin-bottom: 8px; border-radius: 4px; background: #e7f3ff; border-left: 3px solid #007bff; font-size: 12px; font-weight: bold; color: #333; transition: 0.3s;}
         .res-box.alert-minus { border-left-color: #dc3545; background: #fff0f0; }
 
-        .rumus-box { background: #fff8e1; color: #856404; text-align: center; padding: 8px; border-radius: 6px; margin: 0 0 10px 0; font-size: 11px; }
+        .rumus-box { background: #fff8e1; color: #856404; text-align: center; padding: 8px; border-radius: 6px; margin: 0 0 10px 0; font-size: 11px; transition: 0.3s;}
         
         /* TABEL COMPACT (REKAP) */
         .tabel-rekap { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 3px; text-align: center; vertical-align: middle; }
+        .tabel-rekap th, .tabel-rekap td { border: 1px solid #ddd; padding: 3px; text-align: center; vertical-align: middle; transition: 0.3s;}
         .tabel-rekap th { background: #f8f9fa; }
         .label-cell { text-align: left; font-weight: bold; color: #555; width: 60px; }
         .hasil-cell { font-size: 10px; line-height: 1.3; font-weight: bold; color: #333; }
@@ -63,7 +63,7 @@
         /* GAYA STORAN */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
-        .grid-2 label, .grid-3 label { font-size: 10px; font-weight: bold; color: #555; display: block; margin-bottom: 2px; text-align: center; }
+        .grid-2 label, .grid-3 label { font-size: 10px; font-weight: bold; color: #555; display: block; margin-bottom: 2px; text-align: center; transition: 0.3s;}
         
         /* GAYA BARU HASIL (MIRIP GAMBAR) */
         .res-storan { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
@@ -73,18 +73,18 @@
 
         /* INPUT KHUSUS UI STORAN */
         .ui-input-box { display: flex; flex-direction: column; text-align: left; }
-        .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; font-weight: bold;}
+        .ui-label { color: #6c757d; font-size: 11px; margin-bottom: 2px; font-weight: bold; transition: 0.3s;}
         .ui-input { border: 1px solid #ced4da; padding: 6px 8px; border-radius: 4px; background: #fff; text-align: left; font-size: 13px; outline: none; transition: 0.3s;}
         .ui-input:focus { border-color: #38b6ff; box-shadow: 0 0 0 2px rgba(56, 182, 255, 0.2); }
         .ui-input[type="text"], .ui-input[type="number"] { text-align: center; }
 
         /* AREA SCREENSHOT */
-        .capture-container { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .capture-container { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: background 0.3s; }
 
         /* TABEL LEDGER & TARGET */
         .table-wrapper { width: 100%; overflow-x: auto; overflow-y: auto; max-height: 350px; border-radius: 4px; box-shadow: 0 0 2px rgba(0,0,0,0.2); }
-        .ledger-table { min-width: 1000px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; }
-        .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle;}
+        .ledger-table { min-width: 1000px; width: 100%; border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; transition: background 0.3s;}
+        .ledger-table th, .ledger-table td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle; transition: 0.3s;}
         
         .ledger-table th { background: #007bff; color: white; font-size: 9px; padding: 4px 2px; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #004085; }
         
@@ -124,7 +124,7 @@
         .hk-input::-webkit-outer-spin-button, .hk-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .form-group { margin-bottom: 8px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 3px; color: #444; font-size: 11px;}
+        .form-group label { display: block; font-weight: bold; margin-bottom: 3px; color: #444; font-size: 11px; transition:0.3s;}
         .form-group input, .form-group select { text-align: left; background: #fff; }
         .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; }
 
@@ -147,7 +147,7 @@
         .ns-sub { font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1px;}
         
         .ns-right { display: flex; flex-direction: column; text-align: right; min-width: 90px; border-left: 1px solid #ddd; padding-left: 8px; }
-        .ns-val { font-size: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;}
+        .ns-val { font-size: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; transition:0.3s;}
         .ns-val.border-bottom { border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 3px; }
 
         /* ================= CSS NOTIFIKASI TOAST ================= */
@@ -175,6 +175,72 @@
             opacity: 1;
             bottom: 40px;
         }
+
+        /* TOMBOL UBAH CEPAT TARGET MURNI */
+        .btn-tm-min, .btn-tm-plus { padding: 0 6px; font-size: 11px; font-weight: bold; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.1s; margin-left: 2px;}
+        .btn-tm-min { background: #dc3545; }
+        .btn-tm-min:active { background: #a71d2a; transform: scale(0.9); }
+        .btn-tm-plus { background: #28a745; }
+        .btn-tm-plus:active { background: #1c7430; transform: scale(0.9); }
+        .tm-label-flex { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+
+        /* TOGGLE SWITCH MODE UBAH CEPAT & DARK MODE */
+        .switch-tm { position: relative; display: inline-block; width: 32px; height: 18px; margin: 0; }
+        .switch-tm input { opacity: 0; width: 0; height: 0; }
+        .slider-tm { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 18px; }
+        .slider-tm:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .switch-tm input:checked + .slider-tm { background-color: #28a745; }
+        .switch-tm input:checked + .slider-tm:before { transform: translateX(14px); }
+
+        /* ================= CSS MODE GELAP (DARK MODE) ================= */
+        body.dark-mode { background: #121212; color: #e0e0e0; }
+        .dark-mode .card { background: #1e1e1e; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+        .dark-mode h3 { color: #66b2ff; border-bottom-color: #333; }
+        .dark-mode .tab-btn { background: #333; color: #aaa; }
+        .dark-mode .tab-btn.active { background: #007bff; color: white; }
+        .dark-mode input, .dark-mode select, .dark-mode textarea { background: #2d2d2d; color: #fff; border-color: #444; }
+        .dark-mode input[readonly] { background-color: #1a1a1a; color: #888; border-color: #333; }
+        .dark-mode .ui-input { background: #2d2d2d; color: #fff; border-color: #444; }
+        .dark-mode .ui-label { color: #aaa; }
+        .dark-mode .res-box { background: #1a2634; border-left-color: #66b2ff; color: #e0e0e0; }
+        .dark-mode .res-box.alert-minus { background: #3a1c1d; border-left-color: #ff6b6b; }
+        .dark-mode .rumus-box { background: #2c2514; color: #ffca28; }
+        .dark-mode .tabel-rekap th { background: #2d2d2d; border-color: #444; color: #ddd;}
+        .dark-mode .tabel-rekap td { border-color: #444; }
+        .dark-mode .label-cell { color: #ccc; }
+        .dark-mode .hasil-cell { color: #eee; }
+        .dark-mode .ledger-table { background: #1e1e1e; }
+        .dark-mode .ledger-table th { background: #004085; border-color: #222; }
+        .dark-mode .ledger-table td { border-color: #444; }
+        .dark-mode .ledger-table input { color: #fff; }
+        .dark-mode .ledger-table .hari-col { background: #2d2d2d; border-right-color: #444; }
+        .dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2634; border-color: #0056b3; }
+        .dark-mode .ledger-table .baris-hari-ini input { background-color: #1e1e1e; color: #66b2ff; }
+        
+        /* Penyesuaian Tabel Warna-Warni di Dark Mode */
+        .dark-mode .tabel-storan-ui th:nth-child(7), .dark-mode .tabel-storan-ui th:nth-child(8), .dark-mode .tabel-storan-ui th:nth-child(9), .dark-mode .tabel-storan-ui th:nth-child(10) { background: #856404 !important; border-bottom-color: #664d03; color: white;} 
+        .dark-mode .tabel-storan-ui td:nth-child(7), .dark-mode .tabel-storan-ui td:nth-child(8), .dark-mode .tabel-storan-ui td:nth-child(9), .dark-mode .tabel-storan-ui td:nth-child(10) { background-color: #383424; } 
+        .dark-mode .tabel-storan-ui th:nth-child(11), .dark-mode .tabel-storan-ui th:nth-child(12), .dark-mode .tabel-storan-ui th:nth-child(13), .dark-mode .tabel-storan-ui th:nth-child(14) { background: #1c7430 !important; border-bottom-color: #145523; color: white;} 
+        .dark-mode .tabel-storan-ui td:nth-child(11), .dark-mode .tabel-storan-ui td:nth-child(12), .dark-mode .tabel-storan-ui td:nth-child(13), .dark-mode .tabel-storan-ui td:nth-child(14) { background-color: #1c3d26; } 
+        .dark-mode .tabel-storan-ui th:nth-child(15), .dark-mode .tabel-storan-ui th:nth-child(16), .dark-mode .tabel-storan-ui th:nth-child(17) { background: #532c94 !important; border-bottom-color: #3e216e; color: white;} 
+        .dark-mode .tabel-storan-ui td:nth-child(15), .dark-mode .tabel-storan-ui td:nth-child(16), .dark-mode .tabel-storan-ui td:nth-child(17) { background-color: #2b1f3d; } 
+
+        .dark-mode .capture-container { background: #1a1a1a; box-shadow: none; border: 1px solid #333;}
+        .dark-mode .capture-container h2 { color: #e0e0e0; }
+        .dark-mode #detail_rumus_murni { background: #1a2634; color: #66b2ff; border-left-color: #66b2ff; }
+        .dark-mode .form-group label { color: #ccc; }
+        .dark-mode .info-badge { border: 1px solid #444; }
+        
+        /* Dark mode untuk list Nasabah */
+        .dark-mode .nasabah-item { background: #1e1e1e; border-bottom-color: #333; }
+        .dark-mode .nasabah-item:hover { background: #2d2d2d; }
+        .dark-mode .ns-name { color: #e0e0e0; }
+        .dark-mode .ns-val { color: #ccc; }
+        .dark-mode .ns-val.border-bottom { border-bottom-color: #555; }
+        .dark-mode .ns-val span { color: #ccc !important; }
+        .dark-mode #form-nasabah { background: #1e1e1e; border-color:#444; }
+        .dark-mode #modal-riwayat > div { background: #1e1e1e; color: #e0e0e0; border: 1px solid #444;}
+        .dark-mode #info-nasabah-modal { background: #2d2d2d; border-color: #444; color: #ccc; }
         /* ========================================================= */
     </style>
 </head>
@@ -268,7 +334,7 @@
             </div>
             <!-- SELESAI BLOK SCREENSHOT -->
 
-            <div style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <div style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" class="card">
                 <div class="rumus-box">
                     <div id="label_rumus_tambahan" style="font-weight: bold; margin-bottom: 6px; color: #856404;">Kasbon + (11% × Drop) + Storting = Total</div>
                     <span style="font-size: 16px; font-weight: bold; color: #28a745;" id="hasilRumusTambahan">0 + 0 + 0 = 0</span>
@@ -282,20 +348,65 @@
 
                 <!-- TARGET MURNI -->
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
-                    <h3 style="font-size: 12px; margin-bottom: 4px; color: #343a40;">🎯 Target Murni</h3>
                     
+                    <!-- HEADER TARGET MURNI & INPUT NILAI UBAH (ON/OFF TOGGLE) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <h3 style="font-size: 13px; margin: 0; color: #343a40; border: none; padding: 0;">🎯 Target Murni</h3>
+                        
+                        <!-- Panel Saklar Edit Cepat -->
+                        <div style="display: flex; align-items: center; gap: 6px; background: transparent; padding: 3px 8px; border-radius: 12px; border: 1px solid #ccc;">
+                            <span style="font-size: 10px; font-weight: bold; color: #555; cursor: pointer;" onclick="document.getElementById('toggle_quick_edit').click()">Edit Cepat</span>
+                            <label class="switch-tm" title="Aktifkan tombol tambah/kurang cepat">
+                                <input type="checkbox" id="toggle_quick_edit" onchange="toggleQuickEdit()">
+                                <span class="slider-tm"></span>
+                            </label>
+                            <!-- Input 65 tersembunyi default -->
+                            <input type="number" id="quick_val" value="65" style="width: 40px; text-align: center; font-size: 11px; font-weight: bold; padding: 2px; border: 1px solid #ccc; border-radius: 4px; outline: none; display: none;" title="Nilai kelipatan (default 65)">
+                        </div>
+                    </div>
+
                     <!-- DISPLAY BREAKDOWN RUMUS MURNI -->
                     <div id="detail_rumus_murni" style="background: #eaf4ff; color: #004085; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 8px; font-weight: bold; font-size: 12px; border-left: 4px solid #007bff; letter-spacing: 0.5px;">
                         0 - 0 - 0 = 0
                     </div>
 
                     <div class="grid-2">
-                        <div class="ui-input-box"><label class="ui-label">Senin</label><input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()"></div>
-                        <div class="ui-input-box"><label class="ui-label">Selasa</label><input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()"></div>
-                        <div class="ui-input-box"><label class="ui-label">Rabu</label><input type="text" class="ui-input" id="tm_3" value="2.550" oninput="formatRibuan(this); hitungSemua()"></div>
-                        <div class="ui-input-box"><label class="ui-label">Kamis</label><input type="text" class="ui-input" id="tm_4" value="1.865" oninput="formatRibuan(this); hitungSemua()"></div>
-                        <div class="ui-input-box"><label class="ui-label">Jum'at</label><input type="text" class="ui-input" id="tm_5" value="1.668" oninput="formatRibuan(this); hitungSemua()"></div>
-                        <div class="ui-input-box"><label class="ui-label">Sabtu</label><input type="text" class="ui-input" id="tm_6" value="2.447" oninput="formatRibuan(this); hitungSemua()"></div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Senin 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_1', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_1', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_1" value="2.474" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Selasa 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_2', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_2', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_2" value="1.589" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Rabu 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_3', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_3', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_3" value="2.550" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Kamis 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_4', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_4', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_4" value="1.865" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Jum'at 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_5', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_5', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_5" value="1.668" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
+                        <div class="ui-input-box">
+                            <label class="ui-label tm-label-flex">Sabtu 
+                                <span class="tm-action-btns" style="display: none;"><button type="button" class="btn-tm-min" onclick="ubahTarget('tm_6', 'min')">-</button><button type="button" class="btn-tm-plus" onclick="ubahTarget('tm_6', 'plus')">+</button></span>
+                            </label>
+                            <input type="text" class="ui-input" id="tm_6" value="2.447" oninput="formatRibuan(this); hitungSemua()">
+                        </div>
                     </div>
                 </div>
 
@@ -359,7 +470,11 @@
         </div>
 
         <div class="card" style="padding: 6px;">
-            <h3 style="margin: 4px;"><span id="judul-tabel">📋 Tabel Rekap</span></h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                <h3 style="margin: 0; border: none; padding: 0;"><span id="judul-tabel">📋 Tabel Rekap</span></h3>
+                <input type="month" id="input_bulan_rekap" onchange="gantiBulanView()" style="width: auto; padding: 2px 4px; font-size: 11px; border: 1px solid #ccc; border-radius: 4px; outline:none;" title="Pilih riwayat bulan sebelumnya">
+            </div>
+            
             <div class="table-wrapper">
                 <table class="ledger-table tabel-storan-ui">
                     <thead>
@@ -391,7 +506,7 @@
             </div>
 
             <div class="res-box" id="res_kekuatan" style="margin-top: 8px; text-align: center;">
-                Kekuatan Program Hari Ini<br><span style="font-size:18px; color:#0056b3;" id="disp_kekuatan">0</span>
+                Kekuatan Program <span id="label_kekuatan_hari">Hari Ini</span><br><span style="font-size:18px; color:#0056b3;" id="disp_kekuatan">0</span>
             </div>
 
             <div class="grid-2">
@@ -490,7 +605,16 @@
     <!-- TABS PENGATURAN -->
     <div id="menu-pengaturan" class="tab-content">
         <div class="card">
-            <h3>⚙️ Setelan Parameter</h3>
+            <h3>⚙️ Setelan Aplikasi</h3>
+            
+            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+                <label style="margin:0; font-size:13px; color:#0056b3;">🌙 Mode Gelap (Dark Mode)</label>
+                <label class="switch-tm">
+                    <input type="checkbox" id="toggle_dark_mode" onchange="toggleDarkMode()">
+                    <span class="slider-tm"></span>
+                </label>
+            </div>
+
             <div class="form-group">
                 <label>Tanggal Merah (Libur):</label>
                 <input type="text" id="cfg_tanggal_merah" placeholder="01-01, 17-08, 25-12">
@@ -535,7 +659,18 @@
 
             <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
             
-            <button class="btn-hapus" style="width: 100%; margin-top: 15px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
+            <!-- BLOK BACKUP / RESTORE OFFLINE -->
+            <div class="form-group" style="margin-top:16px; border-top:1px solid #eee; padding-top:12px;">
+                <label style="color:#856404;">💾 Cadangan & Pemulihan (Offline JSON)</label>
+                <div style="display: flex; gap: 6px; margin-top: 6px;">
+                    <button class="btn-salin" style="flex: 1; background: #28a745; font-size:11px;" onclick="backupDataJSON()">⬇️ Backup Data</button>
+                    <input type="file" id="file_restore" accept=".json" style="display: none;" onchange="restoreDataJSON(event)">
+                    <button class="btn-hapus" style="flex: 1; background: #ff9800; font-size:11px;" onclick="document.getElementById('file_restore').click()">⬆️ Restore Data</button>
+                </div>
+                <span class="hint">Simpan file ke memori HP sebagai cadangan darurat di luar Cloud.</span>
+            </div>
+
+            <button class="btn-hapus" style="width: 100%; margin-top: 20px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
         </div>
     </div>
 
@@ -560,9 +695,63 @@
 
         let isAppReady = false; 
         let USER_ID = null;
+        let selectedBulanTahun = getBulanTahunString(); // Variabel Global Bulan Rekap
 
         function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
         function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
+
+        // ================= FITUR DARK MODE =================
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            let isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('KalkulatorPati_DarkMode', isDark ? 'on' : 'off');
+        }
+
+        function loadDarkMode() {
+            if(localStorage.getItem('KalkulatorPati_DarkMode') === 'on') {
+                document.body.classList.add('dark-mode');
+                let toggleEl = document.getElementById('toggle_dark_mode');
+                if(toggleEl) toggleEl.checked = true;
+            }
+        }
+        // ====================================================
+
+        // ================= FITUR BACKUP & RESTORE JSON =================
+        function backupDataJSON() {
+            let backupObj = {};
+            for(let i=0; i<localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if(key.startsWith(USER_ID + '_')) {
+                    backupObj[key] = localStorage.getItem(key);
+                }
+            }
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj));
+            let dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "Backup_Pati5_" + USER_ID + "_" + getTodayString() + ".json");
+            dlAnchorElem.click();
+            showToast("Backup Data Berhasil Diunduh!");
+        }
+
+        function restoreDataJSON(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data = JSON.parse(e.target.result);
+                    for(let key in data) {
+                        localStorage.setItem(key, data[key]);
+                    }
+                    showToast("Data Berhasil Dipulihkan! Merefresh...");
+                    setTimeout(() => { window.location.reload(); }, 1500);
+                } catch(err) {
+                    alert("Gagal membaca file backup JSON!");
+                }
+            };
+            reader.readAsText(file);
+        }
+        // ===============================================================
 
         // ================= CSS NOTIFIKASI TOAST =================
         function showToast(msg, isError = false) {
@@ -645,23 +834,14 @@
                 let valMB = params.get('mb') || params.get('angsuranmb');
                 let valML = params.get('ml') || params.get('angsuranml');
                 let valDrop = params.get('drop') || params.get('dropbaru');
-                let valTF = params.get('tf'); // <--- PENGAMBILAN DATA TF DARI URL
+                let valTF = params.get('tf'); 
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
                 if (valMB) { document.getElementById('a2').value = valMB; adaDataMasuk = true; }
                 if (valML) { document.getElementById('a3').value = valML; adaDataMasuk = true; }
                 if (valDrop) { document.getElementById('st_drop_baru').value = valDrop; hitungTotalDrop(); adaDataMasuk = true; }
-                
-                // --- PENYUNTIKAN TF KE KOLOM KALKULATOR ---
-                if (valTF) {
-                    let elTF = document.getElementById('st_transfer');
-                    if(elTF) {
-                        elTF.value = valTF;
-                        formatRibuan(elTF);
-                        adaDataMasuk = true;
-                    }
-                }
+                if (valTF) { let elTF = document.getElementById('st_transfer'); if(elTF) { elTF.value = valTF; formatRibuan(elTF); adaDataMasuk = true; } }
 
                 if (adaDataMasuk) {
                     ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru', 'st_transfer'].forEach(id => {
@@ -686,7 +866,14 @@
         }
 
         function muatHK() {
-            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
+            let parts = selectedBulanTahun.split('-');
+            let tahun = parseInt(parts[0]); 
+            let bulan = parseInt(parts[1]) - 1; 
+            
+            // Cek apakah ini bulan berjalan atau bulan lalu
+            let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+            let tglHariIni = isBulanIni ? new Date().getDate() : 32; 
+
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate(); 
             const tanggalMerah = getTanggalMerahArray();
             
@@ -767,7 +954,7 @@
         }
 
         // -----------------------------------------------------
-        // BLOK NASABAH & RIWAYAT (DENGAN AKUMULASI ANGSURAN & TOAST)
+        // BLOK NASABAH & RIWAYAT
         // -----------------------------------------------------
         let dataNasabah = [];
         let idNasabahTerpilih = null; 
@@ -833,11 +1020,8 @@
             filtered.forEach((n, idx) => {
                 let badge_a = formatAngka(n.a / 1000); 
                 let lastPayDate = "-";
-                if(n.riwayat && n.riwayat.length > 0) {
-                    lastPayDate = n.riwayat[n.riwayat.length-1].tglpendek;
-                }
+                if(n.riwayat && n.riwayat.length > 0) { lastPayDate = n.riwayat[n.riwayat.length-1].tglpendek; }
                 
-                // MENGUBAH A DI HALAMAN LUAR MENJADI TOTAL YANG SUDAH DIBAYARKAN (P - S)
                 let totalDibayar = n.p - n.s;
                 let txtA = formatAngka(totalDibayar);
 
@@ -847,13 +1031,10 @@
                     
                     <div class="ns-left">
                         <div class="ns-date">${lastPayDate}</div>
-                        <button class="ns-badge-green" onclick="bayarInstan('${n.id}')" title="Klik untuk bayar pas">
-                            ${badge_a}
-                        </button>
+                        <button class="ns-badge-green" onclick="bayarInstan('${n.id}')" title="Klik untuk bayar pas">${badge_a}</button>
                         <button class="ns-btn-bayar" onclick="bayarKustom('${n.id}')">Bayar</button>
                     </div>
                     
-                    <!-- Alamat dan Detail Pinjaman dikosongkan/dihapus dari bagian ini -->
                     <div class="ns-mid" onclick="lihatRiwayat('${n.id}')" title="Klik untuk lihat rincian & riwayat">
                         <div class="ns-name">${n.nama}</div>
                         <div class="ns-sub">${n.nik}</div>
@@ -877,8 +1058,6 @@
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
             if(n.s <= 0) { showToast("Saldo sudah Lunas!", true); return; }
-            
-            // Tanpa alert konfirmasi, langsung proses
             prosesPembayaran(n, n.a);
             showToast("✅ Berhasil: Rp " + formatAngka(n.a));
         }
@@ -887,13 +1066,11 @@
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
             if(n.s <= 0) { showToast("Saldo sudah Lunas!", true); return; }
-            
             let konfirm = prompt(`Pembayaran Kustom: ${n.nama}\nMasukkan nominal yang dibayar:`, n.a);
             if(konfirm === null || konfirm === "") return;
             
             let valBayar = parseFloat(konfirm.replace(/[^0-9\-,]/g, ''));
             if(isNaN(valBayar) || valBayar <= 0) { alert("Nominal tidak valid!"); return; }
-            
             prosesPembayaran(n, valBayar);
             showToast("✅ Berhasil: Rp " + formatAngka(valBayar));
         }
@@ -901,10 +1078,8 @@
         function bayarManualModal() {
             if(!idNasabahTerpilih) return;
             let n = dataNasabah.find(x => x.id === idNasabahTerpilih);
-            
             let konfirm = prompt(`Bayar Manual untuk ${n.nama}\nMasukkan nominal:`, n.a);
             if(konfirm === null || konfirm === "") return;
-            
             let valBayar = parseFloat(konfirm.replace(/[^0-9\-,]/g, ''));
             if(isNaN(valBayar) || valBayar <= 0) { alert("Nominal tidak valid!"); return; }
             
@@ -916,15 +1091,12 @@
         function prosesPembayaran(n, valBayar) {
             n.s -= valBayar;
             if(n.s < 0) n.s = 0;
-            
             let d = new Date();
-            // Format waktu DIHILANGKAN, hanya menyimpan tanggal YYYY-MM-DD
             let tglFull = getTodayString(); 
             let tglPendek = ('0'+d.getDate()).slice(-2) + "-" + ('0'+(d.getMonth()+1)).slice(-2);
             
             if(!n.riwayat) n.riwayat = [];
             n.riwayat.push({ tgl: tglFull, tglpendek: tglPendek, bayar: valBayar, sisa: n.s });
-            
             saveNasabahCloudLocal();
             renderNasabah();
         }
@@ -935,8 +1107,6 @@
             if(!n) return;
             
             document.getElementById('judul-riwayat').innerText = n.nama;
-            
-            // Menyusun Info Tambahan yang dipindah ke dalam modal
             let tglPnjmFormat = n.tglPinjam ? n.tglPinjam : '-';
             let hrByrFormat = n.hariBayar ? n.hariBayar : '-';
             
@@ -956,7 +1126,6 @@
                 list.innerHTML = '<li style="padding:10px 0; text-align:center; color:#999;">Belum ada riwayat pembayaran.</li>';
             } else {
                 let mappedRiwayat = n.riwayat.map((r, idx) => ({...r, originalIndex: idx})).reverse();
-                
                 let html = mappedRiwayat.map(r => `
                     <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
                         <div style="flex:1;">
@@ -974,25 +1143,20 @@
             document.getElementById('modal-riwayat').style.display = 'flex';
         }
 
-        // FUNGSI BARU UNTUK EDIT NIK
         function editNIKModal(id) {
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
-            
             let nikBaru = prompt(`Ubah No Rekening / NIK untuk ${n.nama}:`, n.nik);
             if(nikBaru !== null && nikBaru.trim() !== "") {
                 n.nik = nikBaru.trim();
                 saveNasabahCloudLocal();
                 renderNasabah();
-                lihatRiwayat(id); // Segarkan tampilan info modal
+                lihatRiwayat(id);
                 showToast("NIK berhasil diperbarui!");
             }
         }
 
-        function tutupModalRiwayat() {
-            document.getElementById('modal-riwayat').style.display = 'none';
-            idNasabahTerpilih = null;
-        }
+        function tutupModalRiwayat() { document.getElementById('modal-riwayat').style.display = 'none'; idNasabahTerpilih = null; }
 
         function hapusNasabahModal() {
             if(!idNasabahTerpilih) return;
@@ -1010,16 +1174,9 @@
             if(!idNasabahTerpilih) return;
             let n = dataNasabah.find(x => x.id === idNasabahTerpilih);
             
-            if(!n.riwayat || n.riwayat.length === 0) {
-                showToast("Tidak ada riwayat angsuran yang bisa dihapus!", true);
-                return;
-            }
-
-            if(confirm(`Yakin ingin membatalkan/menghapus angsuran terakhir sebesar ${formatAngka(n.riwayat[n.riwayat.length - 1].bayar)}?`)) {
-                // Menghapus item terakhir
+            if(!n.riwayat || n.riwayat.length === 0) { showToast("Tidak ada riwayat angsuran yang bisa dihapus!", true); return; }
+            if(confirm(`Yakin membatalkan angsuran terakhir sebesar ${formatAngka(n.riwayat[n.riwayat.length - 1].bayar)}?`)) {
                 n.riwayat.pop();
-                
-                // Hitung ulang saldo berdasarkan riwayat yang masih tersisa
                 let current_s = n.p;
                 for(let i = 0; i < n.riwayat.length; i++) {
                     current_s -= n.riwayat[i].bayar;
@@ -1027,7 +1184,6 @@
                     n.riwayat[i].sisa = current_s;
                 }
                 n.s = current_s;
-                
                 saveNasabahCloudLocal();
                 renderNasabah();
                 lihatRiwayat(idNasabahTerpilih);
@@ -1038,9 +1194,7 @@
         function pencairanBaru() {
             if(!idNasabahTerpilih) return;
             let n = dataNasabah.find(x => x.id === idNasabahTerpilih);
-            
             if(confirm(`Nasabah [${n.nama}] mengambil pinjaman baru hari ini?\n\nRiwayat akan kembali ke awal dan tanggal pinjaman menjadi HARI INI.`)) {
-                
                 let pKonfirm = prompt(`Masukkan Total Pinjaman (P) Baru untuk ${n.nama}:`, n.p);
                 if(pKonfirm === null || pKonfirm === "") return;
                 let valP = parseFloat(pKonfirm.replace(/[^0-9\-,]/g, ''));
@@ -1049,18 +1203,11 @@
                 if(aKonfirm === null || aKonfirm === "") return;
                 let valA = parseFloat(aKonfirm.replace(/[^0-9\-,]/g, ''));
                 
-                if(isNaN(valP) || valP <= 0 || isNaN(valA) || valA <= 0) { 
-                    alert("Nominal tidak valid!"); 
-                    return; 
-                }
+                if(isNaN(valP) || valP <= 0 || isNaN(valA) || valA <= 0) { alert("Nominal tidak valid!"); return; }
                 
-                // Setel ulang parameter nasabah
-                n.p = valP;
-                n.a = valA;
-                n.s = valP;
-                n.tglPinjam = getTodayString(); // Mereset tanggal pinjaman ke hari ini
-                n.riwayat = []; // Mengosongkan riwayat angsuran
-                
+                n.p = valP; n.a = valA; n.s = valP;
+                n.tglPinjam = getTodayString(); 
+                n.riwayat = []; 
                 saveNasabahCloudLocal();
                 renderNasabah();
                 lihatRiwayat(idNasabahTerpilih); 
@@ -1071,12 +1218,10 @@
         function editRiwayatModal(id, idxRiwayat) {
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
-            
             let r = n.riwayat[idxRiwayat];
             
             let tglKonfirm = prompt(`EDIT TANGGAL RIWAYAT\nFormat: YYYY-MM-DD\n\nMasukkan Tanggal yang benar:`, r.tgl);
             if(tglKonfirm === null) return; 
-            
             let nomKonfirm = prompt(`EDIT NOMINAL PEMBAYARAN\nNominal sebelumnya: ${formatAngka(r.bayar)}\n\nMasukkan nominal yang BENAR:`, r.bayar);
             if(nomKonfirm === null || nomKonfirm === "") return; 
             
@@ -1085,36 +1230,108 @@
             
             r.tgl = tglKonfirm.trim();
             try {
-                // Untuk mencegah jika data lama punya format jam di dalam string, kita pisahkan pake spasi
                 let parts = r.tgl.split(' ')[0].split('-');
-                if(parts.length >= 3) {
-                    r.tglpendek = parts[2] + '-' + parts[1];
-                } else {
-                    r.tglpendek = r.tgl.substring(0,5);
-                }
+                if(parts.length >= 3) { r.tglpendek = parts[2] + '-' + parts[1]; } else { r.tglpendek = r.tgl.substring(0,5); }
             } catch(e) { r.tglpendek = r.tgl; }
 
             n.riwayat[idxRiwayat].bayar = valBaru;
-            
             let current_s = n.p;
             for(let i=0; i<n.riwayat.length; i++) {
                 current_s -= n.riwayat[i].bayar;
                 if(current_s < 0) current_s = 0;
                 n.riwayat[i].sisa = current_s;
             }
-            
             n.s = current_s;
-            
             saveNasabahCloudLocal();
             renderNasabah();
             lihatRiwayat(id); 
             showToast("Riwayat berhasil diperbarui!");
         }
-        // -----------------------------------------------------
+
+        // ================= UBAH CEPAT TARGET MURNI =================
+        function toggleQuickEdit() {
+            let isChecked = document.getElementById('toggle_quick_edit').checked;
+            let inputVal = document.getElementById('quick_val');
+            let btns = document.querySelectorAll('.tm-action-btns');
+            if (isChecked) {
+                inputVal.style.display = 'inline-block';
+                btns.forEach(btn => btn.style.display = 'inline-block');
+            } else {
+                inputVal.style.display = 'none';
+                btns.forEach(btn => btn.style.display = 'none');
+            }
+        }
+
+        function ubahTarget(id, aksi) {
+            let el = document.getElementById(id);
+            if (!el) return;
+            let currVal = getNum(id);
+            let adjustInput = document.getElementById('quick_val');
+            let adjustVal = adjustInput ? parseFloat(adjustInput.value) : 65;
+            if (isNaN(adjustVal) || adjustVal <= 0) adjustVal = 65;
+
+            if (aksi === 'min') { currVal -= adjustVal; } else if (aksi === 'plus') { currVal += adjustVal; }
+            if (currVal < 0) currVal = 0;
+
+            el.value = currVal;
+            formatRibuan(el);
+            hitungSemua();
+
+            let namaHari = el.parentElement.querySelector('label').innerText.replace(/[\+\-]/g, '').trim();
+            showToast(`Target ${namaHari} ${aksi === 'min' ? 'Dikurangi' : 'Ditambah'} ${adjustVal}`);
+        }
+
+        // ================= GANTI VIEW BULAN REKAP =================
+        function gantiBulanView() {
+            let inputBulan = document.getElementById('input_bulan_rekap').value;
+            if(inputBulan) {
+                selectedBulanTahun = inputBulan;
+                buatTabelBulanIni(); 
+                
+                // Ambil data dari Local Storage dulu
+                let saved = localStorage.getItem(USER_ID + '_Tabel_' + selectedBulanTahun);
+                if(saved) {
+                    try { 
+                        let obj = JSON.parse(saved); 
+                        for(let k in obj) { let el = document.getElementById(k); if(el && !el.hasAttribute('readonly')) el.value = obj[k]; } 
+                    } catch(e){}
+                    propagasiSaldoTabel(); kalkulasiTabelTarget();
+                } else if(isAppReady) {
+                    // Kalau di local kosong, coba ambil di cloud
+                    let dbPath = (USER_ID === "adminpati5") ? 'KalkulatorPati5/Tabel_' + selectedBulanTahun : 'KalkulatorPati5/DataPengguna/' + USER_ID + '/Tabel_' + selectedBulanTahun;
+                    database.ref(dbPath).once('value').then(snap => {
+                        if(snap.exists()) {
+                            let data = snap.val();
+                            try {
+                                let obj = typeof data === 'string' ? JSON.parse(data) : data;
+                                for(let k in obj) { let el = document.getElementById(k); if(el && !el.hasAttribute('readonly')) el.value = obj[k]; }
+                            } catch(e){}
+                        }
+                        propagasiSaldoTabel(); kalkulasiTabelTarget();
+                    });
+                }
+                
+                // Set indikator label target murni
+                let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+                let labelKekuatan = document.getElementById('label_kekuatan_hari');
+                if(labelKekuatan) {
+                    labelKekuatan.innerText = isBulanIni ? "Hari Ini" : "Bulan " + selectedBulanTahun;
+                }
+                muatHK(); // Refresh kolom HK di atas
+            }
+        }
 
         // ================= KALKULATOR UTAMA =================
         function buatTabelBulanIni() {
-            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate(); 
+            // Menggunakan variabel global `selectedBulanTahun` bukan `new Date()` langsung
+            let parts = selectedBulanTahun.split('-');
+            let tahun = parseInt(parts[0]);
+            let bulan = parseInt(parts[1]) - 1; 
+            
+            // Cek apakah view adalah bulan berjalan
+            let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+            let tglHariIni = isBulanIni ? new Date().getDate() : -1; 
+            
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             
@@ -1215,7 +1432,11 @@
         }
 
         function setTabel(idPrefix, nilai) {
-            let tglHariIni = new Date().getDate(); let el = document.getElementById(idPrefix + tglHariIni);
+            let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+            if (!isBulanIni) return; // Jangan isi otomatis tabel jika sedang melihat riwayat bulan lalu
+            
+            let tglHariIni = new Date().getDate(); 
+            let el = document.getElementById(idPrefix + tglHariIni);
             if(el && document.activeElement !== el) {
                 if (isNaN(nilai) || nilai === '') { el.value = ''; return; }
                 if (nilai === 0 && !['t_sc_', 't_sm_', 't_sl_', 't_si_', 't_jc_', 't_jm_', 't_jl_'].includes(idPrefix)) { el.value = ''; return; }
@@ -1234,23 +1455,30 @@
             clearTimeout(timerCloudSimpan);
             timerCloudSimpan = setTimeout(() => {
                 if(isAppReady) {
+                    // Simpan Kalkulator Utama Mini
                     let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
                     let dataSave = { lastDate: APP_LOAD_DATE, values: dataObj };
                     simpanKeCloud('Kalkulator_Mini', JSON.stringify(dataSave));
 
-                    let dataTabel = {}; let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                    // Simpan Tabel ke bulan yang SEDANG DILIHAT (Bisa bulan ini atau edit bulan lalu)
+                    let dataTabel = {}; 
+                    let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1; 
+                    let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
+                    
                     let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
                     for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
-                    simpanKeCloud('Tabel_' + getBulanTahunString(), JSON.stringify(dataTabel));
+                    simpanKeCloud('Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel));
                 }
             }, 800);
         }
 
         function simpanTabel() {
-            let dataTabel = {}; let d = new Date(); let jmlHari = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            let dataTabel = {}; 
+            let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1; 
+            let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
             let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
-            localStorage.setItem(USER_ID + '_Tabel_' + getBulanTahunString(), JSON.stringify(dataTabel)); 
+            localStorage.setItem(USER_ID + '_Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel)); 
             triggerSimpanCloud(); 
         }
 
@@ -1267,7 +1495,10 @@
         }
 
         function propagasiSaldoTabel() {
-            let tglHariIni = new Date().getDate(); if (tglHariIni <= 1) return; let tod = tglHariIni;
+            let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+            let tod = isBulanIni ? new Date().getDate() : 31; // kalau bulan lalu, biarkan propagasi sampai akhir bulan berjalan
+            if (tod <= 1 && isBulanIni) return; 
+
             const findLastValue = (prefix) => {
                 for (let d = tod - 1; d >= 1; d--) {
                     let el = document.getElementById(prefix + d);
@@ -1275,17 +1506,24 @@
                 } return ""; 
             };
             const applyVal = (prefix) => {
-                let currEl = document.getElementById(prefix + tod);
-                if (currEl && (!currEl.value || currEl.value.trim() === "")) {
-                    let lastVal = findLastValue(prefix); if (lastVal !== "") { currEl.value = lastVal; }
+                let endDay = isBulanIni ? tod : new Date(selectedBulanTahun.split('-')[0], selectedBulanTahun.split('-')[1], 0).getDate();
+                for(let k = 1; k <= endDay; k++) {
+                    let currEl = document.getElementById(prefix + k);
+                    if (currEl && (!currEl.value || currEl.value.trim() === "")) {
+                        let lastVal = findLastValue(prefix); if (lastVal !== "") { currEl.value = lastVal; }
+                    }
+                    if(!isBulanIni) break; // Jika bulan lalu, propagasi butuh disesuaikan, untuk amannya kita tidak paksa isi
                 }
             };
             let prefixes = ['t_jc_', 't_sc_', 't_pc_', 't_jm_', 't_sm_', 't_pm_', 't_jl_', 't_sl_'];
-            prefixes.forEach(prefix => applyVal(prefix));
+            if(isBulanIni) { prefixes.forEach(prefix => applyVal(prefix)); }
         }
 
         function kalkulasiTabelTarget() {
-            let d = new Date(); let tahun = d.getFullYear(); let bulan = d.getMonth(); let tglHariIni = d.getDate();
+            let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1;
+            let isBulanIni = (selectedBulanTahun === getBulanTahunString());
+            let tglHariIni = isBulanIni ? new Date().getDate() : 32; 
+            
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate(); const tanggalMerah = getTanggalMerahArray(); 
             let manualHkTotal = parseInt(document.getElementById('info-hk-total').value) || 0;
             let manualHkDilalui = parseInt(document.getElementById('info-hk-lalu').value) || 0;
@@ -1303,8 +1541,9 @@
                 let k_kekuatan = 0, k_caridrop = 0, k_targetstort = 0;
 
                 if(!isLibur) {
-                    if(i === tglHariIni) {
-                        if(manualHkDilalui > 0) k_kekuatan = ((jmlStortRow / manualHkDilalui) * manualHkTotal) / faktorIndex;
+                    if(i === tglHariIni || (!isBulanIni && i === jmlHari)) {
+                        let pembagiDilalui = !isBulanIni ? hkJalan : manualHkDilalui;
+                        if(pembagiDilalui > 0) k_kekuatan = ((jmlStortRow / pembagiDilalui) * manualHkTotal) / faktorIndex;
                         let pembagi = manualHkSisa > 0 ? manualHkSisa : 1; 
                         k_caridrop = (programRow - jmlDropRow) / pembagi; k_targetstort = ((programRow * (indexRow / 100)) - jmlStortRow) / pembagi;
                     } else if (i < tglHariIni) { 
@@ -1322,7 +1561,12 @@
                 } else {
                     if(elmKek) elmKek.innerText = formatAngka(k_kekuatan); if(elmCar) elmCar.innerText = formatAngka(k_caridrop); if(elmTar) elmTar.innerText = formatAngka(k_targetstort);
                 }
-                if(i === tglHariIni && !isLibur) {
+                
+                if(i === tglHariIni && !isLibur && isBulanIni) {
+                    let dk = document.getElementById('disp_kekuatan'); if(dk) dk.innerText = formatAngka(k_kekuatan);
+                    let dc = document.getElementById('disp_caridrop'); if(dc) dc.innerText = formatAngka(k_caridrop);
+                    let dt = document.getElementById('disp_targetstort'); if(dt) dt.innerText = formatAngka(k_targetstort);
+                } else if(!isBulanIni && i === jmlHari && !isLibur) { // nampilin rekap akhir di bulan lalu
                     let dk = document.getElementById('disp_kekuatan'); if(dk) dk.innerText = formatAngka(k_kekuatan);
                     let dc = document.getElementById('disp_caridrop'); if(dc) dc.innerText = formatAngka(k_caridrop);
                     let dt = document.getElementById('disp_targetstort'); if(dt) dt.innerText = formatAngka(k_targetstort);
@@ -1426,7 +1670,8 @@
         }
 
         function muatTabel() {
-            buatTabelBulanIni(); let saved = localStorage.getItem(USER_ID + '_Tabel_' + getBulanTahunString());
+            buatTabelBulanIni(); 
+            let saved = localStorage.getItem(USER_ID + '_Tabel_' + selectedBulanTahun);
             if(saved) { 
                 try { 
                     let obj = JSON.parse(saved); 
@@ -1435,7 +1680,7 @@
             }
         }
 
-        function hapusTabel() { if(confirm("⚠️ Yakin hapus isi Tabel bulan ini?")) { localStorage.removeItem(USER_ID + '_Tabel_' + getBulanTahunString()); muatTabel(); } }
+        function hapusTabel() { if(confirm("⚠️ Yakin hapus isi Tabel bulan " + selectedBulanTahun + "?")) { localStorage.removeItem(USER_ID + '_Tabel_' + selectedBulanTahun); muatTabel(); } }
         
         function hapusData(jenis) {
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
@@ -1447,7 +1692,7 @@
         }
 
         function muatKalkulator() {
-            tampilkanTanggal(); muatPengaturan(); 
+            tampilkanTanggal(); muatPengaturan(); loadDarkMode();
             let cfgFaktorSirkulasi = parseFloat(localStorage.getItem(USER_ID + '_Cfg_FaktorSirkulasi')) || 1.3;
             let savedData = localStorage.getItem(USER_ID + '_Mini');
             
@@ -1581,7 +1826,7 @@
 
             try {
                 if (typeof html2canvas === 'undefined') { alert("⚠️ Library belum termuat."); btn.innerText = originalText; btn.disabled = false; return; }
-                let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: "#f8f9fa" });
+                let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: document.body.classList.contains('dark-mode') ? "#1a1a1a" : "#f8f9fa" });
                 canvas.toBlob(async function(blob) {
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1609,7 +1854,7 @@
                 } csv.push(row.join(','));
             }
             let csvFile = new Blob([csv.join('\n')], {type: 'text/csv'}); let downloadLink = document.createElement('a');
-            downloadLink.download = 'Rekap_' + namaFile + '_' + USER_ID + '_' + getBulanTahunString() + '.csv'; downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.download = 'Rekap_' + namaFile + '_' + USER_ID + '_' + selectedBulanTahun + '.csv'; downloadLink.href = window.URL.createObjectURL(csvFile);
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
@@ -1620,6 +1865,9 @@
         function initAppUI() {
             let namaUser = document.getElementById('nama_pengguna_ui');
             if(namaUser) namaUser.innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
+            
+            let inputBulanEl = document.getElementById('input_bulan_rekap');
+            if(inputBulanEl) inputBulanEl.value = getBulanTahunString();
             
             setupPWA(); 
             tampilkanTanggal(); 
