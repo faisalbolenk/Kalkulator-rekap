@@ -324,7 +324,7 @@
                     </div>
                     <div class="ui-input-box">
                         <label class="ui-label">STORTING</label>
-                        <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" placeholder="0" style="font-weight: bold;">
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" onchange="formatRibuan(this); syncDariStoran()" onpaste="setTimeout(() => { formatRibuan(this); syncDariStoran(); hitungSemua(); }, 50)" placeholder="0" style="font-weight: bold;">
                     </div>
                 </div>
 
@@ -1574,12 +1574,19 @@
             }
         }
 
-        function hitungSemua() {
+                function hitungSemua() {
             try {
                 if (getTodayString() !== APP_LOAD_DATE) {
                     let btnWA = document.getElementById('btn-kirim-wa');
                     if(btnWA) { btnWA.innerHTML = "⚠️ HARI BERGANTI - REFRESH HALAMAN"; btnWA.style.background = "#dc3545"; btnWA.disabled = true; }
                 }
+
+                // --- SINKRONISASI OTOMATIS COPY-PASTE ---
+                let sync_d1 = document.getElementById('d1'); let sync_std = document.getElementById('st_drop');
+                if(sync_d1 && sync_std) sync_d1.value = sync_std.value;
+                let sync_s1 = document.getElementById('s1'); let sync_sts = document.getElementById('st_storting');
+                if(sync_s1 && sync_sts) sync_s1.value = sync_sts.value;
+                // ----------------------------------------
 
                 let cfgDropToko = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropToko')) || 11) / 100;
                 let cfgDropBonus = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropBonus')) || 9) / 100;
