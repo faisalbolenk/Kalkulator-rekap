@@ -297,8 +297,8 @@
                     <div class="ui-input-box" id="box_drop_container">
                         <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
                         <div style="display: flex; gap: 4px;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" onblur="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" onblur="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
                         </div>
                         <input type="hidden" id="st_drop">
                     </div>
@@ -324,7 +324,7 @@
                     </div>
                     <div class="ui-input-box">
                         <label class="ui-label">STORTING</label>
-                        <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" onchange="formatRibuan(this); syncDariStoran()" onpaste="setTimeout(() => { formatRibuan(this); syncDariStoran(); hitungSemua(); }, 50)" placeholder="0" style="font-weight: bold;">
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" onblur="formatRibuan(this); syncDariStoran()" onchange="formatRibuan(this); syncDariStoran()" placeholder="0" style="font-weight: bold;">
                     </div>
                 </div>
 
@@ -943,6 +943,14 @@
             for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
             document.getElementById(namaTab).classList.add("active");
             evt.currentTarget.classList.add("active");
+
+            // --- BUGFIX COPY-PASTE ---
+            // Memaksa sinkronisasi & perhitungan ulang setiap kali user pindah tab (Cth: Dari Storan ke Rekap)
+            setTimeout(() => {
+                if (typeof hitungTotalDrop === "function") hitungTotalDrop();
+                if (typeof syncDariStoran === "function") syncDariStoran();
+                if (typeof hitungSemua === "function") hitungSemua();
+            }, 50);
         }
 
         function tampilkanTanggal() {
@@ -1574,7 +1582,7 @@
             }
         }
 
-                function hitungSemua() {
+        function hitungSemua() {
             try {
                 if (getTodayString() !== APP_LOAD_DATE) {
                     let btnWA = document.getElementById('btn-kirim-wa');
