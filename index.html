@@ -207,6 +207,13 @@
         .tabel-riwayat td { color: #333; font-weight: bold; }
         .btn-hapus-baris { background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px; font-size: 9px; }
 
+        /* ================= CSS TAB SALDO BARU ================= */
+        .month-block { margin-top: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s;}
+        .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; }
+        .manual-input-row { background-color: #ebdef0 !important; }
+        .input-styling { width: 100%; box-sizing: border-box; padding: 6px 4px; border: 1px solid #c39bd3; border-radius: 4px; font-weight: bold; color: #6c3483; font-size: 13px; text-align: center; background: white;}
+        #masterTotalBlock { margin-top: 20px; background: #2c3e50; color: #fff; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-bottom: 5px solid #27ae60; transition: 0.3s;}
+        
         /* ================= CSS MODE GELAP (DARK MODE) ================= */
         body.dark-mode { background: #121212; color: #e0e0e0; }
         .dark-mode .card { background: #1e1e1e; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
@@ -255,7 +262,6 @@
         .dark-mode #modal-riwayat > div { background: #1e1e1e; color: #e0e0e0; border: 1px solid #444;}
         .dark-mode #info-nasabah-modal { background: #2d2d2d; border-color: #444; color: #ccc; }
 
-        /* Dark mode untuk TF */
         .dark-mode .tf-box { background: #2d2d2d; border-color: #444; }
         .dark-mode .tf-lbl { background: #1e1e1e; color: #aaa; border-color: #444; }
         .dark-mode .tf-inp { color: #66b2ff; }
@@ -265,6 +271,13 @@
         .dark-mode .tabel-riwayat { background: #1e1e1e; }
         .dark-mode .tabel-riwayat th { background: #004085; border-color: #222; }
         .dark-mode .tabel-riwayat td { border-color: #444; color: #ccc; }
+
+        /* Dark mode untuk tab Saldo */
+        .dark-mode .month-block { background: #1e1e1e; border-color: #333; }
+        .dark-mode .month-title { background: #004085; }
+        .dark-mode .manual-input-row { background-color: #2b1f3d !important; }
+        .dark-mode .input-styling { background: #1e1e1e; color: #66b2ff; border-color: #444;}
+        .dark-mode #masterTotalBlock { background: #1a2634; border-bottom-color: #28a745; }
         /* ========================================================= */
     </style>
 </head>
@@ -294,6 +307,7 @@
         <button class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-nasabah')">👥 Nasabah</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-tf')">🏦 TF Klp</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'menu-saldo')">📋 Saldo</button>
         <button class="tab-btn" onclick="bukaTab(event, 'menu-pengaturan')">⚙️ Setelan</button>
     </div>
 
@@ -701,6 +715,19 @@
         </div>
     </div>
     
+    <!-- ================= TABS SALDO BARU (PERAPI DATA ANGSURAN) ================= -->
+    <div id="menu-saldo" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 2px;">📋 Perapi Data Angsuran</h3>
+            <p style="text-align: left; font-size: 11px; color: #27ae60; font-weight: bold; margin-top:0;" id="judulBulanSaldo">Otomatis Ekstrak Bulan Ini</p>
+            
+            <textarea id="inputTextSaldo" placeholder="Paste data web dari Tampermonkey di sini..." style="width: 100%; height: 100px;"></textarea>
+            <button class="btn-salin" style="width: 100%; margin-top: 10px;" onclick="prosesDataSaldo()">Rapikan Data & Hitung Otomatis</button>
+            
+            <div id="resultContainerSaldo" style="display: none; margin-top: 15px;"></div>
+        </div>
+    </div>
+
     <!-- TABS PENGATURAN -->
     <div id="menu-pengaturan" class="tab-content">
         <div class="card">
@@ -1059,6 +1086,11 @@
             let d = new Date();
             let tglEl = document.getElementById('tanggal-hari-ini');
             if(tglEl) tglEl.innerText = H[d.getDay()] + ', ' + d.getDate() + ' ' + B[d.getMonth()] + ' ' + d.getFullYear();
+            
+            // Inisialisasi Tanggal di Tab Saldo
+            let bulanIniString = String(d.getMonth() + 1).padStart(2, '0'); 
+            let lblSaldo = document.getElementById("judulBulanSaldo");
+            if(lblSaldo) lblSaldo.innerText = `Target Sistem: Angsuran Bulan ${bulanIniString}`;
         }
 
         // -----------------------------------------------------
@@ -1676,7 +1708,7 @@
                     let dk = document.getElementById('disp_kekuatan'); if(dk) dk.innerText = formatAngka(k_kekuatan);
                     let dc = document.getElementById('disp_caridrop'); if(dc) dc.innerText = formatAngka(k_caridrop);
                     let dt = document.getElementById('disp_targetstort'); if(dt) dt.innerText = formatAngka(k_targetstort);
-                } else if(!isBulanIni && i === jmlHari && !isLibur) { // nampilin rekap akhir di bulan lalu
+                } else if(!isBulanIni && i === jmlHari && !isLibur) { 
                     let dk = document.getElementById('disp_kekuatan'); if(dk) dk.innerText = formatAngka(k_kekuatan);
                     let dc = document.getElementById('disp_caridrop'); if(dc) dc.innerText = formatAngka(k_caridrop);
                     let dt = document.getElementById('disp_targetstort'); if(dt) dt.innerText = formatAngka(k_targetstort);
@@ -1989,6 +2021,171 @@
                 triggerSimpanCloud();
             }
         }
+
+        // ================= LOGIKA KHUSUS TAB SALDO =================
+        window.saldoBaseTotalA = {};
+        window.saldoBaseTotalS = {};
+        window.saldoTotalGroups = 0;
+
+        function prosesDataSaldo() {
+            const inputText = document.getElementById("inputTextSaldo").value;
+            const resultContainer = document.getElementById("resultContainerSaldo");
+            resultContainer.innerHTML = "";
+            
+            window.saldoBaseTotalA = {};
+            window.saldoBaseTotalS = {};
+            window.saldoTotalGroups = 0;
+
+            const blocks = inputText.split(/(?=(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})/i);
+            
+            let adaData = false;
+            let htmlOutput = "";
+            let monthIndex = 0; 
+
+            // Ambil format bulan sistem ("07", "08", dst)
+            const d = new Date();
+            const currBulanStr = String(d.getMonth() + 1).padStart(2, '0');
+
+            // Regex otomatis mencari bulan ini
+            const regexNasabah = new RegExp(`([A-Za-z\\s.\\-]+?)\\s+(\\d{16})[\\s\\S]*?S\\s*([\\d,]+)[\\s\\S]*?Asli Bln ${currBulanStr}:\\s*([\\d,]+)`, 'gi');
+
+            blocks.forEach(block => {
+                const monthMatch = block.match(/^(January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4}/i);
+                if (!monthMatch) return; 
+
+                let monthName = monthMatch[0].replace(/(\D+)(\d+)/, "$1 $2").toUpperCase();
+                let match;
+                let counter = 1;
+                let totalA = 0;
+                let totalS = 0;
+                let rows = "";
+
+                while ((match = regexNasabah.exec(block)) !== null) {
+                    adaData = true;
+                    
+                    let namaKotor = match[1].trim();
+                    let namaArray = namaKotor.split('\n');
+                    let namaBersih = namaArray[namaArray.length - 1].trim(); 
+
+                    const strS = match[3].trim();
+                    const strA = match[4].trim(); 
+
+                    const valS = parseInt(strS.replace(/,/g, '')) || 0;
+                    const valA = parseInt(strA.replace(/,/g, '')) || 0;
+
+                    totalA += valA;
+                    totalS += valS;
+
+                    rows += `<tr>
+                        <td style="text-align: center;">${counter}</td>
+                        <td><b>${namaBersih}</b></td>
+                        <td style="color: #27ae60; font-weight: bold;">${valA.toLocaleString('en-US')}</td>
+                        <td>${valS.toLocaleString('en-US')}</td>
+                    </tr>`;
+                    counter++;
+                }
+
+                if (rows !== "") {
+                    window.saldoBaseTotalA[monthIndex] = totalA;
+                    window.saldoBaseTotalS[monthIndex] = totalS;
+
+                    htmlOutput += `
+                    <div class="month-block">
+                        <h3 class="month-title">📅 Grup: ${monthName}</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%; text-align: center;">No</th>
+                                        <th style="width: 45%;">Nama Nasabah</th>
+                                        <th style="width: 22.5%;">Bulan Ini (A)</th>
+                                        <th style="width: 22.5%;">Saldo (S)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody_saldo_${monthIndex}">
+                                    ${rows}
+                                </tbody>
+                            </table>
+                            <button class="btn-tambah" onclick="tambahBarisLunasSaldo(${monthIndex})">➕ Tambah Lunas Manual</button>
+                        </div>
+                    </div>`;
+                    monthIndex++;
+                }
+            });
+
+            window.saldoTotalGroups = monthIndex;
+
+            if (adaData) {
+                // Tambahkan Master Total di Paling Bawah (Tanpa Total per grup)
+                htmlOutput += `
+                <div id="masterTotalBlock">
+                    <h3 style="margin: 0 0 15px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 10px;">TOTAL KESELURUHAN</h3>
+                    <div style="font-size: 22px; color: #2ecc71; margin-bottom: 8px;">BULAN INI (A) : <b id="masterSaldoA">0</b></div>
+                    <div style="font-size: 22px; color: #f1c40f;">SALDO (S) : <b id="masterSaldoS">0</b></div>
+                </div>`;
+
+                resultContainer.innerHTML = htmlOutput;
+                resultContainer.style.display = "block";
+                recalculateAllSaldo(); 
+            } else {
+                alert(`Tidak ada data ditemukan untuk bulan ${currBulanStr}! Pastikan proses Tampermonkey sudah selesai.`);
+                resultContainer.style.display = "none";
+            }
+        }
+
+        function tambahBarisLunasSaldo(index) {
+            const tbody = document.getElementById(`tbody_saldo_${index}`);
+            
+            const tr = document.createElement('tr');
+            tr.className = "manual-input-row";
+            tr.innerHTML = `
+                <td style="text-align: center;">-</td>
+                <td><i style="color:#8e44ad;">+ Manual (Otomatis x1000)</i></td>
+                <td><input type="number" class="manual-a input-styling" placeholder="Ketik 585" oninput="recalculateAllSaldo()"></td>
+                <td><input type="number" class="manual-s input-styling" placeholder="Ketik S" oninput="recalculateAllSaldo()"></td>
+            `;
+            
+            // Masukkan ke baris terbawah dari grup tersebut
+            tbody.appendChild(tr); 
+        }
+
+        function recalculateAllSaldo() {
+            let masterA = 0;
+            let masterS = 0;
+
+            for (let i = 0; i < window.saldoTotalGroups; i++) {
+                let baseA = window.saldoBaseTotalA[i] || 0;
+                let baseS = window.saldoBaseTotalS[i] || 0;
+                
+                let manualAInputs = document.querySelectorAll(`#tbody_saldo_${i} .manual-a`);
+                let manualSInputs = document.querySelectorAll(`#tbody_saldo_${i} .manual-s`);
+                
+                let sumA = baseA;
+                let sumS = baseS;
+                
+                // Otomatis kalikan 1000 saat diketik
+                manualAInputs.forEach(input => {
+                    let val = parseFloat(input.value) || 0;
+                    sumA += val * 1000; 
+                });
+                
+                manualSInputs.forEach(input => {
+                    let val = parseFloat(input.value) || 0;
+                    sumS += val * 1000; 
+                });
+
+                // Tambahkan ke Master Total Keseluruhan
+                masterA += sumA;
+                masterS += sumS;
+            }
+
+            // Update Total Paling Bawah (Tampilan Utama)
+            let mTotalA = document.getElementById('masterSaldoA');
+            let mTotalS = document.getElementById('masterSaldoS');
+            if(mTotalA) mTotalA.innerText = masterA.toLocaleString('en-US');
+            if(mTotalS) mTotalS.innerText = masterS.toLocaleString('en-US');
+        }
+
 
         function muatKalkulator() {
             tampilkanTanggal(); muatPengaturan(); loadDarkMode();
