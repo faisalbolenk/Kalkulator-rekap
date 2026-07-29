@@ -207,12 +207,28 @@
         .tabel-riwayat td { color: #333; font-weight: bold; }
         .btn-hapus-baris { background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px; font-size: 9px; }
 
-        /* ================= CSS TAB SALDO BARU ================= */
+        /* ================= CSS TAB SALDO BARU (SUDAH DIRAPIKAN) ================= */
         .month-block { margin-top: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s;}
-        .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; }
+        .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; border-bottom: 2px solid #2c3e50; }
+        
+        /* Tabel Saldo Styles */
+        .tabel-saldo { width: 100%; border-collapse: collapse; font-size: 12px; background-color: white; }
+        .tabel-saldo th, .tabel-saldo td { border: 1px solid #dee2e6; padding: 8px 6px; vertical-align: middle; }
+        .tabel-saldo th { background: #f8f9fa; color: #495057; text-align: center; font-weight: bold; }
+        .tabel-saldo td:nth-child(1) { text-align: center; font-weight: bold; color: #6c757d; width: 8%; } /* No */
+        .tabel-saldo td:nth-child(2) { text-align: left; text-transform: uppercase; color: #212529; font-weight: 600; width: 46%; } /* Nama */
+        .tabel-saldo td:nth-child(3), .tabel-saldo td:nth-child(4) { text-align: right; width: 23%; } /* Nominal */
+        .tabel-saldo tr:nth-child(even) { background-color: #f8f9fa; }
+        .tabel-saldo tr:hover { background-color: #e9ecef; }
+        .tabel-saldo .total-row td { border-top: 2px solid #28a745; font-size: 13px; background-color: #eafaf1 !important;}
+
         .manual-input-row { background-color: #ebdef0 !important; }
-        .input-styling { width: 100%; box-sizing: border-box; padding: 6px 4px; border: 1px solid #c39bd3; border-radius: 4px; font-weight: bold; color: #6c3483; font-size: 13px; text-align: center; background: white;}
+        .input-styling { width: 100%; box-sizing: border-box; padding: 6px 4px; border: 1px solid #c39bd3; border-radius: 4px; font-weight: bold; color: #6c3483; font-size: 13px; text-align: right; background: white;}
         #masterTotalBlock { margin-top: 20px; background: #2c3e50; color: #fff; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-bottom: 5px solid #27ae60; transition: 0.3s;}
+        
+        /* Tombol Tambah Lunas di Tab Saldo */
+        .btn-tambah-lunas { width: 100%; padding: 10px; background: #e2e6ea; border: none; font-weight: bold; color: #383d41; cursor: pointer; transition: 0.2s; border-top: 1px solid #dee2e6; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-tambah-lunas:hover { background: #dae0e5; }
         
         /* ================= CSS MODE GELAP (DARK MODE) ================= */
         body.dark-mode { background: #121212; color: #e0e0e0; }
@@ -274,10 +290,19 @@
 
         /* Dark mode untuk tab Saldo */
         .dark-mode .month-block { background: #1e1e1e; border-color: #333; }
-        .dark-mode .month-title { background: #004085; }
+        .dark-mode .month-title { background: #004085; border-bottom-color: #002752;}
+        .dark-mode .tabel-saldo { background-color: #1e1e1e; }
+        .dark-mode .tabel-saldo th, .dark-mode .tabel-saldo td { border-color: #444; }
+        .dark-mode .tabel-saldo th { background: #2d2d2d; color: #e0e0e0; }
+        .dark-mode .tabel-saldo td:nth-child(1) { color: #aaa; }
+        .dark-mode .tabel-saldo td:nth-child(2) { color: #e0e0e0; }
+        .dark-mode .tabel-saldo tr:nth-child(even) { background-color: #252525; }
+        .dark-mode .tabel-saldo tr:hover { background-color: #333; }
+        .dark-mode .btn-tambah-lunas { background: #2d2d2d; color: #ccc; border-top-color: #444; }
+        .dark-mode .btn-tambah-lunas:hover { background: #3d3d3d; }
         .dark-mode .manual-input-row { background-color: #2b1f3d !important; }
         .dark-mode .input-styling { background: #1e1e1e; color: #66b2ff; border-color: #444;}
-        .dark-mode .total-row { background-color: #1c3d26 !important; color: #66b2ff; }
+        .dark-mode .tabel-saldo .total-row td { background-color: #1c3d26 !important; color: #66b2ff !important; border-top-color: #28a745; }
         .dark-mode #masterTotalBlock { background: #1a2634; border-bottom-color: #28a745; }
         /* ========================================================= */
     </style>
@@ -2023,7 +2048,7 @@
             }
         }
 
-        // ================= LOGIKA KHUSUS TAB SALDO =================
+        // ================= LOGIKA KHUSUS TAB SALDO (DIRAPIKAN & DIGARIS) =================
         window.saldoBaseTotalA = {};
         window.saldoBaseTotalS = {};
         window.saldoTotalGroups = 0;
@@ -2078,9 +2103,9 @@
                     totalS += valS;
 
                     rows += `<tr>
-                        <td style="text-align: center;">${counter}</td>
-                        <td><b>${namaBersih}</b></td>
-                        <td style="color: #27ae60; font-weight: bold;">${valA.toLocaleString('en-US')}</td>
+                        <td>${counter}</td>
+                        <td>${namaBersih}</td>
+                        <td style="color: #28a745; font-weight: bold;">${valA.toLocaleString('en-US')}</td>
                         <td>${valS.toLocaleString('en-US')}</td>
                     </tr>`;
                     counter++;
@@ -2093,27 +2118,27 @@
                     htmlOutput += `
                     <div class="month-block">
                         <h3 class="month-title">📅 Grup: ${monthName}</h3>
-                        <div class="table-responsive">
-                            <table>
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="tabel-saldo">
                                 <thead>
                                     <tr>
-                                        <th style="width: 10%; text-align: center;">No</th>
-                                        <th style="width: 45%;">Nama Nasabah</th>
-                                        <th style="width: 22.5%;">Bulan Ini (A)</th>
-                                        <th style="width: 22.5%;">Saldo (S)</th>
+                                        <th>No</th>
+                                        <th>Nama Nasabah</th>
+                                        <th>Bulan Ini (A)</th>
+                                        <th>Saldo (S)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody_saldo_${monthIndex}">
                                     ${rows}
                                     <!-- Baris Total Kelompok Dimasukkan Kembali -->
                                     <tr class="total-row" id="total_row_saldo_${monthIndex}">
-                                        <td colspan="2" style="text-align: right;">TOTAL KELOMPOK :</td>
-                                        <td id="finalSaldoA_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
-                                        <td id="finalSaldoS_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
+                                        <td colspan="2" style="text-align: right; font-weight: bold; color: #333;">TOTAL KELOMPOK :</td>
+                                        <td id="finalSaldoA_${monthIndex}" style="font-weight: bold; color: #28a745;">${totalA.toLocaleString('en-US')}</td>
+                                        <td id="finalSaldoS_${monthIndex}" style="font-weight: bold; color: #333;">${totalS.toLocaleString('en-US')}</td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <button class="btn-tambah" onclick="tambahBarisLunasSaldo(${monthIndex})">➕ Tambah Lunas Manual</button>
+                            <button class="btn-tambah-lunas" onclick="tambahBarisLunasSaldo(${monthIndex})">➕ Tambah Lunas Manual</button>
                         </div>
                     </div>`;
                     monthIndex++;
@@ -2147,8 +2172,8 @@
             const tr = document.createElement('tr');
             tr.className = "manual-input-row";
             tr.innerHTML = `
-                <td style="text-align: center;">-</td>
-                <td><i style="color:#8e44ad;">+ Manual (Otomatis x1000)</i></td>
+                <td>-</td>
+                <td><i style="color:#8e44ad; font-size:11px;">+ Manual (Otomatis x1000)</i></td>
                 <td><input type="number" class="manual-a input-styling" placeholder="Ketik 585" oninput="recalculateAllSaldo()"></td>
                 <td><input type="number" class="manual-s input-styling" placeholder="Ketik S" oninput="recalculateAllSaldo()"></td>
             `;
