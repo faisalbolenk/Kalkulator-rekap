@@ -277,6 +277,7 @@
         .dark-mode .month-title { background: #004085; }
         .dark-mode .manual-input-row { background-color: #2b1f3d !important; }
         .dark-mode .input-styling { background: #1e1e1e; color: #66b2ff; border-color: #444;}
+        .dark-mode .total-row { background-color: #1c3d26 !important; color: #66b2ff; }
         .dark-mode #masterTotalBlock { background: #1a2634; border-bottom-color: #28a745; }
         /* ========================================================= */
     </style>
@@ -2104,6 +2105,12 @@
                                 </thead>
                                 <tbody id="tbody_saldo_${monthIndex}">
                                     ${rows}
+                                    <!-- Baris Total Kelompok Dimasukkan Kembali -->
+                                    <tr class="total-row" id="total_row_saldo_${monthIndex}">
+                                        <td colspan="2" style="text-align: right;">TOTAL KELOMPOK :</td>
+                                        <td id="finalSaldoA_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
+                                        <td id="finalSaldoS_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <button class="btn-tambah" onclick="tambahBarisLunasSaldo(${monthIndex})">➕ Tambah Lunas Manual</button>
@@ -2116,7 +2123,7 @@
             window.saldoTotalGroups = monthIndex;
 
             if (adaData) {
-                // Tambahkan Master Total di Paling Bawah (Tanpa Total per grup)
+                // Tambahkan Master Total di Paling Bawah
                 htmlOutput += `
                 <div id="masterTotalBlock">
                     <h3 style="margin: 0 0 15px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 10px;">TOTAL KESELURUHAN</h3>
@@ -2135,6 +2142,7 @@
 
         function tambahBarisLunasSaldo(index) {
             const tbody = document.getElementById(`tbody_saldo_${index}`);
+            const totalRow = document.getElementById(`total_row_saldo_${index}`); // Tangkap baris total
             
             const tr = document.createElement('tr');
             tr.className = "manual-input-row";
@@ -2145,8 +2153,8 @@
                 <td><input type="number" class="manual-s input-styling" placeholder="Ketik S" oninput="recalculateAllSaldo()"></td>
             `;
             
-            // Masukkan ke baris terbawah dari grup tersebut
-            tbody.appendChild(tr); 
+            // Masukkan ke baris tepat sebelum "TOTAL KELOMPOK"
+            tbody.insertBefore(tr, totalRow); 
         }
 
         function recalculateAllSaldo() {
@@ -2173,6 +2181,12 @@
                     let val = parseFloat(input.value) || 0;
                     sumS += val * 1000; 
                 });
+
+                // Update Total Kelompok agar ikut berubah saat diketik
+                let groupElA = document.getElementById(`finalSaldoA_${i}`);
+                let groupElS = document.getElementById(`finalSaldoS_${i}`);
+                if(groupElA) groupElA.innerText = sumA.toLocaleString('en-US');
+                if(groupElS) groupElS.innerText = sumS.toLocaleString('en-US');
 
                 // Tambahkan ke Master Total Keseluruhan
                 masterA += sumA;
