@@ -359,12 +359,21 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     
-                    <div class="ui-input-box" id="box_drop_container">
-                        <label class="ui-label" id="label_drop"><span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span></label>
-                        <div style="display: flex; gap: 4px;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" onblur="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
-                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" onblur="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
+                    <!-- BLOK KOLOM DROP BARU & LUNAS -->
+                    <div class="ui-input-box" id="box_drop_container" style="position: relative;">
+                        <label class="ui-label" id="label_drop">Drop</label>
+                        
+                        <!-- Tampilan Saat Tidak Aktif (Menyatu) -->
+                        <div id="view_drop_total" onclick="toggleDropView(true)">
+                            <input type="text" class="ui-input" id="st_drop_display" placeholder="0" readonly style="font-weight: bold; text-align: center; color: #007bff; border-color: #007bff; cursor: pointer;">
                         </div>
+
+                        <!-- Tampilan Saat Diklik/Diisi (Terpisah) -->
+                        <div id="view_drop_split" style="display: none; gap: 4px;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
+                        </div>
+                        
                         <input type="hidden" id="st_drop">
                     </div>
 
@@ -1544,10 +1553,18 @@
         }
 
         function hitungTotalDrop() {
-            let baru = getNum('st_drop_baru'); let lunas = getNum('st_drop_pelunasan');
+            let baru = getNum('st_drop_baru'); 
+            let lunas = getNum('st_drop_pelunasan');
             let total = baru + lunas;
+            
+            // Simpan ke hidden input
             let elTotal = document.getElementById('st_drop');
             if(elTotal) elTotal.value = total === 0 ? "" : formatAngka(total);
+            
+            // Tampilkan di UI tampilan gabungan
+            let elDisplay = document.getElementById('st_drop_display');
+            if(elDisplay) elDisplay.value = total === 0 ? "" : formatAngka(total);
+            
             syncDariStoran(); 
         }
 
@@ -1570,22 +1587,8 @@
         }
 
         function cekVisibilitasDropBaru() {
-            let mode = localStorage.getItem(USER_ID + '_Cfg_DropBaruMode') || 'on';
-            let inputDropBaru = document.getElementById('st_drop_baru');
-            let labelDrop = document.getElementById('label_drop');
-            let inputDropLunas = document.getElementById('st_drop_pelunasan');
-            if(inputDropBaru && labelDrop && inputDropLunas) {
-                if(mode === 'on') {
-                    inputDropBaru.style.display = 'block'; 
-                    labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
-                    inputDropLunas.placeholder = 'Lunas';
-                } else {
-                    inputDropBaru.style.display = 'none'; inputDropBaru.value = ''; 
-                    labelDrop.innerHTML = 'Drop';
-                    inputDropLunas.placeholder = '0'; 
-                    hitungTotalDrop(); 
-                }
-            }
+            // Fungsi sengaja dikosongkan. 
+            // Pengaturan mode disembunyikan karena UI sekarang otomatis gabung/pisah saat diklik.
         }
 
         function syncDariStoran() {
@@ -2476,6 +2479,42 @@
                 initAppUI(); 
             });
         }
+
+        // Fungsi mengubah tampilan kolom Drop
+        function toggleDropView(isSplit) {
+            let viewTotal = document.getElementById('view_drop_total');
+            let viewSplit = document.getElementById('view_drop_split');
+            let labelDrop = document.getElementById('label_drop');
+            
+            if (isSplit) {
+                viewTotal.style.display = 'none';
+                viewSplit.style.display = 'flex';
+                labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
+                
+                // Fokuskan otomatis ke input Baru agar langsung bisa mengetik
+                setTimeout(() => {
+                    let elBaru = document.getElementById('st_drop_baru');
+                    if (elBaru) elBaru.focus();
+                }, 50);
+            } else {
+                viewTotal.style.display = 'block';
+                viewSplit.style.display = 'none';
+                labelDrop.innerHTML = 'Drop';
+            }
+        }
+
+        // Deteksi jika pengguna menekan layar di luar kotak Drop (untuk menyatukan kembali kotaknya)
+        document.addEventListener('click', function(event) {
+            let container = document.getElementById('box_drop_container');
+            let viewSplit = document.getElementById('view_drop_split');
+            
+            if (container && viewSplit && viewSplit.style.display === 'flex') {
+                let isClickInside = container.contains(event.target);
+                if (!isClickInside) {
+                    toggleDropView(false); // Satukan kolom karena klik di area luar
+                }
+            }
+        });
 
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
