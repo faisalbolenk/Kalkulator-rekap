@@ -1864,7 +1864,10 @@
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
                 let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
                 targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); 
-                if (jenis === 'storan') setDefaultsOtomatis(); 
+                if (jenis === 'storan') {
+                    setDefaultsOtomatis(); 
+                    hitungTotalDrop(); // Menyelaraskan tampilan Drop ke 0 / kosong
+                }
                 hitungSemua();
             }
         }
@@ -2283,7 +2286,9 @@
                     });
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
-            setDefaultsOtomatis(); hitungSemua(); 
+            setDefaultsOtomatis();
+            hitungTotalDrop(); // Sinkronisasi tampilan Drop yang tersembunyi
+            hitungSemua(); 
         }
 
         function simpanPengaturan() {
@@ -2497,6 +2502,7 @@
                     if (elBaru) elBaru.focus();
                 }, 50);
             } else {
+                hitungTotalDrop(); // Pastikan disinkronkan saat ditutup
                 viewTotal.style.display = 'block';
                 viewSplit.style.display = 'none';
                 labelDrop.innerHTML = 'Drop';
