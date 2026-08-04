@@ -328,13 +328,14 @@
     <!-- ======================================================== -->
 
     <div class="tab-container">
-        <button class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-nasabah')">👥 Nasabah</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-tf')">🏦 TF Klp</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-saldo')">📋 Saldo</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'menu-pengaturan')">⚙️ Setelan</button>
+        <!-- Tambahkan id pada setiap button seperti di bawah ini -->
+        <button id="tab-storan" class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
+        <button id="tab-rekap" class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
+        <button id="tab-target" class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
+        <button id="tab-nasabah" class="tab-btn" onclick="bukaTab(event, 'menu-nasabah')">👥 Nasabah</button>
+        <button id="tab-tf" class="tab-btn" onclick="bukaTab(event, 'menu-tf')">🏦 TF Klp</button>
+        <button id="tab-saldo" class="tab-btn" onclick="bukaTab(event, 'menu-saldo')">📋 Saldo</button>
+        <button id="tab-pengaturan" class="tab-btn" onclick="bukaTab(event, 'menu-pengaturan')">⚙️ Setelan</button>
     </div>
 
     <div class="date-badge">
@@ -349,7 +350,7 @@
             <!-- BLOK SCREENSHOT OTOMATIS -->
             <div id="area-screenshot" class="capture-container">
                 <div style="margin-bottom: 12px;">
-                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik | <span id="nama_pengguna_ui" style="color:#007bff;">Pati 5</span></h2>
+                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik</h2>
                     <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">Dashboard &gt; Data Statistik</div>
                 </div>
 
@@ -2409,6 +2410,22 @@
             let namaUser = document.getElementById('nama_pengguna_ui');
             if(namaUser) namaUser.innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
             
+            // =========================================================
+            // FITUR HIDE/TUTUP TAB UNTUK USER BIASA (SELAIN ADMIN)
+            // =========================================================
+            if (USER_ID !== 'adminpati5') {
+                // Tulis ID tab yang ingin DISEMBUNYIKAN dari user biasa di bawah ini
+                let tabYangDitutup = ['tab-nasabah', 'tab-tf']; 
+                
+                tabYangDitutup.forEach(idTab => {
+                    let tombol = document.getElementById(idTab);
+                    if (tombol) {
+                        tombol.style.display = 'none'; // Sembunyikan tombol tab
+                    }
+                });
+            }
+            // =========================================================
+
             let inputBulanEl = document.getElementById('input_bulan_rekap');
             if(inputBulanEl) inputBulanEl.value = getBulanTahunString();
             
