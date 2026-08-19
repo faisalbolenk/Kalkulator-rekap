@@ -989,7 +989,7 @@
             if(pwaEl) pwaEl.href = manifestUrl;
         }
 
-        function bacaParameterURL() {
+                function bacaParameterURL() {
             try {
                 let params = new URLSearchParams(window.location.search);
                 let adaDataMasuk = false;
@@ -1000,6 +1000,10 @@
                 let valML = params.get('ml') || params.get('angsuranml');
                 let valDrop = params.get('drop') || params.get('dropbaru');
                 let valTF = params.get('tf'); 
+                
+                // === PARAMETER BARU UNTUK AUTO-SALDO ===
+                let valDataSaldo = params.get('data_saldo');
+                let valTab = params.get('tab');
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
@@ -1019,6 +1023,37 @@
                     simpanTabel();
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
+
+                // =======================================================
+                // EKSEKUSI OTOMATIS DATA SALDO (TANPA PASTE MANUAL)
+                // =======================================================
+                if (valDataSaldo) {
+                    // 1. Pindah otomatis ke Tab Saldo
+                    let btnSaldo = document.getElementById('tab-saldo');
+                    if (btnSaldo) {
+                        bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
+                    }
+                    
+                    // 2. Isi text area secara otomatis dari data URL
+                    let areaInput = document.getElementById('inputTextSaldo');
+                    if(areaInput) {
+                        areaInput.value = valDataSaldo;
+                        
+                        // 3. Beri jeda 400ms agar UI merender tab terlebih dahulu, lalu klik proses otomatis
+                        setTimeout(() => {
+                            prosesDataSaldo();
+                            showToast("✅ Data berhasil diproses otomatis!");
+                            
+                            // 4. Bersihkan URL Baris agar jika layar di-refresh, tidak terproses dua kali
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }, 400);
+                    }
+                } else if (valTab === 'saldo') {
+                    // Hanya pindah tab jika diminta secara manual via URL tanpa data
+                    let btnSaldo = document.getElementById('tab-saldo');
+                    if (btnSaldo) bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
+                }
+
             } catch (e) {
                 console.error("Gagal membaca parameter URL:", e);
             }
