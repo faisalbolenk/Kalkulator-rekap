@@ -757,8 +757,11 @@
             <h3 style="margin-bottom: 2px;">📋 Perapi Data Angsuran</h3>
             <p style="text-align: left; font-size: 11px; color: #27ae60; font-weight: bold; margin-top:0;" id="judulBulanSaldo">Otomatis Ekstrak Bulan Ini</p>
             
-            <textarea id="inputTextSaldo" placeholder="Paste data web dari Tampermonkey di sini..." style="width: 100%; height: 100px;"></textarea>
-            <button class="btn-salin" style="width: 100%; margin-top: 10px;" onclick="prosesDataSaldo()">Rapikan Data & Hitung Otomatis</button>
+            <!-- Kotak Teks dibuat lebih kecil karena jarang diklik manual lagi -->
+            <textarea id="inputTextSaldo" placeholder="Data dari Usber akan muncul di sini..." style="width: 100%; height: 50px; font-size: 11px; border: 1px dashed #ccc;"></textarea>
+            
+            <!-- Ini Tombol 1-Klik Cerdas yang baru -->
+            <button class="btn-salin" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="ambilDanProses()">📥 1-Klik Ambil Data & Hitung</button>
             
             <div id="resultContainerSaldo" style="display: none; margin-top: 15px;"></div>
         </div>
@@ -989,7 +992,7 @@
             if(pwaEl) pwaEl.href = manifestUrl;
         }
 
-                function bacaParameterURL() {
+        function bacaParameterURL() {
             try {
                 let params = new URLSearchParams(window.location.search);
                 let adaDataMasuk = false;
@@ -1001,9 +1004,7 @@
                 let valDrop = params.get('drop') || params.get('dropbaru');
                 let valTF = params.get('tf'); 
                 
-                // === PARAMETER BARU UNTUK AUTO-SALDO ===
-                let valDataSaldo = params.get('data_saldo');
-                let valTab = params.get('tab');
+                let valTab = params.get('tab'); // Ambil parameter pembuka tab
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
@@ -1024,34 +1025,11 @@
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
-                // =======================================================
-                // EKSEKUSI OTOMATIS DATA SALDO (TANPA PASTE MANUAL)
-                // =======================================================
-                if (valDataSaldo) {
-                    // 1. Pindah otomatis ke Tab Saldo
-                    let btnSaldo = document.getElementById('tab-saldo');
-                    if (btnSaldo) {
-                        bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
-                    }
-                    
-                    // 2. Isi text area secara otomatis dari data URL
-                    let areaInput = document.getElementById('inputTextSaldo');
-                    if(areaInput) {
-                        areaInput.value = valDataSaldo;
-                        
-                        // 3. Beri jeda 400ms agar UI merender tab terlebih dahulu, lalu klik proses otomatis
-                        setTimeout(() => {
-                            prosesDataSaldo();
-                            showToast("✅ Data berhasil diproses otomatis!");
-                            
-                            // 4. Bersihkan URL Baris agar jika layar di-refresh, tidak terproses dua kali
-                            window.history.replaceState({}, document.title, window.location.pathname);
-                        }, 400);
-                    }
-                } else if (valTab === 'saldo') {
-                    // Hanya pindah tab jika diminta secara manual via URL tanpa data
+                // Logika pembuka tab otomatis
+                if (valTab === 'saldo') {
                     let btnSaldo = document.getElementById('tab-saldo');
                     if (btnSaldo) bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
+                    window.history.replaceState({}, document.title, window.location.pathname); // Bersihkan URL
                 }
 
             } catch (e) {
@@ -2267,6 +2245,33 @@
             if(mTotalS) mTotalS.innerText = masterS.toLocaleString('en-US');
         }
 
+        // Fungsi baru untuk menyedot data clipboard dan langsung menghitungnya
+        async function ambilDanProses() {
+            let textarea = document.getElementById("inputTextSaldo");
+            let tombol = event.currentTarget;
+            let teksAsli = tombol.innerHTML;
+            
+            tombol.innerHTML = "⏳ Sedang Memproses...";
+            
+            try {
+                // Mencoba membaca langsung dari memori HP (Clipboard)
+                let textFromClipboard = await navigator.clipboard.readText();
+                if (textFromClipboard && textFromClipboard.trim() !== "") {
+                    textarea.value = textFromClipboard;
+                }
+            } catch (err) {
+                console.log("Clipboard otomatis diblokir browser:", err);
+            }
+
+            // Jika memori terbaca dan masuk ke kotak
+            if (textarea.value && textarea.value.trim() !== "") {
+                prosesDataSaldo(); // Langsung eksekusi perapian tabel
+            } else {
+                alert("⚠️ Browser menolak akses Clipboard. Silakan tekan tahan kotak teks, pilih 'Tempel/Paste' manual, lalu klik tombol ini lagi.");
+            }
+            
+            tombol.innerHTML = teksAsli; // Kembalikan teks tombol
+        }
 
         function muatKalkulator() {
             tampilkanTanggal(); muatPengaturan(); loadDarkMode();
