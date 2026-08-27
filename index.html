@@ -247,6 +247,30 @@
         .tabel-rekap-total td:nth-child(1) { text-align: left; font-weight: bold; color: #f8f9fa; }
         .tabel-rekap-total td:nth-child(2) { text-align: right; font-weight: bold; color: #2ecc71; }
         .tabel-rekap-total td:nth-child(3) { text-align: right; font-weight: bold; color: #f1c40f; }
+
+        /* Input Khusus Edit Baris ML (Top Row) */
+        .input-ml-edit {
+            width: 100%;
+            max-width: 95px;
+            box-sizing: border-box;
+            padding: 4px 6px;
+            border: 1px solid #2ecc71;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: right;
+            font-size: 11px;
+            background: #ffffff;
+            color: #1a2238;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-ml-edit:focus {
+            border-color: #38b6ff;
+            box-shadow: 0 0 5px rgba(56, 182, 255, 0.7);
+        }
+        #rekap_ml_s {
+            border-color: #f1c40f;
+        }
         
         /* ================= CSS MODE GELAP (DARK MODE) ================= */
         body.dark-mode { background: #121212; color: #e0e0e0; }
@@ -326,6 +350,10 @@
             background-color: #1a2634 !important;
             border-color: #38b6ff !important;
         }
+        .dark-mode .input-ml-edit {
+            background: #2d2d2d;
+            color: #fff;
+        }
         /* ========================================================= */
     </style>
 </head>
@@ -350,7 +378,6 @@
     <!-- ======================================================== -->
 
     <div class="tab-container">
-        <!-- Tambahkan id pada setiap button seperti di bawah ini -->
         <button id="tab-storan" class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
         <button id="tab-rekap" class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
         <button id="tab-target" class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
@@ -457,7 +484,6 @@
                                 <input type="checkbox" id="toggle_quick_edit" onchange="toggleQuickEdit()">
                                 <span class="slider-tm"></span>
                             </label>
-                            <!-- Input 65 tersembunyi default -->
                             <input type="number" id="quick_val" value="65" style="width: 40px; text-align: center; font-size: 11px; font-weight: bold; padding: 2px; border: 1px solid #ccc; border-radius: 4px; outline: none; display: none;" title="Nilai kelipatan (default 65)">
                         </div>
                     </div>
@@ -522,16 +548,13 @@
             <h3><span>1. Rekap Harian (Lalu)</span><span class="auto-save">✅ Auto</span></h3>
             <div style="display: none;"><input type="text" id="d1"><input type="text" id="s1"><input type="text" id="drRec"><input type="text" id="stRec"></div>
             
-            <!-- INPUT REKAP: SATU BARIS KE KANAN -->
             <div class="grid-3" style="margin-bottom: 8px;">
                 <div><label>Drop Lalu</label><input type="text" inputmode="numeric" id="d2" oninput="formatRibuan(this); hitungSemua()" placeholder="0" style="padding:5px;"></div>
                 <div><label>Stort Lalu</label><input type="text" inputmode="numeric" id="s2" oninput="formatRibuan(this); hitungSemua()" placeholder="0" style="padding:5px;"></div>
                 <div><label>Sirk Lalu</label><input type="text" inputmode="numeric" id="siRec" oninput="formatRibuan(this); hitungSemua()" placeholder="0" style="padding:5px;"></div>
             </div>
             
-            <!-- KOTAK RUMUS REKAP RINGKAS (MIRIP TARGET MURNI) -->
             <div id="box_rumus_rekap" style="background: #eaf4ff; color: #004085; padding: 6px 10px; border-radius: 4px; font-size: 11px; border-left: 4px solid #007bff; letter-spacing: 0.2px;">
-                <!-- Dihasilkan dari JavaScript -->
             </div>
         </div>
 
@@ -627,14 +650,13 @@
         </div>
     </div>
     
-    <!-- ================= TABS NASABAH (DENGAN TANGGAL PINJAM & HARI) ================= -->
+    <!-- ================= TABS NASABAH ================= -->
     <div id="menu-nasabah" class="tab-content">
         <div class="card" style="margin-bottom: 8px; display: flex; gap: 6px; align-items:center;">
             <input type="text" id="cari-nasabah" placeholder="🔍 Cari Nama / NIK..." onkeyup="renderNasabah()" style="flex: 1; padding:8px; border-radius:6px; font-size:13px;">
             <button class="btn-salin" onclick="bukaFormNasabah()" style="width: auto; background: #007bff; padding:8px 12px; font-size:13px;">➕ Tambah</button>
         </div>
 
-        <!-- Form Tambah (Hidden) -->
         <div id="form-nasabah" class="card" style="display: none; background: #f8f9fa; border: 1px solid #ced4da;">
             <h3 style="margin-top:0; color:#333;">Data Nasabah Baru</h3>
             <div class="grid-2">
@@ -669,19 +691,14 @@
             </div>
         </div>
 
-        <!-- Wadah List Nasabah -->
         <div id="list-nasabah" style="background: white; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; margin-top:5px;">
-            <!-- Render javascript disisipkan disini -->
         </div>
         
-        <!-- Modal Riwayat Nasabah -->
         <div id="modal-riwayat" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
             <div style="background:white; padding:15px; border-radius:8px; width:90%; max-width:400px; max-height:85%; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
                 <h3 id="judul-riwayat" style="color:#111; margin-bottom:5px;">Riwayat Pembayaran</h3>
                 
-                <!-- Info Tambahan Nasabah (Dipindah dari luar) -->
                 <div id="info-nasabah-modal" style="font-size:11px; color:#333; margin-bottom:10px; background:#f8f9fa; padding:8px; border-radius:6px; border:1px solid #ddd;">
-                    <!-- Konten diisi oleh JS saat lihatRiwayat() dipanggil -->
                 </div>
                 
                 <ul id="list-riwayat" style="list-style:none; padding:0; font-size:12px; margin-bottom:15px; border-top:1px solid #ddd;"></ul>
@@ -701,13 +718,11 @@
 
     <!-- ================= TABS TF KELOMPOK BARU ================= -->
     <div id="menu-tf" class="tab-content">
-        <!-- CARD 1: INPUT FORM -->
         <div class="card">
             <h3>💸 Laporan TF Kantor</h3>
             
             <div class="form-group">
                 <label>Pilih Hari:</label>
-                <!-- Menambahkan onchange agar ketika hari diganti, inputan menyesuaikan memori hari tersebut -->
                 <select id="hari_tf" onchange="muatInputTF()">
                     <option value="Senin">Senin</option>
                     <option value="Selasa">Selasa</option>
@@ -718,7 +733,6 @@
                 </select>
             </div>
 
-            <!-- Input 10 Kelompok TF -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                 <div class="tf-box"><label class="tf-lbl">K1</label><input type="text" id="tf_klp_1" class="tf-inp" inputmode="numeric" placeholder="0" oninput="formatRibuan(this); hitungTotalTF(); simpanInputTF()"></div>
                 <div class="tf-box"><label class="tf-lbl">K2</label><input type="text" id="tf_klp_2" class="tf-inp" inputmode="numeric" placeholder="0" oninput="formatRibuan(this); hitungTotalTF(); simpanInputTF()"></div>
@@ -737,14 +751,12 @@
                 <strong id="total_tf">0</strong>
             </div>
 
-            <!-- Tombol Berdampingan -->
             <div style="display: flex; gap: 6px;">
                 <button style="flex: 2; background: #25D366; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer;" onclick="simpanDanKirimWATF()">💾 Simpan & WA</button>
                 <button style="flex: 1; background: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;" onclick="resetFormTF()">🗑️ Reset</button>
             </div>
         </div>
 
-        <!-- CARD 2: TABEL RIWAYAT TF -->
         <div class="card">
             <h3>📋 Tabel Riwayat TF Bulan Ini</h3>
             
@@ -760,12 +772,10 @@
                         </tr>
                     </thead>
                     <tbody id="tbody_riwayat_tf">
-                        <!-- Baris tabel diisi dari JS -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Tombol Berdampingan -->
             <div style="display: flex; gap: 6px;">
                 <button style="flex: 2; background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer;" onclick="kirimRekapBulananTF()">📤 Rekap WA</button>
                 <button style="flex: 1; background: #6c757d; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;" onclick="resetTabelRiwayatTF()">⚠️ Hapus</button>
@@ -773,16 +783,14 @@
         </div>
     </div>
     
-    <!-- ================= TABS SALDO BARU (PERAPI DATA ANGSURAN) ================= -->
+    <!-- ================= TABS SALDO BARU ================= -->
     <div id="menu-saldo" class="tab-content">
         <div class="card">
             <h3 style="margin-bottom: 2px;">📋 Perapi Data Angsuran</h3>
             <p style="text-align: left; font-size: 11px; color: #27ae60; font-weight: bold; margin-top:0;" id="judulBulanSaldo">Otomatis Ekstrak Bulan Ini</p>
             
-            <!-- Kotak Teks dibuat lebih kecil karena jarang diklik manual lagi -->
             <textarea id="inputTextSaldo" placeholder="Data dari Usber akan muncul di sini..." style="width: 100%; height: 50px; font-size: 11px; border: 1px dashed #ccc;"></textarea>
             
-            <!-- Ini Tombol 1-Klik Cerdas yang baru -->
             <button class="btn-salin" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="ambilDanProses()">📥 1-Klik Ambil Data & Hitung</button>
             
             <div id="resultContainerSaldo" style="display: none; margin-top: 15px;"></div>
@@ -813,7 +821,6 @@
                 <div class="form-group"><label>Faktor Sirkulasi:</label><input type="number" step="0.1" id="cfg_faktor_sirkulasi" placeholder="1.3"></div>
             </div>
 
-            <!-- BLOK BARU: NOMINAL TRANSPORT HARIAN -->
             <div class="form-group" style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
                 <label>Nominal Transport Harian (Otomatis):</label>
                 <div class="grid-3">
@@ -846,7 +853,6 @@
 
             <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
             
-            <!-- BLOK BACKUP / RESTORE OFFLINE -->
             <div class="form-group" style="margin-top:16px; border-top:1px solid #eee; padding-top:12px;">
                 <label style="color:#856404;">💾 Cadangan & Pemulihan (Offline JSON)</label>
                 <div style="display: flex; gap: 6px; margin-top: 6px;">
@@ -864,7 +870,6 @@
     <div style="text-align:center; font-size:10px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b> | Auto Sync Realtime ☁️</div>
 
     <script>
-        // INISIALISASI FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBtZvwWnd73eACuFNbcH2Px_o7LWB02PiE",
             authDomain: "kalkulator-pati-5.firebaseapp.com",
@@ -882,15 +887,13 @@
 
         let isAppReady = false; 
         let USER_ID = null;
-        let selectedBulanTahun = getBulanTahunString(); // Variabel Global Bulan Rekap
+        let selectedBulanTahun = getBulanTahunString();
         
-        // VARIABEL GLOBAL FITUR TF
         let dataRiwayatTF = [];
 
         function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
         function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
 
-        // ================= FITUR DARK MODE =================
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             let isDark = document.body.classList.contains('dark-mode');
@@ -904,9 +907,7 @@
                 if(toggleEl) toggleEl.checked = true;
             }
         }
-        // ====================================================
 
-        // ================= FITUR BACKUP & RESTORE JSON =================
         function backupDataJSON() {
             let backupObj = {};
             for(let i=0; i<localStorage.length; i++) {
@@ -941,9 +942,7 @@
             };
             reader.readAsText(file);
         }
-        // ===============================================================
 
-        // ================= CSS NOTIFIKASI TOAST =================
         function showToast(msg, isError = false) {
             let toast = document.getElementById("toast");
             if (!toast) return;
@@ -953,7 +952,6 @@
             setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 2000);
         }
 
-        // ================= KODE AKSES LOGIN =================
         function cekKodeAkses() {
             let inputKode = document.getElementById('input-kode-akses').value.trim();
             if(!inputKode) return;
@@ -991,7 +989,6 @@
                 window.location.reload();
             }
         }
-        // ====================================================
 
         function simpanKeCloud(path, data) {
             if (!USER_ID) return;
@@ -1025,8 +1022,7 @@
                 let valML = params.get('ml') || params.get('angsuranml');
                 let valDrop = params.get('drop') || params.get('dropbaru');
                 let valTF = params.get('tf'); 
-                
-                let valTab = params.get('tab'); // Ambil parameter pembuka tab
+                let valTab = params.get('tab');
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
@@ -1047,11 +1043,10 @@
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
-                // Logika pembuka tab otomatis
                 if (valTab === 'saldo') {
                     let btnSaldo = document.getElementById('tab-saldo');
                     if (btnSaldo) bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
-                    window.history.replaceState({}, document.title, window.location.pathname); // Bersihkan URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
             } catch (e) {
@@ -1143,7 +1138,6 @@
             document.getElementById(namaTab).classList.add("active");
             evt.currentTarget.classList.add("active");
 
-            // --- BUGFIX COPY-PASTE ---
             setTimeout(() => {
                 if (typeof hitungTotalDrop === "function") hitungTotalDrop();
                 if (typeof syncDariStoran === "function") syncDariStoran();
@@ -1158,7 +1152,6 @@
             let tglEl = document.getElementById('tanggal-hari-ini');
             if(tglEl) tglEl.innerText = H[d.getDay()] + ', ' + d.getDate() + ' ' + B[d.getMonth()] + ' ' + d.getFullYear();
             
-            // Inisialisasi Tanggal di Tab Saldo
             let bulanIniString = String(d.getMonth() + 1).padStart(2, '0'); 
             let lblSaldo = document.getElementById("judulBulanSaldo");
             if(lblSaldo) lblSaldo.innerText = `Target Sistem: Angsuran Bulan ${bulanIniString}`;
@@ -1499,7 +1492,6 @@
                 selectedBulanTahun = inputBulan;
                 buatTabelBulanIni(); 
                 
-                // Ambil data dari Local Storage
                 let saved = localStorage.getItem(USER_ID + '_Tabel_' + selectedBulanTahun);
                 if(saved) {
                     try { 
@@ -1508,7 +1500,6 @@
                     } catch(e){}
                     propagasiSaldoTabel(); kalkulasiTabelTarget();
                 } else if(isAppReady) {
-                    // Kalau di local kosong, coba ambil di cloud
                     let dbPath = (USER_ID === "adminpati5") ? 'KalkulatorPati5/Tabel_' + selectedBulanTahun : 'KalkulatorPati5/DataPengguna/' + USER_ID + '/Tabel_' + selectedBulanTahun;
                     database.ref(dbPath).once('value').then(snap => {
                         if(snap.exists()) {
@@ -1528,7 +1519,7 @@
                     labelKekuatan.innerText = isBulanIni ? "Hari Ini" : "Bulan " + selectedBulanTahun;
                 }
                 muatHK(); 
-                muatRiwayatTF(); // Sync tabel TF bulanan
+                muatRiwayatTF();
             }
         }
 
@@ -1593,11 +1584,9 @@
             let lunas = getNum('st_drop_pelunasan');
             let total = baru + lunas;
             
-            // Simpan ke hidden input
             let elTotal = document.getElementById('st_drop');
             if(elTotal) elTotal.value = total === 0 ? "" : formatAngka(total);
             
-            // Tampilkan di UI tampilan gabungan
             let elDisplay = document.getElementById('st_drop_display');
             if(elDisplay) elDisplay.value = total === 0 ? "" : formatAngka(total);
             
@@ -1623,7 +1612,6 @@
         }
 
         function cekVisibilitasDropBaru() {
-            // Pengaturan mode disembunyikan karena UI sekarang otomatis gabung/pisah saat diklik.
         }
 
         function syncDariStoran() {
@@ -1669,7 +1657,6 @@
                     for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
                     simpanKeCloud('Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel));
 
-                    // Simpan data TF yang baru (Simpan dalam bentuk JSON agar tersimpan PER-HARI)
                     let savedDataTF = localStorage.getItem(USER_ID + '_InputTF');
                     let allDaysTF = savedDataTF ? JSON.parse(savedDataTF) : {};
                     simpanKeCloud('InputTF', JSON.stringify(allDaysTF));
@@ -1787,12 +1774,10 @@
                     if(btnWA) { btnWA.innerHTML = "⚠️ HARI BERGANTI - REFRESH HALAMAN"; btnWA.style.background = "#dc3545"; btnWA.disabled = true; }
                 }
 
-                // --- SINKRONISASI OTOMATIS COPY-PASTE ---
                 let sync_d1 = document.getElementById('d1'); let sync_std = document.getElementById('st_drop');
                 if(sync_d1 && sync_std) sync_d1.value = sync_std.value;
                 let sync_s1 = document.getElementById('s1'); let sync_sts = document.getElementById('st_storting');
                 if(sync_s1 && sync_sts) sync_s1.value = sync_sts.value;
-                // ----------------------------------------
 
                 let cfgDropToko = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropToko')) || 11) / 100;
                 let cfgDropBonus = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctDropBonus')) || 9) / 100;
@@ -1901,7 +1886,7 @@
                 targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); 
                 if (jenis === 'storan') {
                     setDefaultsOtomatis(); 
-                    hitungTotalDrop(); // Menyelaraskan tampilan Drop ke 0 / kosong
+                    hitungTotalDrop();
                 }
                 hitungSemua();
             }
@@ -1919,7 +1904,6 @@
                 if(el) dataHariIni['tf_klp_'+i] = el.value; 
             }
             
-            // Simpan spesifik ke hari yang sedang dipilih
             allDaysTF[hari] = dataHariIni;
             localStorage.setItem(USER_ID + '_InputTF', JSON.stringify(allDaysTF));
             triggerSimpanCloud();
@@ -1929,7 +1913,6 @@
             let hari = document.getElementById('hari_tf').value;
             let savedData = localStorage.getItem(USER_ID + '_InputTF');
             
-            // Kosongkan input terlebih dahulu
             for(let i=1; i<=10; i++) {
                 let el = document.getElementById('tf_klp_'+i);
                 if(el) el.value = '';
@@ -2028,7 +2011,7 @@
 
             localStorage.setItem(USER_ID + '_RiwayatTF_' + selectedBulanTahun, JSON.stringify(dataRiwayatTF));
             renderTabelTF();
-            triggerSimpanCloud(); // Backup otomatis
+            triggerSimpanCloud();
 
             window.open(`https://wa.me/?text=${encodeURIComponent(teksHarian)}`, '_blank');
         }
@@ -2094,7 +2077,6 @@
         window.saldoBaseTotalS = {};
         window.saldoTotalGroups = 0;
 
-        // FUNGSI HIGHLIGHT BARIS SENTUH DI TAB SALDO
         function sorotBarisSaldo(trElemen) {
             let tbody = trElemen.parentElement;
             let semuaBaris = tbody.querySelectorAll('tr:not(.total-row)');
@@ -2118,11 +2100,8 @@
             let monthIndex = 0; 
             let rowsRekapTotal = "";
 
-            // Ambil format bulan sistem ("07", "08", dst)
             const d = new Date();
             const currBulanStr = String(d.getMonth() + 1).padStart(2, '0');
-
-            // Regex otomatis mencari bulan ini
             const regexNasabah = new RegExp(`([A-Za-z\\s.\\-]+?)\\s+(\\d{16})[\\s\\S]*?S\\s*([\\d,]+)[\\s\\S]*?Asli Bln ${currBulanStr}:\\s*([\\d,]+)`, 'gi');
 
             blocks.forEach(block => {
@@ -2165,13 +2144,21 @@
                     window.saldoBaseTotalA[monthIndex] = totalA;
                     window.saldoBaseTotalS[monthIndex] = totalS;
 
-                    // Buat baris rincian di tabel rekap bawah
-                    rowsRekapTotal += `
-                    <tr>
-                        <td>📅 ${monthName}</td>
-                        <td id="sum_rekap_a_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
-                        <td id="sum_rekap_s_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
-                    </tr>`;
+                    if (monthIndex === 0) {
+                        rowsRekapTotal += `
+                        <tr style="background: rgba(40, 167, 69, 0.15);">
+                            <td>📅 ${monthName} <span style="font-size:9px; color:#2ecc71; font-weight:bold;">(ML)</span></td>
+                            <td><input type="text" id="rekap_ml_a" class="input-ml-edit" inputmode="numeric" value="${formatAngka(totalA)}" oninput="formatRibuan(this); recalculateAllSaldo('ml_input')"></td>
+                            <td><input type="text" id="rekap_ml_s" class="input-ml-edit" inputmode="numeric" value="${formatAngka(totalS)}" oninput="formatRibuan(this); recalculateAllSaldo('ml_input')"></td>
+                        </tr>`;
+                    } else {
+                        rowsRekapTotal += `
+                        <tr>
+                            <td>📅 ${monthName}</td>
+                            <td id="sum_rekap_a_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
+                            <td id="sum_rekap_s_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
+                        </tr>`;
+                    }
 
                     htmlOutput += `
                     <div class="month-block">
@@ -2188,7 +2175,6 @@
                                 </thead>
                                 <tbody id="tbody_saldo_${monthIndex}">
                                     ${rows}
-                                    <!-- Baris Total Kelompok Tetap Ada -->
                                     <tr class="total-row" id="total_row_saldo_${monthIndex}">
                                         <td colspan="2" style="text-align: right; font-weight: bold; color: #333;">TOTAL KELOMPOK :</td>
                                         <td id="finalSaldoA_${monthIndex}" style="font-weight: bold; color: #28a745;">${totalA.toLocaleString('en-US')}</td>
@@ -2206,12 +2192,10 @@
             window.saldoTotalGroups = monthIndex;
 
             if (adaData) {
-                // Master Total di Bagian Bawah + Tabel Rincian Semua Bulan
                 htmlOutput += `
                 <div id="masterTotalBlock">
                     <h3 style="margin: 0 0 10px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 8px; font-size: 14px;">📊 RINCIAN & TOTAL KESELURUHAN</h3>
                     
-                    <!-- TABEL RINGKASAN PER BULAN -->
                     <table class="tabel-rekap-total">
                         <thead>
                             <tr>
@@ -2255,7 +2239,7 @@
             tbody.insertBefore(tr, totalRow); 
         }
 
-        function recalculateAllSaldo() {
+        function recalculateAllSaldo(source) {
             let masterA = 0;
             let masterS = 0;
 
@@ -2269,7 +2253,6 @@
                 let sumA = baseA;
                 let sumS = baseS;
                 
-                // Otomatis kalikan 1000 saat diketik
                 manualAInputs.forEach(input => {
                     let val = parseFloat(input.value) || 0;
                     sumA += val * 1000; 
@@ -2280,31 +2263,51 @@
                     sumS += val * 1000; 
                 });
 
-                // Update Total Kelompok di atas
                 let groupElA = document.getElementById(`finalSaldoA_${i}`);
                 let groupElS = document.getElementById(`finalSaldoS_${i}`);
-                if(groupElA) groupElA.innerText = sumA.toLocaleString('en-US');
-                if(groupElS) groupElS.innerText = sumS.toLocaleString('en-US');
 
-                // Update Rincian Per-Bulan di Tabel Total Keseluruhan
-                let sumRekapA = document.getElementById(`sum_rekap_a_${i}`);
-                let sumRekapS = document.getElementById(`sum_rekap_s_${i}`);
-                if(sumRekapA) sumRekapA.innerText = sumA.toLocaleString('en-US');
-                if(sumRekapS) sumRekapS.innerText = sumS.toLocaleString('en-US');
+                if (i === 0) {
+                    let mlInpA = document.getElementById('rekap_ml_a');
+                    let mlInpS = document.getElementById('rekap_ml_s');
+                    
+                    if (source === 'ml_input') {
+                        let valA = mlInpA ? getNum('rekap_ml_a') : sumA;
+                        let valS = mlInpS ? getNum('rekap_ml_s') : sumS;
+                        if(groupElA) groupElA.innerText = formatAngka(valA);
+                        if(groupElS) groupElS.innerText = formatAngka(valS);
+                        masterA += valA;
+                        masterS += valS;
+                    } else {
+                        if(mlInpA && document.activeElement !== mlInpA) mlInpA.value = formatAngka(sumA);
+                        if(mlInpS && document.activeElement !== mlInpS) mlInpS.value = formatAngka(sumS);
+                        if(groupElA) groupElA.innerText = formatAngka(sumA);
+                        if(groupElS) groupElS.innerText = formatAngka(sumS);
+                        
+                        let valA = mlInpA ? getNum('rekap_ml_a') : sumA;
+                        let valS = mlInpS ? getNum('rekap_ml_s') : sumS;
+                        masterA += valA;
+                        masterS += valS;
+                    }
+                } else {
+                    if(groupElA) groupElA.innerText = formatAngka(sumA);
+                    if(groupElS) groupElS.innerText = formatAngka(sumS);
 
-                // Tambahkan ke Master Total Keseluruhan
-                masterA += sumA;
-                masterS += sumS;
+                    let sumRekapA = document.getElementById(`sum_rekap_a_${i}`);
+                    let sumRekapS = document.getElementById(`sum_rekap_s_${i}`);
+                    if(sumRekapA) sumRekapA.innerText = formatAngka(sumA);
+                    if(sumRekapS) sumRekapS.innerText = formatAngka(sumS);
+
+                    masterA += sumA;
+                    masterS += sumS;
+                }
             }
 
-            // Update Total Paling Bawah (Tampilan Utama)
             let mTotalA = document.getElementById('masterSaldoA');
             let mTotalS = document.getElementById('masterSaldoS');
-            if(mTotalA) mTotalA.innerText = masterA.toLocaleString('en-US');
-            if(mTotalS) mTotalS.innerText = masterS.toLocaleString('en-US');
+            if(mTotalA) mTotalA.innerText = formatAngka(masterA);
+            if(mTotalS) mTotalS.innerText = formatAngka(masterS);
         }
 
-        // Fungsi menyedot data clipboard dan langsung menghitungnya
         async function ambilDanProses() {
             let textarea = document.getElementById("inputTextSaldo");
             let tombol = event.currentTarget;
@@ -2313,7 +2316,6 @@
             tombol.innerHTML = "⏳ Sedang Memproses...";
             
             try {
-                // Mencoba membaca langsung dari memori HP (Clipboard)
                 let textFromClipboard = await navigator.clipboard.readText();
                 if (textFromClipboard && textFromClipboard.trim() !== "") {
                     textarea.value = textFromClipboard;
@@ -2322,14 +2324,13 @@
                 console.log("Clipboard otomatis diblokir browser:", err);
             }
 
-            // Jika memori terbaca dan masuk ke kotak
             if (textarea.value && textarea.value.trim() !== "") {
-                prosesDataSaldo(); // Langsung eksekusi perapian tabel
+                prosesDataSaldo();
             } else {
                 alert("⚠️ Browser menolak akses Clipboard. Silakan tekan tahan kotak teks, pilih 'Tempel/Paste' manual, lalu klik tombol ini lagi.");
             }
             
-            tombol.innerHTML = teksAsli; // Kembalikan teks tombol
+            tombol.innerHTML = teksAsli;
         }
 
         function muatKalkulator() {
@@ -2387,7 +2388,7 @@
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
             setDefaultsOtomatis();
-            hitungTotalDrop(); // Sinkronisasi tampilan Drop yang tersembunyi
+            hitungTotalDrop();
             hitungSemua(); 
         }
 
@@ -2501,7 +2502,6 @@
             downloadLink.style.display = 'none'; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
         }
 
-        // ================= BOOTING & INISIALISASI =================
         let isAppLoaded = false;
         let fallbackTimer = null;
 
@@ -2509,25 +2509,20 @@
             let namaUser = document.getElementById('nama_pengguna_ui');
             if(namaUser) namaUser.innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
             
-            // =========================================================
-            // FITUR HIDE/TUTUP TAB UNTUK USER BIASA (SELAIN ADMIN)
-            // =========================================================
             if (USER_ID !== 'adminpati5') {
                 let tabYangDitutup = ['tab-nasabah', 'tab-tf']; 
                 
                 tabYangDitutup.forEach(idTab => {
                     let tombol = document.getElementById(idTab);
                     if (tombol) {
-                        tombol.style.display = 'none'; // Sembunyikan tombol tab
+                        tombol.style.display = 'none'; 
                     }
                 });
             }
-            // =========================================================
 
             let inputBulanEl = document.getElementById('input_bulan_rekap');
             if(inputBulanEl) inputBulanEl.value = getBulanTahunString();
             
-            // Setel dropdown TF ke hari ini secara otomatis
             let hariIni = new Date().getDay();
             const mapHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'];
             if(hariIni > 0 && hariIni < 7) { document.getElementById('hari_tf').value = mapHari[hariIni]; }
@@ -2540,7 +2535,6 @@
             cekVisibilitasDropBaru();
             muatNasabah();
             
-            // INISIALISASI TF
             muatInputTF();
             muatRiwayatTF();
 
@@ -2600,7 +2594,6 @@
             });
         }
 
-        // Fungsi mengubah tampilan kolom Drop
         function toggleDropView(isSplit) {
             let viewTotal = document.getElementById('view_drop_total');
             let viewSplit = document.getElementById('view_drop_split');
@@ -2611,20 +2604,18 @@
                 viewSplit.style.display = 'flex';
                 labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
                 
-                // Fokuskan otomatis ke input Baru agar langsung bisa mengetik
                 setTimeout(() => {
                     let elBaru = document.getElementById('st_drop_baru');
                     if (elBaru) elBaru.focus();
                 }, 50);
             } else {
-                hitungTotalDrop(); // Pastikan disinkronkan saat ditutup
+                hitungTotalDrop(); 
                 viewTotal.style.display = 'block';
                 viewSplit.style.display = 'none';
                 labelDrop.innerHTML = 'Drop';
             }
         }
 
-        // Deteksi jika pengguna menekan layar di luar kotak Drop (untuk menyatukan kembali kotaknya)
         document.addEventListener('click', function(event) {
             let container = document.getElementById('box_drop_container');
             let viewSplit = document.getElementById('view_drop_split');
@@ -2632,7 +2623,7 @@
             if (container && viewSplit && viewSplit.style.display === 'flex') {
                 let isClickInside = container.contains(event.target);
                 if (!isClickInside) {
-                    toggleDropView(false); // Satukan kolom karena klik di area luar
+                    toggleDropView(false); 
                 }
             }
         });
