@@ -207,7 +207,7 @@
         .tabel-riwayat td { color: #333; font-weight: bold; }
         .btn-hapus-baris { background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px; font-size: 9px; }
 
-        /* ================= CSS TAB SALDO BARU (SUDAH DIRAPIKAN) ================= */
+        /* ================= CSS TAB SALDO BARU ================= */
         .month-block { margin-top: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s;}
         .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; border-bottom: 2px solid #2c3e50; }
         
@@ -222,6 +222,16 @@
         .tabel-saldo tr:hover { background-color: #e9ecef; }
         .tabel-saldo .total-row td { border-top: 2px solid #28a745; font-size: 13px; background-color: #eafaf1 !important;}
 
+        /* EFEK SENTUH/KLIK BARIS TABEL SALDO (KOTAK BIRU) */
+        .tabel-saldo tbody tr:not(.total-row) { cursor: pointer; transition: background-color 0.2s; }
+        .tabel-saldo tbody tr.active-row td {
+            background-color: #e7f3ff !important;
+            border-top: 2px solid #007bff !important;
+            border-bottom: 2px solid #007bff !important;
+        }
+        .tabel-saldo tbody tr.active-row td:first-child { border-left: 2px solid #007bff !important; }
+        .tabel-saldo tbody tr.active-row td:last-child { border-right: 2px solid #007bff !important; }
+
         .manual-input-row { background-color: #ebdef0 !important; }
         .input-styling { width: 100%; box-sizing: border-box; padding: 6px 4px; border: 1px solid #c39bd3; border-radius: 4px; font-weight: bold; color: #6c3483; font-size: 13px; text-align: right; background: white;}
         #masterTotalBlock { margin-top: 20px; background: #2c3e50; color: #fff; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-bottom: 5px solid #27ae60; transition: 0.3s;}
@@ -229,6 +239,14 @@
         /* Tombol Tambah Lunas di Tab Saldo */
         .btn-tambah-lunas { width: 100%; padding: 10px; background: #e2e6ea; border: none; font-weight: bold; color: #383d41; cursor: pointer; transition: 0.2s; border-top: 1px solid #dee2e6; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-tambah-lunas:hover { background: #dae0e5; }
+
+        /* Tabel Rincian Ringkas Per Bulan di Total Keseluruhan */
+        .tabel-rekap-total { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; background: rgba(0,0,0,0.2); border-radius: 6px; overflow: hidden; }
+        .tabel-rekap-total th, .tabel-rekap-total td { padding: 6px 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .tabel-rekap-total th { background: rgba(0,0,0,0.3); color: #ecf0f1; font-weight: bold; }
+        .tabel-rekap-total td:nth-child(1) { text-align: left; font-weight: bold; color: #f8f9fa; }
+        .tabel-rekap-total td:nth-child(2) { text-align: right; font-weight: bold; color: #2ecc71; }
+        .tabel-rekap-total td:nth-child(3) { text-align: right; font-weight: bold; color: #f1c40f; }
         
         /* ================= CSS MODE GELAP (DARK MODE) ================= */
         body.dark-mode { background: #121212; color: #e0e0e0; }
@@ -304,6 +322,10 @@
         .dark-mode .input-styling { background: #1e1e1e; color: #66b2ff; border-color: #444;}
         .dark-mode .tabel-saldo .total-row td { background-color: #1c3d26 !important; color: #66b2ff !important; border-top-color: #28a745; }
         .dark-mode #masterTotalBlock { background: #1a2634; border-bottom-color: #28a745; }
+        .dark-mode .tabel-saldo tbody tr.active-row td {
+            background-color: #1a2634 !important;
+            border-color: #38b6ff !important;
+        }
         /* ========================================================= */
     </style>
 </head>
@@ -1601,7 +1623,6 @@
         }
 
         function cekVisibilitasDropBaru() {
-            // Fungsi sengaja dikosongkan. 
             // Pengaturan mode disembunyikan karena UI sekarang otomatis gabung/pisah saat diklik.
         }
 
@@ -2068,10 +2089,18 @@
             }
         }
 
-        // ================= LOGIKA KHUSUS TAB SALDO (DIRAPIKAN & DIGARIS) =================
+        // ================= LOGIKA KHUSUS TAB SALDO =================
         window.saldoBaseTotalA = {};
         window.saldoBaseTotalS = {};
         window.saldoTotalGroups = 0;
+
+        // FUNGSI HIGHLIGHT BARIS SENTUH DI TAB SALDO
+        function sorotBarisSaldo(trElemen) {
+            let tbody = trElemen.parentElement;
+            let semuaBaris = tbody.querySelectorAll('tr:not(.total-row)');
+            semuaBaris.forEach(tr => tr.classList.remove('active-row'));
+            trElemen.classList.add('active-row');
+        }
 
         function prosesDataSaldo() {
             const inputText = document.getElementById("inputTextSaldo").value;
@@ -2087,6 +2116,7 @@
             let adaData = false;
             let htmlOutput = "";
             let monthIndex = 0; 
+            let rowsRekapTotal = "";
 
             // Ambil format bulan sistem ("07", "08", dst)
             const d = new Date();
@@ -2122,7 +2152,7 @@
                     totalA += valA;
                     totalS += valS;
 
-                    rows += `<tr>
+                    rows += `<tr onclick="sorotBarisSaldo(this)">
                         <td>${counter}</td>
                         <td>${namaBersih}</td>
                         <td style="color: #28a745; font-weight: bold;">${valA.toLocaleString('en-US')}</td>
@@ -2134,6 +2164,14 @@
                 if (rows !== "") {
                     window.saldoBaseTotalA[monthIndex] = totalA;
                     window.saldoBaseTotalS[monthIndex] = totalS;
+
+                    // Buat baris rincian di tabel rekap bawah
+                    rowsRekapTotal += `
+                    <tr>
+                        <td>📅 ${monthName}</td>
+                        <td id="sum_rekap_a_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
+                        <td id="sum_rekap_s_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
+                    </tr>`;
 
                     htmlOutput += `
                     <div class="month-block">
@@ -2150,7 +2188,7 @@
                                 </thead>
                                 <tbody id="tbody_saldo_${monthIndex}">
                                     ${rows}
-                                    <!-- Baris Total Kelompok Dimasukkan Kembali -->
+                                    <!-- Baris Total Kelompok Tetap Ada -->
                                     <tr class="total-row" id="total_row_saldo_${monthIndex}">
                                         <td colspan="2" style="text-align: right; font-weight: bold; color: #333;">TOTAL KELOMPOK :</td>
                                         <td id="finalSaldoA_${monthIndex}" style="font-weight: bold; color: #28a745;">${totalA.toLocaleString('en-US')}</td>
@@ -2168,12 +2206,27 @@
             window.saldoTotalGroups = monthIndex;
 
             if (adaData) {
-                // Tambahkan Master Total di Paling Bawah
+                // Master Total di Bagian Bawah + Tabel Rincian Semua Bulan
                 htmlOutput += `
                 <div id="masterTotalBlock">
-                    <h3 style="margin: 0 0 15px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 10px;">TOTAL KESELURUHAN</h3>
-                    <div style="font-size: 22px; color: #2ecc71; margin-bottom: 8px;">BULAN INI (A) : <b id="masterSaldoA">0</b></div>
-                    <div style="font-size: 22px; color: #f1c40f;">SALDO (S) : <b id="masterSaldoS">0</b></div>
+                    <h3 style="margin: 0 0 10px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 8px; font-size: 14px;">📊 RINCIAN & TOTAL KESELURUHAN</h3>
+                    
+                    <!-- TABEL RINGKASAN PER BULAN -->
+                    <table class="tabel-rekap-total">
+                        <thead>
+                            <tr>
+                                <th>Grup Bulan</th>
+                                <th>Bulan Ini (A)</th>
+                                <th>Saldo (S)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsRekapTotal}
+                        </tbody>
+                    </table>
+
+                    <div style="font-size: 20px; color: #2ecc71; margin-bottom: 6px;">BULAN INI (A) : <b id="masterSaldoA">0</b></div>
+                    <div style="font-size: 20px; color: #f1c40f;">SALDO (S) : <b id="masterSaldoS">0</b></div>
                 </div>`;
 
                 resultContainer.innerHTML = htmlOutput;
@@ -2187,10 +2240,11 @@
 
         function tambahBarisLunasSaldo(index) {
             const tbody = document.getElementById(`tbody_saldo_${index}`);
-            const totalRow = document.getElementById(`total_row_saldo_${index}`); // Tangkap baris total
+            const totalRow = document.getElementById(`total_row_saldo_${index}`); 
             
             const tr = document.createElement('tr');
             tr.className = "manual-input-row";
+            tr.setAttribute("onclick", "sorotBarisSaldo(this)");
             tr.innerHTML = `
                 <td>-</td>
                 <td><i style="color:#8e44ad; font-size:11px;">+ Manual (Otomatis x1000)</i></td>
@@ -2198,7 +2252,6 @@
                 <td><input type="number" class="manual-s input-styling" placeholder="Ketik S" oninput="recalculateAllSaldo()"></td>
             `;
             
-            // Masukkan ke baris tepat sebelum "TOTAL KELOMPOK"
             tbody.insertBefore(tr, totalRow); 
         }
 
@@ -2227,11 +2280,17 @@
                     sumS += val * 1000; 
                 });
 
-                // Update Total Kelompok agar ikut berubah saat diketik
+                // Update Total Kelompok di atas
                 let groupElA = document.getElementById(`finalSaldoA_${i}`);
                 let groupElS = document.getElementById(`finalSaldoS_${i}`);
                 if(groupElA) groupElA.innerText = sumA.toLocaleString('en-US');
                 if(groupElS) groupElS.innerText = sumS.toLocaleString('en-US');
+
+                // Update Rincian Per-Bulan di Tabel Total Keseluruhan
+                let sumRekapA = document.getElementById(`sum_rekap_a_${i}`);
+                let sumRekapS = document.getElementById(`sum_rekap_s_${i}`);
+                if(sumRekapA) sumRekapA.innerText = sumA.toLocaleString('en-US');
+                if(sumRekapS) sumRekapS.innerText = sumS.toLocaleString('en-US');
 
                 // Tambahkan ke Master Total Keseluruhan
                 masterA += sumA;
@@ -2245,7 +2304,7 @@
             if(mTotalS) mTotalS.innerText = masterS.toLocaleString('en-US');
         }
 
-        // Fungsi baru untuk menyedot data clipboard dan langsung menghitungnya
+        // Fungsi menyedot data clipboard dan langsung menghitungnya
         async function ambilDanProses() {
             let textarea = document.getElementById("inputTextSaldo");
             let tombol = event.currentTarget;
@@ -2454,7 +2513,6 @@
             // FITUR HIDE/TUTUP TAB UNTUK USER BIASA (SELAIN ADMIN)
             // =========================================================
             if (USER_ID !== 'adminpati5') {
-                // Tulis ID tab yang ingin DISEMBUNYIKAN dari user biasa di bawah ini
                 let tabYangDitutup = ['tab-nasabah', 'tab-tf']; 
                 
                 tabYangDitutup.forEach(idTab => {
