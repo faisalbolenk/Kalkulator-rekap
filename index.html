@@ -409,16 +409,13 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     
-                    <!-- BLOK KOLOM DROP BARU & LUNAS -->
                     <div class="ui-input-box" id="box_drop_container" style="position: relative;">
                         <label class="ui-label" id="label_drop">Drop</label>
                         
-                        <!-- Tampilan Saat Tidak Aktif (Menyatu) -->
                         <div id="view_drop_total" onclick="toggleDropView(true)">
                             <input type="text" class="ui-input" id="st_drop_display" placeholder="0" readonly style="font-weight: bold; text-align: center; color: #007bff; border-color: #007bff; cursor: pointer;">
                         </div>
 
-                        <!-- Tampilan Saat Diklik/Diisi (Terpisah) -->
                         <div id="view_drop_split" style="display: none; gap: 4px;">
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_baru" placeholder="Baru" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
                             <input type="text" class="ui-input" inputmode="numeric" id="st_drop_pelunasan" placeholder="Lunas" oninput="formatRibuan(this); hitungTotalDrop()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
@@ -436,7 +433,6 @@
                         <input type="text" class="ui-input" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()">
                     </div>
                     
-                    <!-- INPUT SU KEMBALI NORMAL -->
                     <div class="ui-input-box">
                         <label class="ui-label">SU</label>
                         <input type="text" class="ui-input" id="st_su" readonly style="background-color: #f8f9fa;">
@@ -456,7 +452,6 @@
                     <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 6px 30px; border-radius: 4px; cursor: pointer; font-size: 14px;">🗑️</button>
                 </div>
             </div>
-            <!-- SELESAI BLOK SCREENSHOT -->
 
             <div style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" class="card">
                 <div class="rumus-box">
@@ -470,14 +465,11 @@
                     <div class="bg-1" id="hasilStoran">Storan<br>0</div>
                 </div>
 
-                <!-- TARGET MURNI -->
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
                     
-                    <!-- HEADER TARGET MURNI & INPUT NILAI UBAH (ON/OFF TOGGLE) -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <h3 style="font-size: 13px; margin: 0; color: #343a40; border: none; padding: 0;">🎯 Target Murni</h3>
                         
-                        <!-- Panel Saklar Edit Cepat -->
                         <div style="display: flex; align-items: center; gap: 6px; background: transparent; padding: 3px 8px; border-radius: 12px; border: 1px solid #ccc;">
                             <span style="font-size: 10px; font-weight: bold; color: #555; cursor: pointer;" onclick="document.getElementById('toggle_quick_edit').click()">Edit Cepat</span>
                             <label class="switch-tm" title="Aktifkan tombol tambah/kurang cepat">
@@ -488,7 +480,6 @@
                         </div>
                     </div>
 
-                    <!-- DISPLAY BREAKDOWN RUMUS MURNI -->
                     <div id="detail_rumus_murni" style="background: #eaf4ff; color: #004085; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 8px; font-weight: bold; font-size: 12px; border-left: 4px solid #007bff; letter-spacing: 0.5px;">
                         0 - 0 - 0 = 0
                     </div>
@@ -2280,11 +2271,11 @@
                     } else {
                         if(mlInpA && document.activeElement !== mlInpA) mlInpA.value = formatAngka(sumA);
                         if(mlInpS && document.activeElement !== mlInpS) mlInpS.value = formatAngka(sumS);
-                        if(groupElA) groupElA.innerText = formatAngka(sumA);
-                        if(groupElS) groupElS.innerText = formatAngka(sumS);
                         
                         let valA = mlInpA ? getNum('rekap_ml_a') : sumA;
                         let valS = mlInpS ? getNum('rekap_ml_s') : sumS;
+                        if(groupElA) groupElA.innerText = formatAngka(valA);
+                        if(groupElS) groupElS.innerText = formatAngka(valS);
                         masterA += valA;
                         masterS += valS;
                     }
