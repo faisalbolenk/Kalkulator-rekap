@@ -683,7 +683,7 @@
         </div>
         
         <div id="modal-riwayat" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
-            <div style="background:white; padding:15px; border-radius:8px; width:90%; max-width:400px; max-height:85%; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+            <div style="background:white; padding:15px; border-radius:8px; width:90%; max-width:400px; max-height:85%; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: left;">
                 <h3 id="judul-riwayat" style="color:#111; margin-bottom:5px;">Riwayat Pembayaran</h3>
                 
                 <div id="info-nasabah-modal" style="font-size:11px; color:#333; margin-bottom:10px; background:#f8f9fa; padding:8px; border-radius:6px; border:1px solid #ddd;">
@@ -947,6 +947,7 @@
             if (inputKode === "adminpati5") {
                 localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
                 localStorage.setItem('KalkulatorPati_TanggalLogin', getTodayString());
+                localStorage.setItem('KalkulatorPati_Role', 'admin');
                 window.location.reload();
                 return;
             }
@@ -955,9 +956,11 @@
             btn.innerText = "Mengecek Server..."; btn.disabled = true;
 
             database.ref('KalkulatorPati5/DaftarAkses/' + inputKode).once('value').then((snapshot) => {
-                if (snapshot.exists() && snapshot.val() === "aktif") {
+                let role = snapshot.val();
+                if (snapshot.exists() && (role === "aktif" || role === "vip")) {
                     localStorage.setItem('KalkulatorPati_KodeAkses', inputKode);
                     localStorage.setItem('KalkulatorPati_TanggalLogin', getTodayString());
+                    localStorage.setItem('KalkulatorPati_Role', role);
                     window.location.reload();
                 } else {
                     document.getElementById('pesan-error').style.display = 'block';
@@ -974,6 +977,7 @@
             if(confirm("⚠️ Keluar dari akun ini? Anda harus memasukkan kode akses lagi nanti.")) {
                 localStorage.removeItem('KalkulatorPati_KodeAkses');
                 localStorage.removeItem('KalkulatorPati_TanggalLogin');
+                localStorage.removeItem('KalkulatorPati_Role');
                 window.location.reload();
             }
         }
@@ -1478,7 +1482,7 @@
             if(confirm("⚠️ Yakin ingin mengosongkan form Target (Program & Index)?")) {
                 document.getElementById('tg_program').value = '';
                 document.getElementById('tg_index').value = '';
-                hitungSemua(); // Update kalkulasi dan otomatis mengosongkan tabel target
+                hitungSemua(); 
                 showToast("Data Target Harian di-reset!");
             }
         }
@@ -2091,7 +2095,6 @@
             window.saldoBaseTotalS = {};
             window.saldoTotalGroups = 0;
 
-            // Memisahkan text berdasarkan nama bulan dan tahun (ex: March 2026)
             const blocks = inputText.split(/(?=(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})/i);
             
             let adaData = false;
@@ -2107,7 +2110,7 @@
                 const monthMatch = block.match(/^(January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4}/i);
                 if (!monthMatch) return; 
 
-                adaData = true; // Tandai bahwa setidaknya ada bulan yang ditemukan
+                adaData = true; 
                 
                 let monthName = monthMatch[0].replace(/(\D+)(\d+)/, "$1 $2").toUpperCase();
                 let match;
@@ -2139,7 +2142,6 @@
                     counter++;
                 }
 
-                // Jika block bulan kosong/tidak ada data nasabah
                 if (rows === "") {
                     rows = `<tr>
                         <td colspan="4" style="text-align:center; color:#999; font-style:italic;">Tidak ada data angsuran di bulan ini.</td>
@@ -2149,7 +2151,6 @@
                 window.saldoBaseTotalA[monthIndex] = totalA;
                 window.saldoBaseTotalS[monthIndex] = totalS;
 
-                // Index 0 selalu ML dan menggunakan input edit
                 if (monthIndex === 0) {
                     rowsRekapTotal += `
                     <tr style="background: rgba(40, 167, 69, 0.15);">
@@ -2514,7 +2515,8 @@
             let namaUser = document.getElementById('nama_pengguna_ui');
             if(namaUser) namaUser.innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
             
-            if (USER_ID !== 'adminpati5') {
+            let userRole = localStorage.getItem('KalkulatorPati_Role') || 'aktif';
+            if (USER_ID !== 'adminpati5' && userRole !== 'vip') {
                 let tabYangDitutup = ['tab-nasabah', 'tab-tf']; 
                 
                 tabYangDitutup.forEach(idTab => {
@@ -2656,12 +2658,15 @@
                  loadDataCloud(statusEl); 
             } else {
                  database.ref('KalkulatorPati5/DaftarAkses/' + USER_ID).once('value').then(snap => {
-                     if(snap.exists() && snap.val() === "aktif") {
+                     let role = snap.val();
+                     if(snap.exists() && (role === "aktif" || role === "vip")) {
+                         localStorage.setItem('KalkulatorPati_Role', role);
                          loadDataCloud(statusEl);
                      } else {
                          clearTimeout(fallbackTimer);
                          localStorage.removeItem('KalkulatorPati_KodeAkses');
                          localStorage.removeItem('KalkulatorPati_TanggalLogin');
+                         localStorage.removeItem('KalkulatorPati_Role');
                          document.getElementById('layar-kunci').style.display = 'flex';
                          document.getElementById('pesan-error').innerText = "⚠️ Akses Anda telah dicabut oleh Admin!";
                          document.getElementById('pesan-error').style.display = 'block';
