@@ -109,13 +109,51 @@
         .ledger-table .baris-hari-ini .hari-col { background: #007bff !important; color: white !important; border-right: 2px solid #004085; font-size: 10px; padding: 4px 3px; }
         .ledger-table .baris-hari-ini input { font-weight: bold; color: #004085; border-color: #0056b3; background-color: #ffffff; padding: 4px 2px; font-size: 11px; box-shadow: 0 0 2px rgba(0,123,255,0.3); }
         
-        .tabel-target-ui { min-width: 300px; }
+        .tabel-target-ui { min-width: 350px; }
         .tabel-target-ui .hari-col { min-width: 20px; font-size: 9px; padding: 2px 4px; }
         .tabel-target-ui th:nth-child(1) { width: 25px; }
         .tabel-target-ui th:nth-child(2) { background: #17a2b8 !important; }
         .tabel-target-ui th:nth-child(3) { background: #d39e00 !important; }
         .tabel-target-ui th:nth-child(4) { background: #28a745 !important; }
-        .tabel-target-ui .baris-hari-ini td { font-size: 12px; color: #004085; }
+        .tabel-target-ui th:nth-child(5) { background: #6c757d !important; }
+        .tabel-target-ui th:nth-child(6) { background: #dc3545 !important; }
+        .tabel-target-ui input { width: 100%; box-sizing: border-box; }
+        
+        /* EFEK ZOOM TABEL TARGET (Sentuh/Hover) */
+        .tabel-target-ui tbody { position: relative; }
+        .tabel-target-ui tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; transform-origin: left center; }
+        
+        /* Default: Baris hari ini membesar */
+        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 2;
+            position: relative;
+            background-color: #eaf4ff !important;
+        }
+        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini td { font-size: 13px; font-weight: bold; }
+        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini input { font-size: 13px; font-weight: bold; }
+        
+        /* Saat area tabel disentuh/dihover: baris yang disentuh membesar */
+        .tabel-target-ui tbody tr:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 5;
+            position: relative;
+            background-color: #d4edda !important;
+        }
+        .tabel-target-ui tbody tr:hover td { font-size: 14px !important; font-weight: bold; }
+        .tabel-target-ui tbody tr:hover input { font-size: 14px !important; font-weight: bold; }
+        
+        /* Baris hari ini kembali normal jika baris lain disentuh */
+        .tabel-target-ui tbody:hover tr.baris-hari-ini:not(:hover) {
+            transform: scale(1);
+            box-shadow: none;
+            z-index: 1;
+            font-size: 10px;
+            font-weight: normal;
+        }
+        .tabel-target-ui tbody:hover tr.baris-hari-ini:not(:hover) input { font-size: 10px; font-weight: normal; }
 
         .btn-backup { background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
         .btn-restore { background: #6c757d; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
@@ -152,36 +190,17 @@
 
         /* ================= CSS NOTIFIKASI TOAST ================= */
         #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background-color: rgba(40, 167, 69, 0.95);
-            color: #fff;
-            text-align: center;
-            border-radius: 30px;
-            padding: 12px;
-            position: fixed;
-            z-index: 10000;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            opacity: 0;
+            visibility: hidden; min-width: 200px; background-color: rgba(40, 167, 69, 0.95); color: #fff; text-align: center;
+            border-radius: 30px; padding: 12px; position: fixed; z-index: 10000; left: 50%; transform: translateX(-50%);
+            bottom: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0;
             transition: opacity 0.3s, bottom 0.3s;
         }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 40px;
-        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 40px; }
 
         /* TOMBOL UBAH CEPAT TARGET MURNI */
         .btn-tm-min, .btn-tm-plus { padding: 0 6px; font-size: 11px; font-weight: bold; color: white; border: none; border-radius: 3px; cursor: pointer; transition: 0.1s; margin-left: 2px;}
-        .btn-tm-min { background: #dc3545; }
-        .btn-tm-min:active { background: #a71d2a; transform: scale(0.9); }
-        .btn-tm-plus { background: #28a745; }
-        .btn-tm-plus:active { background: #1c7430; transform: scale(0.9); }
+        .btn-tm-min { background: #dc3545; } .btn-tm-min:active { background: #a71d2a; transform: scale(0.9); }
+        .btn-tm-plus { background: #28a745; } .btn-tm-plus:active { background: #1c7430; transform: scale(0.9); }
         .tm-label-flex { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 
         /* TOGGLE SWITCH MODE UBAH CEPAT & DARK MODE */
@@ -207,7 +226,7 @@
         .tabel-riwayat td { color: #333; font-weight: bold; }
         .btn-hapus-baris { background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px; font-size: 9px; }
 
-        /* ================= CSS TAB SALDO BARU (DIRAPIKAN & DIGARIS) ================= */
+        /* ================= CSS TAB SALDO BARU ================= */
         .month-block { margin-top: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s;}
         .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; border-bottom: 2px solid #2c3e50; }
         
@@ -222,11 +241,7 @@
         .tabel-saldo .total-row td { border-top: 2px solid #28a745; font-size: 13px; background-color: #eafaf1 !important;}
 
         .tabel-saldo tbody tr:not(.total-row) { cursor: pointer; transition: background-color 0.2s; }
-        .tabel-saldo tbody tr.active-row td {
-            background-color: #e7f3ff !important;
-            border-top: 2px solid #007bff !important;
-            border-bottom: 2px solid #007bff !important;
-        }
+        .tabel-saldo tbody tr.active-row td { background-color: #e7f3ff !important; border-top: 2px solid #007bff !important; border-bottom: 2px solid #007bff !important; }
         .tabel-saldo tbody tr.active-row td:first-child { border-left: 2px solid #007bff !important; }
         .tabel-saldo tbody tr.active-row td:last-child { border-right: 2px solid #007bff !important; }
 
@@ -237,7 +252,6 @@
         .btn-tambah-lunas { width: 100%; padding: 10px; background: #e2e6ea; border: none; font-weight: bold; color: #383d41; cursor: pointer; transition: 0.2s; border-top: 1px solid #dee2e6; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-tambah-lunas:hover { background: #dae0e5; }
 
-        /* Tabel Rincian Ringkas Per Bulan di Total Keseluruhan */
         .tabel-rekap-total { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; background: rgba(0,0,0,0.2); border-radius: 6px; overflow: hidden; }
         .tabel-rekap-total th, .tabel-rekap-total td { padding: 6px 8px; border: 1px solid rgba(255,255,255,0.1); }
         .tabel-rekap-total th { background: rgba(0,0,0,0.3); color: #ecf0f1; font-weight: bold; }
@@ -245,29 +259,9 @@
         .tabel-rekap-total td:nth-child(2) { text-align: right; font-weight: bold; color: #2ecc71; }
         .tabel-rekap-total td:nth-child(3) { text-align: right; font-weight: bold; color: #f1c40f; }
 
-        /* Input Khusus Edit Baris ML (Top Row) */
-        .input-ml-edit {
-            width: 100%;
-            max-width: 95px;
-            box-sizing: border-box;
-            padding: 4px 6px;
-            border: 1px solid #2ecc71;
-            border-radius: 4px;
-            font-weight: bold;
-            text-align: right;
-            font-size: 11px;
-            background: #ffffff;
-            color: #1a2238;
-            outline: none;
-            transition: 0.2s;
-        }
-        .input-ml-edit:focus {
-            border-color: #38b6ff;
-            box-shadow: 0 0 5px rgba(56, 182, 255, 0.7);
-        }
-        #rekap_ml_s {
-            border-color: #f1c40f;
-        }
+        .input-ml-edit { width: 100%; max-width: 95px; box-sizing: border-box; padding: 4px 6px; border: 1px solid #2ecc71; border-radius: 4px; font-weight: bold; text-align: right; font-size: 11px; background: #ffffff; color: #1a2238; outline: none; transition: 0.2s; }
+        .input-ml-edit:focus { border-color: #38b6ff; box-shadow: 0 0 5px rgba(56, 182, 255, 0.7); }
+        #rekap_ml_s { border-color: #f1c40f; }
         
         /* ================= CSS MODE GELAP (DARK MODE) ================= */
         body.dark-mode { background: #121212; color: #e0e0e0; }
@@ -291,8 +285,10 @@
         .dark-mode .ledger-table td { border-color: #444; }
         .dark-mode .ledger-table input { color: #fff; }
         .dark-mode .ledger-table .hari-col { background: #2d2d2d; border-right-color: #444; }
-        .dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2634; border-color: #0056b3; }
+        .dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2634 !important; border-color: #0056b3; }
         .dark-mode .ledger-table .baris-hari-ini input { background-color: #1e1e1e; color: #66b2ff; }
+        
+        .dark-mode .tabel-target-ui tbody tr:hover { background-color: #1c3d26 !important; }
         
         .dark-mode .tabel-storan-ui th:nth-child(7), .dark-mode .tabel-storan-ui th:nth-child(8), .dark-mode .tabel-storan-ui th:nth-child(9), .dark-mode .tabel-storan-ui th:nth-child(10) { background: #856404 !important; border-bottom-color: #664d03; color: white;} 
         .dark-mode .tabel-storan-ui td:nth-child(7), .dark-mode .tabel-storan-ui td:nth-child(8), .dark-mode .tabel-storan-ui td:nth-child(9), .dark-mode .tabel-storan-ui td:nth-child(10) { background-color: #383424; } 
@@ -303,7 +299,7 @@
 
         .dark-mode .capture-container { background: #1a1a1a; box-shadow: none; border: 1px solid #333;}
         .dark-mode .capture-container h2 { color: #e0e0e0; }
-        .dark-mode #detail_rumus_murni { background: #1a2634; color: #66b2ff; border-left-color: #66b2ff; }
+        .dark-mode #detail_rumus_murni { background: #1a2634 !important; color: #66b2ff !important; border-left-color: #66b2ff !important; }
         .dark-mode .form-group label { color: #ccc; }
         .dark-mode .info-badge { border: 1px solid #444; }
         
@@ -327,7 +323,6 @@
         .dark-mode .tabel-riwayat th { background: #004085; border-color: #222; }
         .dark-mode .tabel-riwayat td { border-color: #444; color: #ccc; }
 
-        /* Dark mode untuk tab Saldo */
         .dark-mode .month-block { background: #1e1e1e; border-color: #333; }
         .dark-mode .month-title { background: #004085; border-bottom-color: #002752;}
         .dark-mode .tabel-saldo { background-color: #1e1e1e; }
@@ -343,15 +338,8 @@
         .dark-mode .input-styling { background: #1e1e1e; color: #66b2ff; border-color: #444;}
         .dark-mode .tabel-saldo .total-row td { background-color: #1c3d26 !important; color: #66b2ff !important; border-top-color: #28a745; }
         .dark-mode #masterTotalBlock { background: #1a2634; border-bottom-color: #28a745; }
-        .dark-mode .tabel-saldo tbody tr.active-row td {
-            background-color: #1a2634 !important;
-            border-color: #38b6ff !important;
-        }
-        .dark-mode .input-ml-edit {
-            background: #2d2d2d;
-            color: #fff;
-        }
-        /* ========================================================= */
+        .dark-mode .tabel-saldo tbody tr.active-row td { background-color: #1a2634 !important; border-color: #38b6ff !important; }
+        .dark-mode .input-ml-edit { background: #2d2d2d; color: #fff; }
     </style>
 </head>
 <body>
@@ -457,8 +445,8 @@
                 </div>
                 
                 <div class="res-storan">
-                    <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
                     <div class="bg-2" id="hasil9persen">9% Drop<br>0</div>
+                    <div class="bg-3" id="hasilSelisih">Tunai<br>0</div>
                     <div class="bg-1" id="hasilStoran">Storan<br>0</div>
                 </div>
 
@@ -625,9 +613,9 @@
 
         <div class="card" style="padding: 6px;">
             <h3 style="margin: 4px;"><span id="judul-tabel-target">📋 Tabel Target</span></h3>
-            <div class="table-wrapper">
+            <div class="table-wrapper" style="overflow-x: auto;">
                 <table class="ledger-table tabel-target-ui">
-                    <thead><tr><th class="hari-col">Hari</th><th>Kekuatan</th><th>Cari Drop</th><th>Stort / Hari</th></tr></thead>
+                    <thead><tr><th class="hari-col">Hari</th><th>Kekuatan</th><th>Cari Drop</th><th>Stort / Hari</th><th>Pengajuan</th><th>Gagalkan</th></tr></thead>
                     <tbody id="body-tabel-target"></tbody>
                 </table>
             </div>
@@ -639,7 +627,7 @@
     </div>
     
     <!-- ================= TABS NASABAH ================= -->
-    <div id="menu-nasabah" class="tab-content">
+    <div id="menu-nasabah" class="tab-content" style="position: relative;">
         <div class="card" style="margin-bottom: 8px; display: flex; gap: 6px; align-items:center;">
             <input type="text" id="cari-nasabah" placeholder="🔍 Cari Nama / NIK..." onkeyup="renderNasabah()" style="flex: 1; padding:8px; border-radius:6px; font-size:13px;">
             <button class="btn-salin" onclick="bukaFormNasabah()" style="width: auto; background: #007bff; padding:8px 12px; font-size:13px;">➕ Tambah</button>
@@ -679,7 +667,17 @@
             </div>
         </div>
 
-        <div id="list-nasabah" style="background: white; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; margin-top:5px;">
+        <div id="list-nasabah" style="background: white; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; margin-top:5px; margin-bottom: 20px;">
+        </div>
+        
+        <!-- BLOK TOTAL NASABAH STICKY -->
+        <div style="position: sticky; bottom: 10px; background: #1a2238; color: white; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; margin-top: 15px;">
+            <div>TOTAL</div>
+            <div style="display: flex; gap: 15px;">
+                <div>P: <span id="tot_ns_p">0</span></div>
+                <div style="color: #2ecc71;">A: <span id="tot_ns_a">0</span></div>
+                <div style="color: #38b6ff;">S: <span id="tot_ns_s">0</span></div>
+            </div>
         </div>
         
         <div id="modal-riwayat" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
@@ -703,7 +701,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- ================= TABS TF KELOMPOK BARU ================= -->
     <div id="menu-tf" class="tab-content">
         <div class="card">
@@ -1150,7 +1148,7 @@
         }
 
         // -----------------------------------------------------
-        // BLOK NASABAH & RIWAYAT
+        // BLOK NASABAH & RIWAYAT (Beserta Kalkulasi Total)
         // -----------------------------------------------------
         let dataNasabah = [];
         let idNasabahTerpilih = null; 
@@ -1213,6 +1211,10 @@
             
             let filtered = dataNasabah.filter(n => n.nama.toLowerCase().includes(filter) || n.nik.includes(filter));
             
+            let akumulasiP = 0;
+            let akumulasiA = 0;
+            let akumulasiS = 0;
+
             filtered.forEach((n, idx) => {
                 let badge_a = formatAngka(n.a / 1000); 
                 let lastPayDate = "-";
@@ -1220,6 +1222,11 @@
                 
                 let totalDibayar = n.p - n.s;
                 let txtA = formatAngka(totalDibayar);
+
+                // Tambahkan ke akumulasi total
+                akumulasiP += n.p;
+                akumulasiS += n.s;
+                akumulasiA += totalDibayar;
 
                 let html = `
                 <div class="nasabah-item">
@@ -1245,6 +1252,14 @@
                 container.innerHTML += html;
             });
             
+            // Update panel sticky Total
+            let spanP = document.getElementById('tot_ns_p');
+            let spanA = document.getElementById('tot_ns_a');
+            let spanS = document.getElementById('tot_ns_s');
+            if(spanP) spanP.innerText = formatAngka(akumulasiP);
+            if(spanA) spanA.innerText = formatAngka(akumulasiA);
+            if(spanS) spanS.innerText = formatAngka(akumulasiS);
+
             if(filtered.length === 0) {
                 container.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-style:italic;">Belum ada data nasabah atau pencarian tidak ditemukan.</div>';
             }
@@ -1477,7 +1492,6 @@
             showToast(`Target ${namaHari} ${aksi === 'min' ? 'Dikurangi' : 'Ditambah'} ${adjustVal}`);
         }
 
-        // FUNGSI RESET TARGET
         function resetTarget() {
             if(confirm("⚠️ Yakin ingin mengosongkan form Target (Program & Index)?")) {
                 document.getElementById('tg_program').value = '';
@@ -1572,10 +1586,13 @@
                     <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this); hitungSemua();" ${m}></td>
                 </tr>`;
 
+                // Penambahan Kolom Pengajuan & Gagalkan
                 htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
                     <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;"></td>
                     <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;"></td>
                     <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;"></td>
+                    <td><input type="text" inputmode="numeric" id="tt_pengajuan_${i}" oninput="formatRibuan(this); simpanTabel();" placeholder="-" ${m}></td>
+                    <td><input type="text" inputmode="numeric" id="tt_gagalkan_${i}" oninput="formatRibuan(this); simpanTabel();" placeholder="-" ${m}></td>
                 </tr>`;
             }
             tbody.innerHTML = htmlStoran; tbodyTarget.innerHTML = htmlTarget;
@@ -1611,9 +1628,6 @@
             if (trEl && (!trEl.value || trEl.value === "")) { trEl.value = defTransport; changed = true; }
             if (kbEl && (!kbEl.value || kbEl.value === "")) { kbEl.value = defKasbon; changed = true; }
             if (changed) { hitungSemua(); }
-        }
-
-        function cekVisibilitasDropBaru() {
         }
 
         function syncDariStoran() {
@@ -1655,7 +1669,8 @@
                     let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1; 
                     let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
                     
-                    let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
+                    // Menambahkan tt_pengajuan_ dan tt_gagalkan_ ke daftar penyimpanan
+                    let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_', 'tt_pengajuan_', 'tt_gagalkan_'];
                     for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
                     simpanKeCloud('Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel));
 
@@ -1671,7 +1686,7 @@
             let dataTabel = {}; 
             let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1; 
             let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
-            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_'];
+            let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_', 'tt_pengajuan_', 'tt_gagalkan_'];
             for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
             localStorage.setItem(USER_ID + '_Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel)); 
             triggerSimpanCloud(); 
@@ -1842,6 +1857,7 @@
                 let st_storan_auto = document.getElementById('st_storan_auto'); if(st_storan_auto) st_storan_auto.value = formatAngka(storan);
                 hitungSisaTransfer();
 
+                // Memastikan hasil di HTML sesuai dengan posisi CSS yang ditukar (9% Drop di kiri, Tunai di tengah)
                 let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = `${(cfgDropBonus*100)}% Drop<br>` + formatAngka(persenBonus);
                 let hSel = document.getElementById('hasilSelisih');
                 if(hSel) {
@@ -2451,6 +2467,10 @@
                     document.getElementById('cfg_tr_6').value = localStorage.getItem(USER_ID + '_Cfg_Tr6') || '25';
                 }
             }
+        }
+
+        function cekVisibilitasDropBaru() {
+            // Placeholder (logic ada di toggle HTML)
         }
 
         async function kirimKeWA() {
