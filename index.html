@@ -119,41 +119,36 @@
         .tabel-target-ui th:nth-child(6) { background: #dc3545 !important; }
         .tabel-target-ui input { width: 100%; box-sizing: border-box; }
         
-        /* EFEK ZOOM TABEL TARGET (Sentuh/Hover) */
-        .tabel-target-ui tbody { position: relative; }
-        .tabel-target-ui tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; transform-origin: left center; }
+        /* EFEK ZOOM KLIK TABEL TARGET (Tanpa melebar ke samping) */
+        .tabel-target-ui tbody tr { 
+            transition: background-color 0.2s, font-size 0.2s, padding 0.2s; 
+            cursor: pointer; 
+        }
         
-        /* Default: Baris hari ini membesar */
-        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            z-index: 2;
-            position: relative;
+        /* Class khusus untuk baris yang sedang disentuh/aktif */
+        .tabel-target-ui tbody tr.baris-aktif td {
             background-color: #eaf4ff !important;
+            border-top: 2px solid #007bff !important;
+            border-bottom: 2px solid #007bff !important;
+            font-size: 14px !important;
+            font-weight: bold;
+            padding: 10px 4px; /* Memperbesar baris ke atas dan bawah */
         }
-        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini td { font-size: 13px; font-weight: bold; }
-        .tabel-target-ui tbody:not(:hover) tr.baris-hari-ini input { font-size: 13px; font-weight: bold; }
-        
-        /* Saat area tabel disentuh/dihover: baris yang disentuh membesar */
-        .tabel-target-ui tbody tr:hover {
-            transform: scale(1.08);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 5;
-            position: relative;
-            background-color: #d4edda !important;
+        .tabel-target-ui tbody tr.baris-aktif input {
+            font-size: 14px !important;
+            font-weight: bold;
+            background-color: #ffffff;
+            border-color: #007bff;
+            padding: 6px 2px;
+            color: #004085;
+            box-shadow: 0 0 4px rgba(0,123,255,0.4);
         }
-        .tabel-target-ui tbody tr:hover td { font-size: 14px !important; font-weight: bold; }
-        .tabel-target-ui tbody tr:hover input { font-size: 14px !important; font-weight: bold; }
-        
-        /* Baris hari ini kembali normal jika baris lain disentuh */
-        .tabel-target-ui tbody:hover tr.baris-hari-ini:not(:hover) {
-            transform: scale(1);
-            box-shadow: none;
-            z-index: 1;
-            font-size: 10px;
-            font-weight: normal;
+        .tabel-target-ui tbody tr.baris-aktif .hari-col {
+            background: #007bff !important;
+            color: white !important;
+            border-right: 2px solid #004085;
+            font-size: 12px !important;
         }
-        .tabel-target-ui tbody:hover tr.baris-hari-ini:not(:hover) input { font-size: 10px; font-weight: normal; }
 
         .btn-backup { background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
         .btn-restore { background: #6c757d; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; text-align: center;}
@@ -288,7 +283,8 @@
         .dark-mode .ledger-table .baris-hari-ini td { background-color: #1a2634 !important; border-color: #0056b3; }
         .dark-mode .ledger-table .baris-hari-ini input { background-color: #1e1e1e; color: #66b2ff; }
         
-        .dark-mode .tabel-target-ui tbody tr:hover { background-color: #1c3d26 !important; }
+        .dark-mode .tabel-target-ui tbody tr.baris-aktif td { background-color: #1a2634 !important; border-color: #66b2ff !important; }
+        .dark-mode .tabel-target-ui tbody tr.baris-aktif input { background-color: #1e1e1e; color: #66b2ff; border-color: #66b2ff; }
         
         .dark-mode .tabel-storan-ui th:nth-child(7), .dark-mode .tabel-storan-ui th:nth-child(8), .dark-mode .tabel-storan-ui th:nth-child(9), .dark-mode .tabel-storan-ui th:nth-child(10) { background: #856404 !important; border-bottom-color: #664d03; color: white;} 
         .dark-mode .tabel-storan-ui td:nth-child(7), .dark-mode .tabel-storan-ui td:nth-child(8), .dark-mode .tabel-storan-ui td:nth-child(9), .dark-mode .tabel-storan-ui td:nth-child(10) { background-color: #383424; } 
@@ -1586,8 +1582,13 @@
                     <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this); hitungSemua();" ${m}></td>
                 </tr>`;
 
-                // Penambahan Kolom Pengajuan & Gagalkan
-                htmlTarget += `<tr class="${trClass.trim()}"><td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
+               // Penentuan class aktif khusus untuk target (Garis biru pindah-pindah)
+                let trClassTarget = ''; 
+                if(isLibur) trClassTarget += 'baris-libur '; 
+                if(isHariIni) trClassTarget += 'baris-aktif '; // Default otomatis aktif di hari ini
+
+                htmlTarget += `<tr class="${trClassTarget.trim()}" onclick="sorotBarisTarget(this)">
+                    <td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
                     <td id="tt_kekuatan_${i}" style="font-weight:bold; color:#0056b3;"></td>
                     <td id="tt_caridrop_${i}" style="font-weight:bold; color:#856404;"></td>
                     <td id="tt_targetstort_${i}" style="font-weight:bold; color:#155724;"></td>
@@ -1782,6 +1783,16 @@
                     let dt = document.getElementById('disp_targetstort'); if(dt) dt.innerText = formatAngka(k_targetstort);
                 }
             }
+        }
+        
+        function sorotBarisTarget(trElemen) {
+            let tbody = trElemen.parentElement;
+            // Cari semua baris
+            let semuaBaris = tbody.querySelectorAll('tr');
+            // Matikan warna biru dan pembesaran dari semua baris
+            semuaBaris.forEach(tr => tr.classList.remove('baris-aktif'));
+            // Nyalakan warna biru dan perbesar khusus di baris yang baru saja disentuh
+            trElemen.classList.add('baris-aktif');
         }
 
         function hitungSemua() {
