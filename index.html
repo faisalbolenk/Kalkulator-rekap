@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Pati 5</title>
+    <title>Kalkulator Pati 5 - Ultra Pro</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,11 +28,16 @@
         .tab-content.active { display: block; animation: fadeIn 0.2s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 6px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between;}
+        .date-badge { background: #17a2b8; color: white; text-align: center; padding: 6px; border-radius: 4px; margin-bottom: 6px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; align-items: center;}
         .card { background: white; padding: 8px; border-radius: 6px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: background 0.3s; }
         h3 { margin: 0 0 8px 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 4px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
         .auto-save { font-size: 10px; color: #28a745; font-weight: normal; }
         
+        /* BAR KOMANDO SINKRONISASI LINTAS WEB */
+        .sync-bridge-bar { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+        .sync-bridge-btn { flex: 1; padding: 7px 6px; border: none; border-radius: 6px; font-weight: bold; font-size: 10.5px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.12); white-space: nowrap; }
+        .sync-bridge-btn:active { transform: scale(0.96); }
+
         /* GAYA INPUT SEJAJAR */
         .flex-row { display: flex; gap: 4px; margin-bottom: 4px; }
         input, select, textarea { flex: 1; width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 12px; transition: 0.3s; }
@@ -65,7 +70,7 @@
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
         .grid-2 label, .grid-3 label { font-size: 10px; font-weight: bold; color: #555; display: block; margin-bottom: 2px; text-align: center; transition: 0.3s;}
         
-        /* GAYA BARU HASIL (MIRIP GAMBAR) */
+        /* GAYA BARU HASIL */
         .res-storan { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
         .res-storan div { flex: 1; padding: 10px 4px; text-align: center; font-weight: bold; color: white; font-size: 12px; border-radius: 4px; transition: 0.3s; line-height: 1.3;}
         .bg-1 { background: #007bff; } .bg-2 { background: #28a745; } .bg-3 { background: #6c757d; }
@@ -119,20 +124,14 @@
         .tabel-target-ui th:nth-child(6) { background: #dc3545 !important; }
         .tabel-target-ui input { width: 100%; box-sizing: border-box; }
         
-        /* EFEK ZOOM KLIK TABEL TARGET (Tanpa melebar ke samping) */
-        .tabel-target-ui tbody tr { 
-            transition: background-color 0.2s, font-size 0.2s, padding 0.2s; 
-            cursor: pointer; 
-        }
-        
-        /* Class khusus untuk baris yang sedang disentuh/aktif */
+        .tabel-target-ui tbody tr { transition: background-color 0.2s, font-size 0.2s, padding 0.2s; cursor: pointer; }
         .tabel-target-ui tbody tr.baris-aktif td {
             background-color: #eaf4ff !important;
             border-top: 2px solid #007bff !important;
             border-bottom: 2px solid #007bff !important;
             font-size: 14px !important;
             font-weight: bold;
-            padding: 10px 4px; /* Memperbesar baris ke atas dan bawah */
+            padding: 10px 4px;
         }
         .tabel-target-ui tbody tr.baris-aktif input {
             font-size: 14px !important;
@@ -223,7 +222,7 @@
 
         /* ================= CSS TAB SALDO BARU ================= */
         .month-block { margin-top: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s;}
-        .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; border-bottom: 2px solid #2c3e50; }
+        .month-title { background-color: #34495e; color: #fff; margin: 0; padding: 10px; font-size: 13px; border-bottom: 2px solid #2c3e50; display:flex; justify-content:space-between; align-items:center; }
         
         .tabel-saldo { width: 100%; border-collapse: collapse; font-size: 12px; background-color: white; }
         .tabel-saldo th, .tabel-saldo td { border: 1px solid #dee2e6; padding: 8px 6px; vertical-align: middle; }
@@ -327,7 +326,7 @@
         .dark-mode .tabel-saldo td:nth-child(1) { color: #aaa; }
         .dark-mode .tabel-saldo td:nth-child(2) { color: #e0e0e0; }
         .dark-mode .tabel-saldo tr:nth-child(even) { background-color: #252525; }
-        .dark-mode .tabel-saldo tr:hover { background-color: #333; }
+        .dark-mode .tabel-saldo tr:hover { background: #333; }
         .dark-mode .btn-tambah-lunas { background: #2d2d2d; color: #ccc; border-top-color: #444; }
         .dark-mode .btn-tambah-lunas:hover { background: #3d3d3d; }
         .dark-mode .manual-input-row { background-color: #2b1f3d !important; }
@@ -344,7 +343,7 @@
     <div id="toast"></div>
 
     <!-- ================= LAYAR KUNCI KEAMANAN ================= -->
-    <div id="layar-kunci" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(23, 162, 184, 0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; backdrop-filter: blur(5px);">
+    <div id="layar-kunci" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(23, 162, 184, 0.95); z-index:9999; display:none; flex-direction:column; justify-content:center; align-items:center; padding:20px; backdrop-filter: blur(5px);">
         <div style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2); text-align:center; width:90%; max-width:320px;">
             <h2 style="color:#004085; margin:0 0 5px 0;">🔒 Akses Terbatas</h2>
             <p style="font-size:12px; color:#6c757d; margin-bottom:20px;">Aplikasi Khusus Unit Pati 5</p>
@@ -376,12 +375,21 @@
     <!-- TABS STORAN -->
     <div id="menu-storan" class="tab-content active">
         <div class="card" style="padding: 0; background: transparent; box-shadow: none;">
+
+            <!-- BAR KOMANDO PINTAR LINTAS WEB (UBMI & ADITYA) -->
+            <div class="sync-bridge-bar">
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#059669,#10b981);" onclick="tarikDataHariIniDariUBMI()">📥 Tarik TF & Drop UBMI</button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);" onclick="tarikTargetRekapDariAditya()">🎯 Tarik Target Aditya</button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);" onclick="bukaTab({currentTarget:document.getElementById('tab-saldo')},'menu-saldo'); tarikSaldoOtomatisDariUBMI(true);">📋 Buka Rekap Saldo</button>
+            </div>
             
             <!-- BLOK SCREENSHOT OTOMATIS -->
             <div id="area-screenshot" class="capture-container">
-                <div style="margin-bottom: 12px;">
-                    <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik</h2>
-                    <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">Dashboard &gt; Data Statistik</div>
+                <div style="margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 15px; color: #343a40;">Data Statistik</h2>
+                        <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">Dashboard &gt; Data Statistik</div>
+                    </div>
                 </div>
 
                 <button onclick="hitungSemua()" style="width: 100%; background: #38b6ff; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-bottom: 15px; cursor: pointer;">
@@ -391,7 +399,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     
                     <div class="ui-input-box" id="box_drop_container" style="position: relative;">
-                        <label class="ui-label" id="label_drop">Drop</label>
+                        <label class="ui-label" id="label_drop">Drop (Ketuk=Baru/Lunas)</label>
                         
                         <div id="view_drop_total" onclick="toggleDropView(true)">
                             <input type="text" class="ui-input" id="st_drop_display" placeholder="0" readonly style="font-weight: bold; text-align: center; color: #007bff; border-color: #007bff; cursor: pointer;">
@@ -765,15 +773,18 @@
         </div>
     </div>
     
-    <!-- ================= TABS SALDO BARU ================= -->
+    <!-- ================= TABS SALDO BARU (ULTRA PRO SUPPORT UBMI BARU) ================= -->
     <div id="menu-saldo" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 2px;">📋 Perapi Data Angsuran</h3>
-            <p style="text-align: left; font-size: 11px; color: #27ae60; font-weight: bold; margin-top:0;" id="judulBulanSaldo">Otomatis Ekstrak Bulan Ini</p>
+            <h3 style="margin-bottom: 2px;">📋 Perapi Data Angsuran & Saldo (UBMI Baru)</h3>
+            <p style="text-align: left; font-size: 11px; color: #27ae60; font-weight: bold; margin-top:0;" id="judulBulanSaldo">Mendukung Otomatis Format UBMI Baru & Jembatan APK</p>
             
-            <textarea id="inputTextSaldo" placeholder="Data dari Usber akan muncul di sini..." style="width: 100%; height: 50px; font-size: 11px; border: 1px dashed #ccc;"></textarea>
+            <textarea id="inputTextSaldo" placeholder="Tempel teks dari UBMI di sini ATAU tekan tombol Tarik Otomatis di bawah..." style="width: 100%; height: 55px; font-size: 11px; border: 1px dashed #ccc;"></textarea>
             
-            <button class="btn-salin" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="ambilDanProses()">📥 1-Klik Ambil Data & Hitung</button>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+                <button class="btn-salin" style="flex:1.2; padding: 12px 8px; font-size: 12.5px; background: #2563eb; box-shadow: 0 3px 6px rgba(0,0,0,0.2);" onclick="tarikSaldoOtomatisDariUBMI(false)">⚡ Tarik dari Memori UBMI</button>
+                <button class="btn-salin" style="flex:1; padding: 12px 8px; font-size: 12.5px; background: #28a745; box-shadow: 0 3px 6px rgba(0,0,0,0.2);" onclick="ambilDanProses(event)">📥 Paste & Hitung</button>
+            </div>
             
             <div id="resultContainerSaldo" style="display: none; margin-top: 15px;"></div>
         </div>
@@ -849,7 +860,7 @@
         </div>
     </div>
 
-    <div style="text-align:center; font-size:10px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b> | Auto Sync Realtime ☁️</div>
+    <div style="text-align:center; font-size:10px; color:#999; margin-top:15px; margin-bottom: 25px;">Dibuat Oleh: <b>Sigit Ari Wibowo (Pati 5)</b> | Ultra Pro Sync ☁️</div>
 
     <script>
         const firebaseConfig = {
@@ -867,10 +878,29 @@
         }
         const database = firebase.database();
 
+        // JEMBATAN MEMORI LINTAS WEBVIEW APK (AndroidTM)
+        function bacaJembatanApk(key, defVal = "") {
+            try {
+                if (window.AndroidTM && typeof window.AndroidTM.getValue === 'function') {
+                    let v = window.AndroidTM.getValue(key, "");
+                    if (v !== null && v !== "") return v;
+                }
+            } catch(e) {}
+            let lv = localStorage.getItem(key);
+            return lv !== null ? lv : defVal;
+        }
+        function simpanJembatanApk(key, val) {
+            try {
+                if (window.AndroidTM && typeof window.AndroidTM.setValue === 'function') {
+                    window.AndroidTM.setValue(key, String(val));
+                }
+            } catch(e) {}
+            localStorage.setItem(key, String(val));
+        }
+
         let isAppReady = false; 
         let USER_ID = null;
         let selectedBulanTahun = getBulanTahunString();
-        
         let dataRiwayatTF = [];
 
         function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
@@ -898,7 +928,7 @@
                     backupObj[key] = localStorage.getItem(key);
                 }
             }
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj));
+            let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj));
             let dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
             dlAnchorElem.setAttribute("download", "Backup_Pati5_" + USER_ID + "_" + getTodayString() + ".json");
@@ -931,7 +961,7 @@
             toast.innerText = msg;
             toast.style.backgroundColor = isError ? "rgba(220, 53, 69, 0.95)" : "rgba(40, 167, 69, 0.95)";
             toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 2000);
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 2200);
         }
 
         function cekKodeAkses() {
@@ -997,6 +1027,107 @@
             if(pwaEl) pwaEl.href = manifestUrl;
         }
 
+        // =====================================================
+        // FITUR SINKRONISASI LINTAS WEB (UBMI & ADITYA -> KALKULATOR)
+        // =====================================================
+        function tarikDataHariIniDariUBMI() {
+            let adaPerubahan = false;
+            try {
+                // 1. Cek TF Hari Ini dari memori UBMI
+                let d = new Date();
+                let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
+                if (rawTf > 0) {
+                    let tfRibuan = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                    let elTF = document.getElementById('st_transfer');
+                    if (elTF) { elTF.value = String(tfRibuan); formatRibuan(elTF); adaPerubahan = true; }
+                }
+
+                // 2. Cek Bank Nasabah / Antrean Drop dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan
+                let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
+                let bankList = JSON.parse(rawBank || '[]');
+                if (Array.isArray(bankList) && bankList.length > 0) {
+                    let sumDB = 0, sumPL = 0;
+                    bankList.forEach(item => {
+                        let nom = parseInt(item.nominal || 0);
+                        if (nom >= 1000) nom = Math.round(nom / 1000);
+                        if (item.status === 'DB') sumDB += nom;
+                        else sumPL += nom;
+                    });
+                    if (sumDB > 0 || sumPL > 0) {
+                        let elDB = document.getElementById('st_drop_baru');
+                        let elPL = document.getElementById('st_drop_pelunasan');
+                        if (elDB && sumDB > 0) { elDB.value = String(sumDB); formatRibuan(elDB); }
+                        if (elPL && sumPL > 0) { elPL.value = String(sumPL); formatRibuan(elPL); }
+                        hitungTotalDrop();
+                        adaPerubahan = true;
+                    }
+                }
+            } catch(e) {}
+
+            if (adaPerubahan) {
+                hitungSemua();
+                showToast("✅ Data TF & Drop berhasil ditarik dari UBMI/Aditya!");
+            } else {
+                showToast("ℹ️ Gunakan tombol 📥 Kalkulator di Buku Storting UBMI untuk menarik Storting.", true);
+            }
+        }
+
+        function tarikTargetRekapDariAditya(silent = false) {
+            let adaSync = false;
+            try {
+                let rawTargets = bacaJembatanApk('tm_sync_targets', '');
+                if (rawTargets) {
+                    let parsed = JSON.parse(rawTargets);
+                    if (parsed && Array.isArray(parsed.targets)) {
+                        const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
+                        tmIds.forEach((id, idx) => {
+                            let el = document.getElementById(id);
+                            if (el && parsed.targets[idx] > 0) {
+                                let val = parseInt(parsed.targets[idx]);
+                                if (val >= 100000) val = Math.round(val / 1000);
+                                el.value = String(val);
+                                formatRibuan(el);
+                                adaSync = true;
+                            }
+                        });
+                        simpanJembatanApk('tm_sync_targets', '');
+                    }
+                }
+
+                let rawRekap = bacaJembatanApk('tm_sync_rekap', '');
+                if (rawRekap) {
+                    let parsedR = JSON.parse(rawRekap);
+                    if (parsedR && (parsedR.pengajuan !== undefined || parsedR.gagalkan !== undefined)) {
+                        let todayDate = new Date().getDate();
+                        let inpP = document.getElementById('tt_pengajuan_' + todayDate);
+                        let inpG = document.getElementById('tt_gagalkan_' + todayDate);
+                        if (inpP && parsedR.pengajuan !== undefined) {
+                            let vP = parseInt(parsedR.pengajuan);
+                            if (vP >= 100000) vP = Math.round(vP / 1000);
+                            inpP.value = String(vP); formatRibuan(inpP);
+                            adaSync = true;
+                        }
+                        if (inpG && parsedR.gagalkan !== undefined) {
+                            let vG = parseInt(parsedR.gagalkan);
+                            if (vG >= 100000) vG = Math.round(vG / 1000);
+                            inpG.value = String(vG); formatRibuan(inpG);
+                            adaSync = true;
+                        }
+                        simpanJembatanApk('tm_sync_rekap', '');
+                    }
+                }
+            } catch(e) {}
+
+            if (adaSync) {
+                hitungSemua();
+                simpanTabel();
+                if (!silent) showToast("🎯 Target & Rekap Aditya berhasil disinkronkan!");
+            } else if (!silent) {
+                showToast("ℹ️ Klik 🎯 TARGET atau 🔄 TOTAL di web Aditya dulu.", true);
+            }
+        }
+
         function bacaParameterURL() {
             try {
                 let params = new URLSearchParams(window.location.search);
@@ -1009,6 +1140,7 @@
                 let valDrop = params.get('drop') || params.get('dropbaru');
                 let valTF = params.get('tf'); 
                 let valTab = params.get('tab');
+                let autoProc = params.get('autoprocess');
 
                 if (valStorting) { document.getElementById('st_storting').value = valStorting; adaDataMasuk = true; }
                 if (valCM) { document.getElementById('a1').value = valCM; adaDataMasuk = true; }
@@ -1033,6 +1165,13 @@
                     let btnSaldo = document.getElementById('tab-saldo');
                     if (btnSaldo) bukaTab({ currentTarget: btnSaldo }, 'menu-saldo');
                     window.history.replaceState({}, document.title, window.location.pathname);
+                    setTimeout(() => {
+                        tarikSaldoOtomatisDariUBMI(true);
+                    }, 250);
+                } else if (autoProc === '1') {
+                    setTimeout(() => {
+                        tarikSaldoOtomatisDariUBMI(true);
+                    }, 250);
                 }
 
             } catch (e) {
@@ -1122,7 +1261,7 @@
             tablinks = document.getElementsByClassName("tab-btn");
             for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
             document.getElementById(namaTab).classList.add("active");
-            evt.currentTarget.classList.add("active");
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add("active");
 
             setTimeout(() => {
                 if (typeof hitungTotalDrop === "function") hitungTotalDrop();
@@ -1140,11 +1279,11 @@
             
             let bulanIniString = String(d.getMonth() + 1).padStart(2, '0'); 
             let lblSaldo = document.getElementById("judulBulanSaldo");
-            if(lblSaldo) lblSaldo.innerText = `Target Sistem: Angsuran Bulan ${bulanIniString}`;
+            if(lblSaldo) lblSaldo.innerText = `Target Sistem: Angsuran Bulan ${bulanIniString} (Support UBMI Baru)`;
         }
 
         // -----------------------------------------------------
-        // BLOK NASABAH & RIWAYAT (Beserta Kalkulasi Total)
+        // BLOK NASABAH & RIWAYAT
         // -----------------------------------------------------
         let dataNasabah = [];
         let idNasabahTerpilih = null; 
@@ -1219,7 +1358,6 @@
                 let totalDibayar = n.p - n.s;
                 let txtA = formatAngka(totalDibayar);
 
-                // Tambahkan ke akumulasi total
                 akumulasiP += n.p;
                 akumulasiS += n.s;
                 akumulasiA += totalDibayar;
@@ -1248,7 +1386,6 @@
                 container.innerHTML += html;
             });
             
-            // Update panel sticky Total
             let spanP = document.getElementById('tot_ns_p');
             let spanA = document.getElementById('tot_ns_a');
             let spanS = document.getElementById('tot_ns_s');
@@ -1582,10 +1719,9 @@
                     <td><input type="text" inputmode="numeric" id="t_sl_${i}" oninput="formatRibuan(this); hitungSemua();" ${m}></td>
                 </tr>`;
 
-               // Penentuan class aktif khusus untuk target (Garis biru pindah-pindah)
                 let trClassTarget = ''; 
                 if(isLibur) trClassTarget += 'baris-libur '; 
-                if(isHariIni) trClassTarget += 'baris-aktif '; // Default otomatis aktif di hari ini
+                if(isHariIni) trClassTarget += 'baris-aktif ';
 
                 htmlTarget += `<tr class="${trClassTarget.trim()}" onclick="sorotBarisTarget(this)">
                     <td class="hari-col">${i} ${hariSingkat[currDate.getDay()]}</td>
@@ -1670,7 +1806,6 @@
                     let parts = selectedBulanTahun.split('-'); let tahun = parseInt(parts[0]); let bulan = parseInt(parts[1]) - 1; 
                     let jmlHari = new Date(tahun, bulan + 1, 0).getDate();
                     
-                    // Menambahkan tt_pengajuan_ dan tt_gagalkan_ ke daftar penyimpanan
                     let prefiks = ['t_d_', 't_jd_', 't_s_', 't_js_', 't_si_', 't_ac_', 't_jc_', 't_sc_', 't_pc_', 't_am_', 't_jm_', 't_sm_', 't_pm_', 't_al_', 't_jl_', 't_sl_', 'tt_pengajuan_', 'tt_gagalkan_'];
                     for(let i=1; i<=jmlHari; i++) { for(let p of prefiks) { let id = p + i; let el = document.getElementById(id); if(el && el.value) dataTabel[id] = el.value; } }
                     simpanKeCloud('Tabel_' + selectedBulanTahun, JSON.stringify(dataTabel));
@@ -1787,11 +1922,8 @@
         
         function sorotBarisTarget(trElemen) {
             let tbody = trElemen.parentElement;
-            // Cari semua baris
             let semuaBaris = tbody.querySelectorAll('tr');
-            // Matikan warna biru dan pembesaran dari semua baris
             semuaBaris.forEach(tr => tr.classList.remove('baris-aktif'));
-            // Nyalakan warna biru dan perbesar khusus di baris yang baru saja disentuh
             trElemen.classList.add('baris-aktif');
         }
 
@@ -1868,7 +2000,6 @@
                 let st_storan_auto = document.getElementById('st_storan_auto'); if(st_storan_auto) st_storan_auto.value = formatAngka(storan);
                 hitungSisaTransfer();
 
-                // Memastikan hasil di HTML sesuai dengan posisi CSS yang ditukar (9% Drop di kiri, Tunai di tengah)
                 let h9 = document.getElementById('hasil9persen'); if(h9) h9.innerHTML = `${(cfgDropBonus*100)}% Drop<br>` + formatAngka(persenBonus);
                 let hSel = document.getElementById('hasilSelisih');
                 if(hSel) {
@@ -2101,9 +2232,12 @@
             }
         }
 
-        // ================= LOGIKA KHUSUS TAB SALDO =================
+        // =========================================================================
+        // LOGIKA KHUSUS TAB SALDO ULTRA PRO (SUPPORT UBMI BARU, JEMBATAN APK, & LAMA)
+        // =========================================================================
         window.saldoBaseTotalA = {};
         window.saldoBaseTotalS = {};
+        window.saldoGroupMeta = [];
         window.saldoTotalGroups = 0;
 
         function sorotBarisSaldo(trElemen) {
@@ -2113,90 +2247,121 @@
             trElemen.classList.add('active-row');
         }
 
-        function prosesDataSaldo() {
-            const inputText = document.getElementById("inputTextSaldo").value;
+        // Tarik langsung dari Jembatan Memori UBMI (tm_jembatan_saldo_usber atau BackupAplikasi) tanpa perlu Copy-Paste
+        function tarikSaldoOtomatisDariUBMI(silentIfEmpty = false) {
+            try {
+                let rawBridge = bacaJembatanApk('tm_jembatan_saldo_usber', '');
+                if (rawBridge && rawBridge.length > 10) {
+                    let parsed = JSON.parse(rawBridge);
+                    if (parsed && Array.isArray(parsed.groups) && parsed.groups.length > 0) {
+                        renderTabelSaldoDariGrupTerstruktur(parsed.groups);
+                        showToast(`✅ Data Saldo & Angsuran Bln ${parsed.bulan || ''} otomatis dimuat dari UBMI!`);
+                        return true;
+                    }
+                }
+
+                // Cadangan: Cek apakah ada snapshot nasabah aktif hari ini dari UBMI (tm_active_loans_snapshot_v1)
+                let rawSnap = bacaJembatanApk('tm_active_loans_snapshot_v1', '');
+                if (rawSnap && rawSnap.length > 10) {
+                    let listLoans = JSON.parse(rawSnap);
+                    if (Array.isArray(listLoans) && listLoans.length > 0) {
+                        let mapG = {};
+                        listLoans.forEach(it => {
+                            let mName = String(it.month || 'GRUP').toUpperCase();
+                            if (!mapG[mName]) mapG[mName] = { month: mName, type: String(it.type || '').toLowerCase(), items: [] };
+                            mapG[mName].items.push({
+                                nama: it.nama || 'Nasabah',
+                                nik: it.nik || '',
+                                a: parseInt(it.angs_today || 0),
+                                s: parseInt(it.saldo || 0)
+                            });
+                        });
+                        renderTabelSaldoDariGrupTerstruktur(Object.values(mapG));
+                        showToast("✅ Data Saldo dimuat langsung dari memori UBMI!");
+                        return true;
+                    }
+                }
+            } catch(e) {
+                console.error("Error baca jembatan saldo:", e);
+            }
+
+            if (!silentIfEmpty) {
+                showToast("⚠️ Klik '🧮 Hitung A Bln' di UBMI dulu, atau gunakan tombol Paste & Hitung!", true);
+            }
+            return false;
+        }
+
+        // Render Tabel Saldo dari Array Grup Terstruktur
+        function renderTabelSaldoDariGrupTerstruktur(groupsArray) {
             const resultContainer = document.getElementById("resultContainerSaldo");
             resultContainer.innerHTML = "";
-            
             window.saldoBaseTotalA = {};
             window.saldoBaseTotalS = {};
+            window.saldoGroupMeta = [];
             window.saldoTotalGroups = 0;
 
-            const blocks = inputText.split(/(?=(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})/i);
-            
-            let adaData = false;
             let htmlOutput = "";
-            let monthIndex = 0; 
             let rowsRekapTotal = "";
+            let monthIndex = 0;
 
-            const d = new Date();
-            const currBulanStr = String(d.getMonth() + 1).padStart(2, '0');
-            const regexNasabah = new RegExp(`([A-Za-z\\s.\\-]+?)\\s+(\\d{16})[\\s\\S]*?S\\s*([\\d,]+)[\\s\\S]*?Asli Bln ${currBulanStr}:\\s*([\\d,]+)`, 'gi');
+            groupsArray.forEach((grp) => {
+                if (!grp || !Array.isArray(grp.items)) return;
+                let monthName = String(grp.month || 'GRUP').replace(/(\D+)(\d+)/, "$1 $2").toUpperCase();
+                let groupType = String(grp.type || '').toUpperCase();
+                if (monthName === 'ML') groupType = 'ML';
 
-            blocks.forEach(block => {
-                const monthMatch = block.match(/^(January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4}/i);
-                if (!monthMatch) return; 
-
-                adaData = true; 
-                
-                let monthName = monthMatch[0].replace(/(\D+)(\d+)/, "$1 $2").toUpperCase();
-                let match;
                 let counter = 1;
                 let totalA = 0;
                 let totalS = 0;
                 let rows = "";
 
-                while ((match = regexNasabah.exec(block)) !== null) {
-                    let namaKotor = match[1].trim();
-                    let namaArray = namaKotor.split('\n');
-                    let namaBersih = namaArray[namaArray.length - 1].trim(); 
-
-                    const strS = match[3].trim();
-                    const strA = match[4].trim(); 
-
-                    const valS = parseInt(strS.replace(/,/g, '')) || 0;
-                    const valA = parseInt(strA.replace(/,/g, '')) || 0;
-
+                grp.items.forEach(item => {
+                    let valA = parseInt(item.a || 0);
+                    let valS = parseInt(item.s || 0);
                     totalA += valA;
                     totalS += valS;
 
+                    let sColor = valS <= 0 ? 'color:#16a34a; font-weight:bold;' : '';
+                    let sText = valS <= 0 ? 'LUNAS (0)' : formatAngka(valS);
+
                     rows += `<tr onclick="sorotBarisSaldo(this)">
                         <td>${counter}</td>
-                        <td>${namaBersih}</td>
-                        <td style="color: #28a745; font-weight: bold;">${valA.toLocaleString('en-US')}</td>
-                        <td>${valS.toLocaleString('en-US')}</td>
+                        <td>${item.nama}</td>
+                        <td style="color: #28a745; font-weight: bold;">${formatAngka(valA)}</td>
+                        <td style="${sColor}">${sText}</td>
                     </tr>`;
                     counter++;
-                }
+                });
 
                 if (rows === "") {
-                    rows = `<tr>
-                        <td colspan="4" style="text-align:center; color:#999; font-style:italic;">Tidak ada data angsuran di bulan ini.</td>
-                    </tr>`;
+                    rows = `<tr><td colspan="4" style="text-align:center; color:#999; font-style:italic;">Tidak ada data nasabah di grup ini.</td></tr>`;
                 }
 
                 window.saldoBaseTotalA[monthIndex] = totalA;
                 window.saldoBaseTotalS[monthIndex] = totalS;
+                window.saldoGroupMeta[monthIndex] = { month: monthName, type: groupType };
 
-                if (monthIndex === 0) {
+                let badgeTypeHtml = groupType ? `<span style="font-size:9.5px; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; margin-left:4px;">${groupType}</span>` : '';
+
+                if (monthIndex === 0 || groupType === 'ML') {
                     rowsRekapTotal += `
                     <tr style="background: rgba(40, 167, 69, 0.15);">
-                        <td>📅 ${monthName} <span style="font-size:9px; color:#2ecc71; font-weight:bold;">(ML)</span></td>
+                        <td>📅 ${monthName} ${badgeTypeHtml}</td>
                         <td><input type="text" id="rekap_ml_a" class="input-ml-edit" inputmode="numeric" value="${formatAngka(totalA)}" oninput="formatRibuan(this); recalculateAllSaldo('ml_input')"></td>
                         <td><input type="text" id="rekap_ml_s" class="input-ml-edit" inputmode="numeric" value="${formatAngka(totalS)}" oninput="formatRibuan(this); recalculateAllSaldo('ml_input')"></td>
                     </tr>`;
                 } else {
                     rowsRekapTotal += `
                     <tr>
-                        <td>📅 ${monthName}</td>
-                        <td id="sum_rekap_a_${monthIndex}">${totalA.toLocaleString('en-US')}</td>
-                        <td id="sum_rekap_s_${monthIndex}">${totalS.toLocaleString('en-US')}</td>
+                        <td>📅 ${monthName} ${badgeTypeHtml}</td>
+                        <td id="sum_rekap_a_${monthIndex}">${formatAngka(totalA)}</td>
+                        <td id="sum_rekap_s_${monthIndex}">${formatAngka(totalS)}</td>
                     </tr>`;
                 }
 
                 htmlOutput += `
                 <div class="month-block">
-                    <h3 class="month-title">📅 Grup: ${monthName}</h3>
+                    <h3 class="month-title"><span>📅 Grup: ${monthName}</span>${badgeTypeHtml}</h3>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="tabel-saldo">
                             <thead>
@@ -2211,8 +2376,8 @@
                                 ${rows}
                                 <tr class="total-row" id="total_row_saldo_${monthIndex}">
                                     <td colspan="2" style="text-align: right; font-weight: bold; color: #333;">TOTAL KELOMPOK :</td>
-                                    <td id="finalSaldoA_${monthIndex}" style="font-weight: bold; color: #28a745;">${totalA.toLocaleString('en-US')}</td>
-                                    <td id="finalSaldoS_${monthIndex}" style="font-weight: bold; color: #333;">${totalS.toLocaleString('en-US')}</td>
+                                    <td id="finalSaldoA_${monthIndex}" style="font-weight: bold; color: #28a745;">${formatAngka(totalA)}</td>
+                                    <td id="finalSaldoS_${monthIndex}" style="font-weight: bold; color: #333;">${formatAngka(totalS)}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2224,7 +2389,7 @@
 
             window.saldoTotalGroups = monthIndex;
 
-            if (adaData) {
+            if (monthIndex > 0) {
                 htmlOutput += `
                 <div id="masterTotalBlock">
                     <h3 style="margin: 0 0 10px 0; color: #ecf0f1; border-bottom: 1px solid #7f8c8d; padding-bottom: 8px; font-size: 14px;">📊 RINCIAN & TOTAL KESELURUHAN</h3>
@@ -2242,16 +2407,136 @@
                         </tbody>
                     </table>
 
-                    <div style="font-size: 20px; color: #2ecc71; margin-bottom: 6px;">BULAN INI (A) : <b id="masterSaldoA">0</b></div>
-                    <div style="font-size: 20px; color: #f1c40f;">SALDO (S) : <b id="masterSaldoS">0</b></div>
+                    <div style="font-size: 19px; color: #2ecc71; margin-bottom: 6px;">BULAN INI (A) : <b id="masterSaldoA">0</b></div>
+                    <div style="font-size: 19px; color: #f1c40f; margin-bottom: 12px;">SALDO (S) : <b id="masterSaldoS">0</b></div>
+
+                    <button type="button" onclick="kirimHasilSaldoKeTabRekap()" style="width:100%; padding:11px; background:#007bff; color:#fff; border:none; border-radius:6px; font-weight:bold; font-size:12.5px; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.25);">
+                        📲 Masukkan Saldo CM, MB, ML ke Tab Rekap
+                    </button>
                 </div>`;
 
                 resultContainer.innerHTML = htmlOutput;
                 resultContainer.style.display = "block";
-                recalculateAllSaldo(); 
+                recalculateAllSaldo();
+            }
+        }
+
+        // Kirim Otomatis Saldo & Angsuran CM, MB, ML ke Tab Rekap (Tabel 2. Hitung CM, MB, ML)
+        function kirimHasilSaldoKeTabRekap() {
+            if (!window.saldoTotalGroups || window.saldoTotalGroups === 0) return;
+
+            let sML = 0, sMB = 0, sCM = 0;
+            for (let i = 0; i < window.saldoTotalGroups; i++) {
+                let meta = window.saldoGroupMeta[i] || {};
+                let elS = document.getElementById(`finalSaldoS_${i}`);
+                let valS = elS ? parseFloat(elS.innerText.replace(/\./g, '').replace(/,/g, '') || '0') : 0;
+                // Jika dalam juta/ratusan ribu, ubah ke satuan ribuan kalkulator (misal 4.500.000 -> 4.500)
+                if (valS >= 10000) valS = Math.round(valS / 1000);
+
+                let gType = (meta.type || '').toUpperCase();
+                if (gType === 'ML' || i === 0) sML += valS;
+                else if (gType === 'MB' || i === 1) sMB += valS;
+                else if (gType === 'CM' || i === 2) sCM += valS;
+            }
+
+            if (sCM > 0) { let el = document.getElementById('sa1'); if (el) { el.value = String(sCM); formatRibuan(el); } }
+            if (sMB > 0) { let el = document.getElementById('sa2'); if (el) { el.value = String(sMB); formatRibuan(el); } }
+            if (sML > 0) { let el = document.getElementById('sa3'); if (el) { el.value = String(sML); formatRibuan(el); } }
+
+            hitungSemua();
+            bukaTab({ currentTarget: document.getElementById('tab-rekap') }, 'menu-rekap');
+            showToast("✅ Saldo CM, MB, & ML berhasil dimasukkan ke Tab Rekap!");
+        }
+
+        // Parser Pintar untuk Teks Copy-Paste (Mendukung UBMI Versi Baru Tanpa NIK & UBMI Versi Lama)
+        function prosesDataSaldo() {
+            const inputText = (document.getElementById("inputTextSaldo").value || "").trim();
+            if (!inputText) {
+                tarikSaldoOtomatisDariUBMI(false);
+                return;
+            }
+
+            // Bersihkan baris "Jumlah June2026" agar tidak dianggap sebagai header grup bulan baru
+            let cleanedText = inputText.replace(/Jumlah\s+(ML|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})[^\n]*/gi, '');
+
+            // Potong berdasarkan header grup bulan (termasuk grup ML atau BulanTahun)
+            const blocks = cleanedText.split(/(?=(?:^|\n)\s*(?:(?:mb|cm|ml|normal)\s+)?(?:ML|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})\b)/i);
+
+            const d = new Date();
+            const currBulanStr = String(d.getMonth() + 1).padStart(2, '0');
+            let parsedGroups = [];
+
+            blocks.forEach(block => {
+                let headerMatch = block.match(/(?:^|\n)\s*(?:(mb|cm|ml|normal)\s+)?(ML|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})\b/i);
+                if (!headerMatch) return;
+
+                let detectedType = (headerMatch[1] || '').toUpperCase();
+                let monthName = headerMatch[2].trim().toUpperCase();
+                if (monthName === 'ML') detectedType = 'ML';
+
+                let items = [];
+
+                // COBA FORMAT 1: Format UBMI Lama (Ada NIK 16 Digit & S ...)
+                const regexLama = new RegExp(`([A-Za-z\\s.\\-]+?)\\s+(\\d{16})[\\s\\S]*?S\\s*([\\d.,]+)[\\s\\S]*?Asli Bln ${currBulanStr}:\\s*(?:Rp\\s*)?([\\d.,]+)`, 'gi');
+                let mLama;
+                while ((mLama = regexLama.exec(block)) !== null) {
+                    let namaArr = mLama[1].trim().split('\n');
+                    let namaBersih = namaArr[namaArr.length - 1].trim();
+                    let valS = parseInt(mLama[3].replace(/[^\d]/g, '')) || 0;
+                    let valA = parseInt(mLama[4].replace(/[^\d]/g, '')) || 0;
+                    if (valS > 0 && valS < 10000) valS *= 1000;
+                    items.push({ nama: namaBersih, a: valA, s: valS });
+                }
+
+                // COBA FORMAT 2: Format UBMI Baru (Tanpa NIK di layar: Tanggal DD-MM diikuti Nama, Pinj, Sisa/lunas, & Asli Bln XX: Rp ...)
+                if (items.length === 0) {
+                    let cardChunks = block.split(/(?=\b\d{2}-\d{2}\b)/);
+                    cardChunks.forEach(chunk => {
+                        let mDateName = chunk.match(/\b(\d{2}-\d{2})\s+([^\n\r]+)/);
+                        if (!mDateName) return;
+                        let namaNasabah = mDateName[2].replace(/\[TF\]/ig, '').trim();
+                        if (!namaNasabah || namaNasabah.length < 2) return;
+
+                        // Cari nilai Asli Bln XX: Rp ...
+                        let valA = 0;
+                        let mAsli = chunk.match(/Asli\s+Bln\s+\d{2}:\s*(?:Rp\s*)?([\d.,]+)/i);
+                        if (mAsli) {
+                            valA = parseInt(mAsli[1].replace(/[^\d]/g, '') || '0');
+                        }
+
+                        // Cari nilai Sisa Saldo (angka terakhir sebelum Asli Bln atau kata 'lunas')
+                        let beforeAsli = mAsli ? chunk.slice(0, mAsli.index) : chunk;
+                        let valS = 0;
+                        if (/\blunas\b/i.test(beforeAsli)) {
+                            valS = 0;
+                        } else {
+                            let allNums = beforeAsli.match(/\b\d+(?:[.,]\d+)?\b/g);
+                            if (allNums && allNums.length >= 2) {
+                                let lastNumStr = allNums[allNums.length - 1];
+                                let parsedS = parseInt(lastNumStr.replace(/[^\d]/g, '') || '0');
+                                if (parsedS > 0 && parsedS < 50000) parsedS *= 1000;
+                                valS = parsedS;
+                            }
+                        }
+
+                        items.push({ nama: namaNasabah, a: valA, s: valS });
+                    });
+                }
+
+                parsedGroups.push({
+                    month: monthName,
+                    type: detectedType,
+                    items: items
+                });
+            });
+
+            if (parsedGroups.length > 0) {
+                renderTabelSaldoDariGrupTerstruktur(parsedGroups);
+                showToast(`✅ Berhasil memproses ${parsedGroups.length} grup bulan!`);
             } else {
-                alert(`Tidak ada data ditemukan untuk bulan ${currBulanStr}! Pastikan proses Tampermonkey sudah selesai.`);
-                resultContainer.style.display = "none";
+                if (!tarikSaldoOtomatisDariUBMI(true)) {
+                    alert("⚠️ Format teks tidak dikenali. Pastikan Anda sudah menekan '🧮 Hitung A Bln' lalu '📤 Kirim ke Aplikasi' di UBMI!");
+                }
             }
         }
 
@@ -2341,29 +2626,35 @@
             if(mTotalS) mTotalS.innerText = formatAngka(masterS);
         }
 
-        async function ambilDanProses() {
+        async function ambilDanProses(evt) {
             let textarea = document.getElementById("inputTextSaldo");
-            let tombol = event.currentTarget;
-            let teksAsli = tombol.innerHTML;
+            let tombol = evt ? evt.currentTarget : null;
+            let teksAsli = tombol ? tombol.innerHTML : "📥 Paste & Hitung";
+            if (tombol) tombol.innerHTML = "⏳ Memproses...";
             
-            tombol.innerHTML = "⏳ Sedang Memproses...";
-            
+            // 1. Prioritaskan Jembatan APK jika kotak teks masih kosong
+            if (!textarea.value || textarea.value.trim() === "") {
+                if (tarikSaldoOtomatisDariUBMI(true)) {
+                    if (tombol) tombol.innerHTML = teksAsli;
+                    return;
+                }
+            }
+
+            // 2. Baca dari Clipboard
             try {
                 let textFromClipboard = await navigator.clipboard.readText();
                 if (textFromClipboard && textFromClipboard.trim() !== "") {
                     textarea.value = textFromClipboard;
                 }
-            } catch (err) {
-                console.log("Clipboard otomatis diblokir browser:", err);
-            }
+            } catch (err) {}
 
             if (textarea.value && textarea.value.trim() !== "") {
                 prosesDataSaldo();
             } else {
-                alert("⚠️ Browser menolak akses Clipboard. Silakan tekan tahan kotak teks, pilih 'Tempel/Paste' manual, lalu klik tombol ini lagi.");
+                tarikSaldoOtomatisDariUBMI(false);
             }
             
-            tombol.innerHTML = teksAsli;
+            if (tombol) tombol.innerHTML = teksAsli;
         }
 
         function muatKalkulator() {
@@ -2406,7 +2697,7 @@
                             if (a > 0) { dataObj['j'+i] = (a+j).toString().replace('.', ','); dataObj['sa'+i] = (sa-a).toString().replace('.', ','); }
                             dataObj['a'+i] = '';
                         }
-                        alert("🌅 Hari baru! Sisa saldo operasional terakhir dipindahkan otomatis.");
+                        showToast("🌅 Hari baru! Saldo lalu dipindahkan otomatis.");
                         parsed.lastDate = todayStr; 
                         localStorage.setItem(USER_ID + '_Mini', JSON.stringify(parsed));
                         if(isAppReady) simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
@@ -2455,7 +2746,7 @@
             localStorage.setItem(USER_ID + '_Cfg_Tr5', tr5); localStorage.setItem(USER_ID + '_Cfg_Tr6', tr6);
             
             if(isAppReady) simpanKeCloud('Pengaturan', JSON.stringify({tm, pt, pb, ps, fs, np, tdb, wa, tr1, tr2, tr3, tr4, tr5, tr6}));
-            alert("✅ Pengaturan Disimpan!"); muatHK(); buatTabelBulanIni(); muatTabel(); cekVisibilitasDropBaru(); hitungSemua();
+            showToast("✅ Pengaturan Disimpan!"); muatHK(); buatTabelBulanIni(); muatTabel(); hitungSemua();
         }
 
         function muatPengaturan() {
@@ -2480,9 +2771,7 @@
             }
         }
 
-        function cekVisibilitasDropBaru() {
-            // Placeholder (logic ada di toggle HTML)
-        }
+        function cekVisibilitasDropBaru() {}
 
         async function kirimKeWA() {
             let rawDropStr = document.getElementById('st_drop').value || "0";
@@ -2510,14 +2799,12 @@
                 let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: document.body.classList.contains('dark-mode') ? "#1a1a1a" : "#f8f9fa" });
                 canvas.toBlob(async function(blob) {
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
+                    try { await navigator.clipboard.writeText(teksWA); } catch(e) {}
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try { await navigator.share({ files: [file], text: teksWA }); } catch (err) { }
                     } else {
-                        navigator.clipboard.writeText(teksWA).then(() => {
-                            let url = window.URL.createObjectURL(blob); let a = document.createElement('a'); a.style.display = 'none';
-                            a.href = url; a.download = 'Laporan_Pati5.jpg'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
-                            alert("✅ Teks disalin! Gambar diunduh.\nSilakan buka WA.");
-                        });
+                        let url = window.URL.createObjectURL(blob); let a = document.createElement('a'); a.style.display = 'none';
+                        a.href = url; a.download = 'Laporan_Pati5.jpg'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
                     }
                     btn.innerText = originalText; btn.disabled = false;
                 }, "image/jpeg", 0.9);
@@ -2543,18 +2830,11 @@
         let fallbackTimer = null;
 
         function initAppUI() {
-            let namaUser = document.getElementById('nama_pengguna_ui');
-            if(namaUser) namaUser.innerText = USER_ID === 'adminpati5' ? 'Admin' : USER_ID;
-            
             let userRole = localStorage.getItem('KalkulatorPati_Role') || 'aktif';
             if (USER_ID !== 'adminpati5' && userRole !== 'vip') {
-                let tabYangDitutup = ['tab-nasabah', 'tab-tf']; 
-                
-                tabYangDitutup.forEach(idTab => {
+                ['tab-nasabah', 'tab-tf'].forEach(idTab => {
                     let tombol = document.getElementById(idTab);
-                    if (tombol) {
-                        tombol.style.display = 'none'; 
-                    }
+                    if (tombol) tombol.style.display = 'none'; 
                 });
             }
 
@@ -2570,13 +2850,15 @@
             muatTabel(); 
             muatHK(); 
             muatKalkulator(); 
-            cekVisibilitasDropBaru();
             muatNasabah();
-            
             muatInputTF();
             muatRiwayatTF();
-
             bacaParameterURL(); 
+
+            // Pantau terus jembatan Aditya & UBMI setiap 2 detik saat tab Kalkulator terbuka
+            setInterval(() => {
+                tarikTargetRekapDariAditya(true);
+            }, 2000);
             
             setTimeout(() => { isAppReady = true; }, 1000); 
         }
@@ -2650,7 +2932,7 @@
                 hitungTotalDrop(); 
                 viewTotal.style.display = 'block';
                 viewSplit.style.display = 'none';
-                labelDrop.innerHTML = 'Drop';
+                labelDrop.innerHTML = 'Drop (Ketuk=Baru/Lunas)';
             }
         }
 
@@ -2668,6 +2950,21 @@
 
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
+
+            // Auto-Unlock Pintar khusus jika dibuka di dalam APK milik Mas Sigit
+            try {
+                if (window.AndroidTM && typeof window.AndroidTM.getDeviceHWID === 'function') {
+                    let hwid = window.AndroidTM.getDeviceHWID();
+                    if (hwid === "PATI-5B6A6700BF5D0D96" && !localStorage.getItem('KalkulatorPati_KodeAkses')) {
+                        localStorage.setItem('KalkulatorPati_KodeAkses', 'adminpati5');
+                        localStorage.setItem('KalkulatorPati_Role', 'admin');
+                    }
+                    if (localStorage.getItem('KalkulatorPati_KodeAkses')) {
+                        localStorage.setItem('KalkulatorPati_TanggalLogin', getTodayString());
+                    }
+                }
+            } catch(e) {}
+
             USER_ID = localStorage.getItem('KalkulatorPati_KodeAkses');
             let tglLoginTerakhir = localStorage.getItem('KalkulatorPati_TanggalLogin');
 
