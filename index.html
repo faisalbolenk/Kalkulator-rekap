@@ -1081,50 +1081,38 @@
                     let parsed = JSON.parse(rawTargets);
                     if (parsed && Array.isArray(parsed.targets)) {
                         const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
-                        tmIds.forEach((id, idx) => {
-                            let el = document.getElementById(id);
-                            if (el && parsed.targets[idx] > 0) {
-                                let val = parseInt(parsed.targets[idx]);
-                                if (val >= 100000) val = Math.round(val / 1000);
-                                el.value = String(val);
+                        for (let i = 0; i < 6; i++) {
+                            let el = document.getElementById(tmIds[i]);
+                            if (el && parsed.targets[i] > 0) {
+                                el.value = String(parsed.targets[i]);
                                 formatRibuan(el);
                                 adaSync = true;
                             }
-                        });
+                        }
                         simpanJembatanApk('tm_sync_targets', '');
                     }
                 }
 
                 let rawRekap = bacaJembatanApk('tm_sync_rekap', '');
                 if (rawRekap) {
-                    let parsedR = JSON.parse(rawRekap);
-                    if (parsedR && (parsedR.pengajuan !== undefined || parsedR.gagalkan !== undefined)) {
+                    let parsed = JSON.parse(rawRekap);
+                    if (parsed && (parsed.pengajuan !== undefined || parsed.gagalkan !== undefined)) {
                         let todayDate = new Date().getDate();
                         let inpP = document.getElementById('tt_pengajuan_' + todayDate);
                         let inpG = document.getElementById('tt_gagalkan_' + todayDate);
-                        if (inpP && parsedR.pengajuan !== undefined) {
-                            let vP = parseInt(parsedR.pengajuan);
-                            if (vP >= 100000) vP = Math.round(vP / 1000);
-                            inpP.value = String(vP); formatRibuan(inpP);
-                            adaSync = true;
-                        }
-                        if (inpG && parsedR.gagalkan !== undefined) {
-                            let vG = parseInt(parsedR.gagalkan);
-                            if (vG >= 100000) vG = Math.round(vG / 1000);
-                            inpG.value = String(vG); formatRibuan(inpG);
-                            adaSync = true;
-                        }
+                        if (inpP && parsed.pengajuan > 0) { inpP.value = String(parsed.pengajuan); formatRibuan(inpP); adaSync = true; }
+                        if (inpG && parsed.gagalkan > 0) { inpG.value = String(parsed.gagalkan); formatRibuan(inpG); adaSync = true; }
                         simpanJembatanApk('tm_sync_rekap', '');
+                        simpanTabel();
                     }
                 }
             } catch(e) {}
 
             if (adaSync) {
                 hitungSemua();
-                simpanTabel();
-                if (!silent) showToast("🎯 Target & Rekap Aditya berhasil disinkronkan!");
+                if (!silent) showToast("🎯 Data Target & Rekap Aditya berhasil ditarik!");
             } else if (!silent) {
-                showToast("ℹ️ Klik 🎯 TARGET atau 🔄 TOTAL di web Aditya dulu.", true);
+                showToast("ℹ️ Klik '🎯 TARGET (Sync)' di Aditya dulu untuk mengirim target.", true);
             }
         }
 
@@ -1829,9 +1817,15 @@
         }
 
         function simpanKalkulator() {
-            let dataObj = {}; semuaIds.forEach(id => { let el = document.getElementById(id); if(el) dataObj[id] = el.value; });
-            localStorage.setItem(USER_ID + '_Mini', JSON.stringify({ lastDate: APP_LOAD_DATE, values: dataObj })); 
-            triggerSimpanCloud(); 
+            let dataObj = {};
+            semuaIds.forEach(id => {
+                let el = document.getElementById(id);
+                if (el) dataObj[id] = el.value;
+            });
+            let payloadStr = JSON.stringify({ lastDate: APP_LOAD_DATE, values: dataObj });
+            localStorage.setItem(USER_ID + '_Mini', payloadStr);
+            simpanJembatanApk('adminpati5_Mini', payloadStr);
+            triggerSimpanCloud();
         }
 
         function hitungSisaTransfer() {
