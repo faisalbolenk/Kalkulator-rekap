@@ -558,8 +558,8 @@
                     <td><input type="text" inputmode="numeric" id="sa3" oninput="formatRibuan(this); hitungSemua()"></td>
                 </tr>
                 <tr><td class="label-cell">Program</td>
-                    <td><input type="text" inputmode="numeric" id="p1" oninput="formatRibuan(this); hitungSemua()"></td>
-                    <td><input type="text" inputmode="numeric" id="p2" oninput="formatRibuan(this); hitungSemua()"></td>
+                    <td><input type="text" inputmode="decimal" id="p1" placeholder="Mis: 54" oninput="this.value=this.value.replace(/[^0-9.,]/g,'').replace('.',','); hitungSemua()"></td>
+                    <td><input type="text" inputmode="decimal" id="p2" placeholder="Mis: 46,9" oninput="this.value=this.value.replace(/[^0-9.,]/g,'').replace('.',','); hitungSemua()"></td>
                     <td>-</td>
                 </tr>
                 <tr><td class="label-cell">Hasil</td>
@@ -2006,8 +2006,11 @@
                 }
 
                 for(let i=1; i<=3; i++) {
-                    let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i); let p = getNum('p'+(i==3?1:i)) || 1;
-                    let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p); 
+                    let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i);
+                    let pRaw = getNum('p'+(i==3?1:i)) || 1;
+                    // Jika diketik pakai koma / satuan juta (misal 46,9 atau 54), otomatis x10 (jadi 469 atau 540) agar hasil % sama persis!
+                    let p = (pRaw > 0 && pRaw < 200) ? (pRaw * 10) : (pRaw >= 2000 ? (pRaw / 100) : pRaw);
+                    let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
 
                     let persentase = (i == 3) ? "" : ("<br>Persen: " + formatPersen(pctRaw));
                     let saldoStr = sisa < 0 ? `<span class="text-minus">⚠️ ${formatAngka(sisa)}</span>` : formatAngka(sisa);
