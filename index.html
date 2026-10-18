@@ -1030,10 +1030,46 @@
         // =====================================================
         // FITUR SINKRONISASI LINTAS WEB (UBMI & ADITYA -> KALKULATOR)
         // =====================================================
-        function tarikDataHariIniDariUBMI() {
+        function tarikDataHariIniDariUBMI(silent = false) {
             let adaPerubahan = false;
             try {
-                // 1. Cek TF Hari Ini dari memori UBMI
+                // 1. Tarik Storting, TF, Drop Baru & Drop PL dari "Satu Otak 3 Tab" (tm_one_brain_memory & tm_super_sync_usber_to_calc)
+                let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
+                if (rawSuper) {
+                    let sObj = JSON.parse(rawSuper);
+                    if (sObj && (Date.now() - (sObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
+                        if (sObj.storting > 0) {
+                            let elSt = document.getElementById('st_storting');
+                            if (elSt) { elSt.value = String(sObj.storting); formatRibuan(elSt); adaPerubahan = true; }
+                        }
+                        if (sObj.cm > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(sObj.cm); formatRibuan(el); adaPerubahan = true; } }
+                        if (sObj.mb > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(sObj.mb); formatRibuan(el); adaPerubahan = true; } }
+                        if (sObj.ml > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(sObj.ml); formatRibuan(el); adaPerubahan = true; } }
+                        if (sObj.tf > 0) { let el = document.getElementById('st_transfer'); if (el) { el.value = String(sObj.tf); formatRibuan(el); adaPerubahan = true; } }
+                    }
+                }
+
+                let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
+                if (rawBrain) {
+                    let bObj = JSON.parse(rawBrain);
+                    if (bObj && (Date.now() - (bObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
+                        if (bObj.storting > 0) {
+                            let elSt = document.getElementById('st_storting');
+                            if (elSt) { elSt.value = String(bObj.storting); formatRibuan(elSt); adaPerubahan = true; }
+                        }
+                        if (bObj.drop_baru > 0) {
+                            let elDB = document.getElementById('st_drop_baru');
+                            if (elDB) { elDB.value = String(bObj.drop_baru); formatRibuan(elDB); adaPerubahan = true; }
+                        }
+                        if (bObj.drop_pl > 0) {
+                            let elPL = document.getElementById('st_drop_pelunasan');
+                            if (elPL) { elPL.value = String(bObj.drop_pl); formatRibuan(elPL); adaPerubahan = true; }
+                        }
+                        hitungTotalDrop();
+                    }
+                }
+
+                // 2. Cek TF Hari Ini dari memori UBMI
                 let d = new Date();
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
@@ -1043,7 +1079,7 @@
                     if (elTF) { elTF.value = String(tfRibuan); formatRibuan(elTF); adaPerubahan = true; }
                 }
 
-                // 2. Cek Bank Nasabah / Antrean Drop dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan
+                // 3. Cek Bank Nasabah dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan
                 let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
                 let bankList = JSON.parse(rawBank || '[]');
                 if (Array.isArray(bankList) && bankList.length > 0) {
@@ -1066,10 +1102,11 @@
             } catch(e) {}
 
             if (adaPerubahan) {
+                syncDariStoran();
                 hitungSemua();
-                showToast("✅ Data TF & Drop berhasil ditarik dari UBMI/Aditya!");
-            } else {
-                showToast("ℹ️ Gunakan tombol 📥 Kalkulator di Buku Storting UBMI untuk menarik Storting.", true);
+                if (!silent) showToast("✅ Storting, TF & Drop berhasil ditarik dari UBMI/Aditya!");
+            } else if (!silent) {
+                showToast("ℹ️ Belum ada perubahan baru dari UBMI.", true);
             }
         }
 
@@ -1252,6 +1289,8 @@
             if (evt && evt.currentTarget) evt.currentTarget.classList.add("active");
 
             setTimeout(() => {
+                if (typeof tarikDataHariIniDariUBMI === "function") tarikDataHariIniDariUBMI(true);
+                if (typeof tarikTargetRekapDariAditya === "function") tarikTargetRekapDariAditya(true);
                 if (typeof hitungTotalDrop === "function") hitungTotalDrop();
                 if (typeof syncDariStoran === "function") syncDariStoran();
                 if (typeof hitungSemua === "function") hitungSemua();
