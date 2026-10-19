@@ -1079,7 +1079,7 @@
                     if (elTF) { elTF.value = String(tfRibuan); formatRibuan(elTF); adaPerubahan = true; }
                 }
 
-                // 3. Cek Bank Nasabah dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan
+                // 3. Cek Bank Nasabah dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan secara akurat
                 let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
                 let bankList = JSON.parse(rawBank || '[]');
                 if (Array.isArray(bankList) && bankList.length > 0) {
@@ -1090,13 +1090,19 @@
                         if (item.status === 'DB') sumDB += nom;
                         else sumPL += nom;
                     });
-                    if (sumDB > 0 || sumPL > 0) {
-                        let elDB = document.getElementById('st_drop_baru');
-                        let elPL = document.getElementById('st_drop_pelunasan');
-                        if (elDB && sumDB > 0) { elDB.value = String(sumDB); formatRibuan(elDB); }
-                        if (elPL && sumPL > 0) { elPL.value = String(sumPL); formatRibuan(elPL); }
-                        hitungTotalDrop();
-                        adaPerubahan = true;
+                    let elDB = document.getElementById('st_drop_baru');
+                    let elPL = document.getElementById('st_drop_pelunasan');
+                    // Jika tidak ada Drop Baru di Bank Nasabah (sumDB === 0), kosongkan kotak Baru agar tidak tersisa angka 500 palsu!
+                    if (elDB) {
+                        elDB.value = sumDB > 0 ? String(sumDB) : '';
+                        if (sumDB > 0) formatRibuan(elDB);
+                    }
+                    if (elPL) {
+                        elPL.value = sumPL > 0 ? String(sumPL) : '';
+                        if (sumPL > 0) formatRibuan(elPL);
+                    }
+                    hitungTotalDrop();
+                    adaPerubahan = true;
                     }
                 }
             } catch(e) {}
