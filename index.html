@@ -847,11 +847,8 @@
                     
 
                     <div class="ui-input-box">
-
-                        <label class="ui-label">SU</label>
-
-                        <input type="text" class="ui-input" id="st_su" readonly style="background-color: #f8f9fa;">
-
+                        <label class="ui-label" id="label_su" onclick="resetSuKeKantor()" style="cursor:pointer;">SU <span style="font-weight:normal; font-size:9.5px; color:#007bff;">(Ketik Fisik=Cek Uangmu)</span></label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_su" oninput="formatRibuan(this); hitungUangPribadiDariSU();" placeholder="0" style="background-color: #fff; font-weight: bold;">
                     </div>
 
 
@@ -1028,13 +1025,14 @@
 
 
 
-                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 15px; font-size: 13px; background: #25D366; box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);">
-
-                    📤 Kirim ke WA (Gambar & Teks)
-
-                </button>
-
-            </div>
+                <div style="display: flex; gap: 6px; margin-top: 15px;">
+                    <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA('gambar')" style="flex: 1.2; font-size: 12px; background: #25D366; box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);">
+                        📸 WA (Gambar & Teks)
+                    </button>
+                    <button id="btn-kirim-wa-teks" class="btn-salin" onclick="kirimKeWA('teks')" style="flex: 1; font-size: 12px; background: #007bff; box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);">
+                        📝 WA (Teks Saja)
+                    </button>
+                </div>
 
 
 
@@ -2063,102 +2061,55 @@
         // =====================================================
 
         function tarikDataHariIniDariUBMI(silent = false) {
-
             let adaPerubahan = false;
-
             try {
-
-                // 1. Tarik Storting, TF, Drop Baru & Drop PL dari "Satu Otak 3 Tab" (tm_one_brain_memory & tm_super_sync_usber_to_calc)
-
+                // 1. Tarik Storting, TF, Drop Baru & Drop PL dari "Satu Otak 3 Tab"
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
-
                 if (rawSuper) {
-
                     let sObj = JSON.parse(rawSuper);
-
                     if (sObj && (Date.now() - (sObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
-
                         if (sObj.storting > 0) {
-
                             let elSt = document.getElementById('st_storting');
-
                             if (elSt) { elSt.value = String(sObj.storting); formatRibuan(elSt); adaPerubahan = true; }
-
                         }
-
                         if (sObj.cm > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(sObj.cm); formatRibuan(el); adaPerubahan = true; } }
-
                         if (sObj.mb > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(sObj.mb); formatRibuan(el); adaPerubahan = true; } }
-
                         if (sObj.ml > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(sObj.ml); formatRibuan(el); adaPerubahan = true; } }
-
                         if (sObj.tf > 0) { let el = document.getElementById('st_transfer'); if (el) { el.value = String(sObj.tf); formatRibuan(el); adaPerubahan = true; } }
-
                     }
-
                 }
-
-
 
                 let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
-
                 if (rawBrain) {
-
                     let bObj = JSON.parse(rawBrain);
-
                     if (bObj && (Date.now() - (bObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
-
                         if (bObj.storting > 0) {
-
                             let elSt = document.getElementById('st_storting');
-
                             if (elSt) { elSt.value = String(bObj.storting); formatRibuan(elSt); adaPerubahan = true; }
-
                         }
-
-                        if (bObj.drop_baru > 0) {
-
-                            let elDB = document.getElementById('st_drop_baru');
-
-                            if (elDB) { elDB.value = String(bObj.drop_baru); formatRibuan(elDB); adaPerubahan = true; }
-
+                        let elDB = document.getElementById('st_drop_baru');
+                        if (elDB) {
+                            elDB.value = bObj.drop_baru > 0 ? String(bObj.drop_baru) : '';
+                            if (bObj.drop_baru > 0) formatRibuan(elDB);
+                            adaPerubahan = true;
                         }
-
                         if (bObj.drop_pl > 0) {
-
                             let elPL = document.getElementById('st_drop_pelunasan');
-
                             if (elPL) { elPL.value = String(bObj.drop_pl); formatRibuan(elPL); adaPerubahan = true; }
-
                         }
-
                         hitungTotalDrop();
-
                     }
-
                 }
-
-
 
                 // 2. Cek TF Hari Ini dari memori UBMI
-
                 let d = new Date();
-
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-
                 let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
-
                 if (rawTf > 0) {
-
                     let tfRibuan = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
-
                     let elTF = document.getElementById('st_transfer');
-
                     if (elTF) { elTF.value = String(tfRibuan); formatRibuan(elTF); adaPerubahan = true; }
-
                 }
-
-
 
                 // 3. Cek Bank Nasabah dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan secara akurat
                 let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
@@ -2173,7 +2124,6 @@
                     });
                     let elDB = document.getElementById('st_drop_baru');
                     let elPL = document.getElementById('st_drop_pelunasan');
-                    // Jika tidak ada Drop Baru di Bank Nasabah (sumDB === 0), kosongkan kotak Baru agar tidak tersisa angka 500 palsu!
                     if (elDB) {
                         elDB.value = sumDB > 0 ? String(sumDB) : '';
                         if (sumDB > 0) formatRibuan(elDB);
@@ -2185,23 +2135,15 @@
                     hitungTotalDrop();
                     adaPerubahan = true;
                 }
-
-
+            } catch(e) {}
 
             if (adaPerubahan) {
-
                 syncDariStoran();
-
                 hitungSemua();
-
                 if (!silent) showToast("✅ Storting, TF & Drop berhasil ditarik dari UBMI/Aditya!");
-
             } else if (!silent) {
-
                 showToast("ℹ️ Belum ada perubahan baru dari UBMI.", true);
-
             }
-
         }
 
 
@@ -3720,14 +3662,62 @@
 
 
 
+        window.isSuManualMode = false;
+
         function hitungSisaTransfer() {
+            let storan = getNum('st_storan_auto');
+            let transfer = getNum('st_transfer');
+            let suKantor = storan - transfer;
+            window.lastSuKantorVal = suKantor;
 
-            let storan = getNum('st_storan_auto'); let transfer = getNum('st_transfer');
+            let suEl = document.getElementById('st_su');
+            let lblSu = document.getElementById('label_su');
 
-            let sisa = storan - transfer;
+            if (!window.isSuManualMode) {
+                if (suEl && document.activeElement !== suEl) {
+                    suEl.value = formatAngka(suKantor);
+                    suEl.style.borderColor = '#ced4da';
+                    suEl.style.color = '#333';
+                }
+                if (lblSu) {
+                    lblSu.innerHTML = `SU <span style="font-weight:normal; font-size:9.5px; color:#007bff;">(Ketik Fisik=Cek Uangmu)</span>`;
+                }
+            } else {
+                hitungUangPribadiDariSU(true);
+            }
+        }
 
-            let suEl = document.getElementById('st_su'); if(suEl) suEl.value = formatAngka(sisa);
+        function hitungUangPribadiDariSU(fromAutoCalc = false) {
+            let suEl = document.getElementById('st_su');
+            let lblSu = document.getElementById('label_su');
+            if (!suEl || !lblSu) return;
 
+            if (suEl.value.trim() === '') {
+                window.isSuManualMode = false;
+                if (!fromAutoCalc) hitungSisaTransfer();
+                return;
+            }
+
+            window.isSuManualMode = true;
+            let uangFisikDiTangan = getNum('st_su');
+            let suKantor = (window.lastSuKantorVal !== undefined) ? window.lastSuKantorVal : (getNum('st_storan_auto') - getNum('st_transfer'));
+
+            // Rumus: Uang Pribadi Saya = Uang Fisik di Tas - SU Kantor
+            let uangPribadi = uangFisikDiTangan - suKantor;
+            let warnaUang = uangPribadi >= 0 ? '#28a745' : '#dc3545';
+            let tanda = uangPribadi > 0 ? '+' : '';
+
+            suEl.style.borderColor = '#28a745';
+            suEl.style.color = '#0056b3';
+            lblSu.innerHTML = `Kantor: <b>${formatAngka(suKantor)}</b> | <span style="color:${warnaUang}; font-weight:bold;">💰 Uangmu: ${tanda}${formatAngka(uangPribadi)} ↺</span>`;
+        }
+
+        function resetSuKeKantor() {
+            window.isSuManualMode = false;
+            let suEl = document.getElementById('st_su');
+            if (suEl) suEl.blur();
+            hitungSisaTransfer();
+            showToast("🔄 SU dikembalikan ke hitungan Kantor!");
         }
 
 
@@ -5604,78 +5594,104 @@
 
 
 
-        async function kirimKeWA() {
-
+        async function kirimKeWA(mode = 'gambar') {
             let rawDropStr = document.getElementById('st_drop').value || "0";
-
             let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr;
 
+            let rawStortStr = document.getElementById('st_storting').value || "0";
+            let teksStorting = "storting:" + rawStortStr;
 
-
-            let dayOfWeek = new Date().getDay(); let targetInput = document.getElementById('tm_' + dayOfWeek);
-
+            let dayOfWeek = new Date().getDay();
+            let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
-
             
-
-            let storting = getNum('st_storting'); let dropMurni = getNum('st_drop_pelunasan'); 
-
+            let storting = getNum('st_storting');
+            let dropMurni = getNum('st_drop_pelunasan'); 
             let hasilKurung = storting - targetHariIni - (dropMurni * 0.26);
-
             let tanda = hasilKurung <= 0 ? "" : "+"; 
-
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
-
-
             let strDropBaru = getNum('st_drop_baru') > 0 ? `drop baru:${document.getElementById('st_drop_baru').value}` : "";
+            let waTemplate = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksStorting}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
 
-            let waTemplate = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+            // Jika template lama belum punya {teksStorting}, sisipkan otomatis di atas {teksMurni}
+            if (!waTemplate.includes('{teksStorting}')) {
+                waTemplate = waTemplate.replace('{teksMurni}', '{teksStorting}\n{teksMurni}');
+            }
 
+            let teksWA = waTemplate
+                .replace('{teksDrop}', teksDrop)
+                .replace('{teksDropBaru}', strDropBaru)
+                .replace('{teksStorting}', teksStorting)
+                .replace('{teksMurni}', stringMurni);
+            teksWA = teksWA.replace(/\n\s*\n/g, '\n');
 
+            // MODE 1: KIRIM TEKS SAJA KE WA
+            if (mode === 'teks') {
+                try { await navigator.clipboard.writeText(teksWA); } catch(e) {}
+                showToast("📋 Teks Laporan Disalin & Membuka WA...");
+                window.open(`https://wa.me/?text=${encodeURIComponent(teksWA)}`, '_blank');
+                return;
+            }
 
-            let teksWA = waTemplate.replace('{teksDrop}', teksDrop).replace('{teksDropBaru}', strDropBaru).replace('{teksMurni}', stringMurni);
+            // MODE 2: KIRIM GAMBAR & TEKS KE WA
+            let captureEl = document.getElementById('area-screenshot');
+            let btn = document.getElementById('btn-kirim-wa');
+            let originalText = btn.innerText;
+            btn.innerText = "⏳ Memproses...";
+            btn.disabled = true;
 
-            teksWA = teksWA.replace(/\n\s*\n/g, '\n'); 
-
-
-
-            let captureEl = document.getElementById('area-screenshot'); let btn = document.getElementById('btn-kirim-wa');
-
-            let originalText = btn.innerText; btn.innerText = "⏳ Memproses..."; btn.disabled = true;
-
-
+            // Kembalikan tampilan SU ke angka resmi kantor sementara saat difoto agar gambar laporan rapi
+            let suEl = document.getElementById('st_su');
+            let lblSu = document.getElementById('label_su');
+            let backupSuVal = suEl ? suEl.value : '';
+            let backupLblHtml = lblSu ? lblSu.innerHTML : '';
+            if (window.isSuManualMode && suEl && lblSu) {
+                suEl.value = formatAngka(window.lastSuKantorVal || 0);
+                lblSu.innerText = 'SU';
+            }
 
             try {
-
-                if (typeof html2canvas === 'undefined') { alert("⚠️ Library belum termuat."); btn.innerText = originalText; btn.disabled = false; return; }
-
+                if (typeof html2canvas === 'undefined') {
+                    alert("⚠️ Library belum termuat.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
                 let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: document.body.classList.contains('dark-mode') ? "#1a1a1a" : "#f8f9fa" });
 
+                if (window.isSuManualMode && suEl && lblSu) {
+                    suEl.value = backupSuVal;
+                    lblSu.innerHTML = backupLblHtml;
+                }
+
                 canvas.toBlob(async function(blob) {
-
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
-
                     try { await navigator.clipboard.writeText(teksWA); } catch(e) {}
-
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-
                         try { await navigator.share({ files: [file], text: teksWA }); } catch (err) { }
-
                     } else {
-
-                        let url = window.URL.createObjectURL(blob); let a = document.createElement('a'); a.style.display = 'none';
-
-                        a.href = url; a.download = 'Laporan_Pati5.jpg'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
-
+                        let url = window.URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'Laporan_Pati5.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
                     }
-
-                    btn.innerText = originalText; btn.disabled = false;
-
+                    btn.innerText = originalText;
+                    btn.disabled = false;
                 }, "image/jpeg", 0.9);
-
-            } catch (e) { alert("❌ Gagal membuat gambar."); btn.innerText = originalText; btn.disabled = false; }
-
+            } catch (e) {
+                if (window.isSuManualMode && suEl && lblSu) {
+                    suEl.value = backupSuVal;
+                    lblSu.innerHTML = backupLblHtml;
+                }
+                alert("❌ Gagal membuat gambar.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
 
