@@ -1133,93 +1133,128 @@
         function tarikDataHariIniDariUBMI(silent = false) {
             let adaPerubahan = false;
             try {
+                // 0. BACA LANGSUNG DARI GUDANG DATA SERVER TERPUSAT (tm_master_server_db)
+                let rawMaster = bacaJembatanApk('tm_master_server_db', '');
+                let masterDb = rawMaster ? JSON.parse(rawMaster) : {};
+                let ubmi = masterDb.ubmi || {};
+                let aditya = masterDb.aditya || {};
+
+                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
-                if (rawSuper) {
-                    let sObj = JSON.parse(rawSuper);
-                    if (sObj && (Date.now() - (sObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
-                        if (sObj.storting > 0) {
-                            let elSt = document.getElementById('st_storting');
-                            if (elSt) { elSt.value = String(sObj.storting); formatRibuan(elSt); adaPerubahan = true; }
-                        }
-                        if (sObj.cm > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(sObj.cm); formatRibuan(el); adaPerubahan = true; } }
-                        if (sObj.mb > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(sObj.mb); formatRibuan(el); adaPerubahan = true; } }
-                        if (sObj.ml > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(sObj.ml); formatRibuan(el); adaPerubahan = true; } }
-                        if (sObj.tf > 0) {
-                            let elTfUbmi = document.getElementById('st_tf_ubmi');
-                            if (elTfUbmi) { elTfUbmi.value = String(sObj.tf); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
-                        }
-                    }
-                }
+                let sObj = rawSuper ? JSON.parse(rawSuper) : {};
+                let stortVal = ubmi.storting || sObj.storting || 0;
+                let cmVal = ubmi.cm_angs !== undefined ? ubmi.cm_angs : (sObj.cm || 0);
+                let mbVal = ubmi.mb_angs !== undefined ? ubmi.mb_angs : (sObj.mb || 0);
+                let mlVal = ubmi.ml_angs !== undefined ? ubmi.ml_angs : (sObj.ml || 0);
+                let tfVal = ubmi.tf || sObj.tf || 0;
 
-                let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
-                if (rawBrain) {
-                    let bObj = JSON.parse(rawBrain);
-                    if (bObj && (Date.now() - (bObj.timestamp || 0) < 14 * 60 * 60 * 1000)) {
-                        if (bObj.storting > 0) {
-                            let elSt = document.getElementById('st_storting');
-                            if (elSt) { elSt.value = String(bObj.storting); formatRibuan(elSt); adaPerubahan = true; }
-                        }
-                        let elDB = document.getElementById('st_drop_baru');
-                        if (elDB) {
-                            elDB.value = bObj.drop_baru > 0 ? String(bObj.drop_baru) : '';
-                            if (bObj.drop_baru > 0) formatRibuan(elDB);
-                            adaPerubahan = true;
-                        }
-                        if (bObj.drop_pl > 0) {
-                            let elPL = document.getElementById('st_drop_pelunasan');
-                            if (elPL) { elPL.value = String(bObj.drop_pl); formatRibuan(elPL); adaPerubahan = true; }
-                        }
-                        hitungTotalDrop();
-                    }
+                if (stortVal > 0) {
+                    let elSt = document.getElementById('st_storting');
+                    if (elSt) { elSt.value = String(stortVal); formatRibuan(elSt); adaPerubahan = true; }
                 }
+                if (cmVal > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(cmVal); formatRibuan(el); adaPerubahan = true; } }
+                if (mbVal > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(mbVal); formatRibuan(el); adaPerubahan = true; } }
+                if (mlVal > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(mlVal); formatRibuan(el); adaPerubahan = true; } }
 
+                // Cek juga TF Hari Ini
                 let d = new Date();
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
-                if (rawTf > 0) {
-                    let tfRibuan = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                if (rawTf > 0) tfVal = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                if (tfVal > 0) {
                     let elTfUbmi = document.getElementById('st_tf_ubmi');
-                    if (elTfUbmi) { elTfUbmi.value = String(tfRibuan); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
+                    if (elTfUbmi) { elTfUbmi.value = String(tfVal); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
                 }
 
-                let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
-                let bankList = JSON.parse(rawBank || '[]');
-                if (Array.isArray(bankList) && bankList.length > 0) {
-                    let sumDB = 0, sumPL = 0;
-                    bankList.forEach(item => {
-                        let nom = parseInt(item.nominal || 0);
-                        if (nom >= 1000) nom = Math.round(nom / 1000);
-                        if (item.status === 'DB') sumDB += nom;
-                        else sumPL += nom;
-                    });
-                    let elDB = document.getElementById('st_drop_baru');
-                    let elPL = document.getElementById('st_drop_pelunasan');
-                    if (elDB) {
-                        elDB.value = sumDB > 0 ? String(sumDB) : '';
-                        if (sumDB > 0) formatRibuan(elDB);
+                // 2. Tarik Drop Baru & Drop Pelunasan (Prioritaskan Hasil Server Otentikasi Drop Aditya & Bank Nasabah)
+                let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
+                let bObj = rawBrain ? JSON.parse(rawBrain) : {};
+                let dbVal = (ubmi.drop_baru !== undefined) ? ubmi.drop_baru : (bObj.drop_baru || 0);
+                let plVal = (ubmi.drop_pl !== undefined) ? ubmi.drop_pl : (bObj.drop_pl || 0);
+
+                // Jika Server Aditya sudah mengecek tabel Otentikasi Drop hari ini, gunakan angka pasti dari Otentikasi Drop!
+                if (aditya.otentikasi_checked_date === getTodayString()) {
+                    dbVal = aditya.drop_baru_otentikasi || 0;
+                    if (aditya.drop_pl_otentikasi > 0) plVal = aditya.drop_pl_otentikasi;
+                } else {
+                    let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
+                    let bankList = JSON.parse(rawBank || '[]');
+                    if (Array.isArray(bankList) && bankList.length > 0) {
+                        let sumDB = 0, sumPL = 0;
+                        bankList.forEach(item => {
+                            let nom = parseInt(item.nominal || 0);
+                            if (nom >= 1000) nom = Math.round(nom / 1000);
+                            if (item.status === 'DB') sumDB += nom;
+                            else sumPL += nom;
+                        });
+                        dbVal = sumDB;
+                        plVal = sumPL;
                     }
-                    if (elPL) {
-                        elPL.value = sumPL > 0 ? String(sumPL) : '';
-                        if (sumPL > 0) formatRibuan(elPL);
-                    }
-                    hitungTotalDrop();
+                }
+
+                let elDB = document.getElementById('st_drop_baru');
+                let elPL = document.getElementById('st_drop_pelunasan');
+                if (elDB) {
+                    elDB.value = dbVal > 0 ? String(dbVal) : '';
+                    if (dbVal > 0) formatRibuan(elDB);
                     adaPerubahan = true;
+                }
+                if (elPL && plVal > 0) {
+                    elPL.value = String(plVal);
+                    formatRibuan(elPL);
+                    adaPerubahan = true;
+                }
+                hitungTotalDrop();
+
+                // 3. Isi Otomatis Saldo Awal CM/MB/ML & Rekap Bulanan jika tersedia di Gudang Server
+                if (ubmi.sa_cm > 0) { let el = document.getElementById('sa1'); if (el && !el.value) { el.value = String(ubmi.sa_cm); formatRibuan(el); } }
+                if (ubmi.sa_mb > 0) { let el = document.getElementById('sa2'); if (el && !el.value) { el.value = String(ubmi.sa_mb); formatRibuan(el); } }
+                if (ubmi.sa_ml > 0) { let el = document.getElementById('sa3'); if (el && !el.value) { el.value = String(ubmi.sa_ml); formatRibuan(el); } }
+
+                if (ubmi.rekap_rows && ubmi.rekap_rows.length > 0) {
+                    tarikRekapBulananDariUBMI(true);
+                }
+
+                // 4. Tarik juga Target, Program, Index, Pengajuan & Gagalkan dari Gudang Server Aditya
+                if (Array.isArray(aditya.targets) && aditya.targets.some(t => t > 0)) {
+                    const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
+                    for (let i = 0; i < 6; i++) {
+                        let el = document.getElementById(tmIds[i]);
+                        if (el && aditya.targets[i] > 0) { el.value = String(aditya.targets[i]); formatRibuan(el); }
+                    }
+                }
+                if (aditya.program_drop > 0) {
+                    let elProg = document.getElementById('tg_program');
+                    if (elProg && !elProg.value) { elProg.value = String(aditya.program_drop); formatRibuan(elProg); }
+                }
+                if (aditya.index_target > 0) {
+                    let elIdx = document.getElementById('tg_index');
+                    if (elIdx && !elIdx.value) elIdx.value = String(aditya.index_target);
+                }
+                if (aditya.pengajuan_rencana > 0 || aditya.gagalkan_rencana > 0) {
+                    let todayDate = new Date().getDate();
+                    let inpP = document.getElementById('tt_pengajuan_' + todayDate);
+                    let inpG = document.getElementById('tt_gagalkan_' + todayDate);
+                    if (inpP && aditya.pengajuan_rencana > 0) { inpP.value = String(aditya.pengajuan_rencana); formatRibuan(inpP); }
+                    if (inpG && aditya.gagalkan_rencana > 0) { inpG.value = String(aditya.gagalkan_rencana); formatRibuan(inpG); }
                 }
             } catch(e) {}
 
             if (adaPerubahan) {
                 syncDariStoran();
                 hitungSemua();
-                if (!silent) showToast("✅ Storting, TF & Drop berhasil ditarik dari UBMI/Aditya!");
+                if (!silent) showToast("✅ Seluruh Data Gudang Server UBMI & Aditya Berhasil Dimuat!");
             } else if (!silent) {
-                showToast("ℹ️ Belum ada perubahan baru dari UBMI.", true);
+                showToast("ℹ️ Data sudah paling baru sesuai Server.", true);
             }
         }
 
-        // FITUR #6: TARIK REKAP BULANAN DARI HALAMAN /kasir/rekap/permantri UBMI
-        function tarikRekapBulananDariUBMI() {
+        function tarikRekapBulananDariUBMI(silent = false) {
             let adaMasuk = false;
             try {
+                let rawMaster = bacaJembatanApk('tm_master_server_db', '');
+                let ubmi = rawMaster ? (JSON.parse(rawMaster).ubmi || {}) : {};
+
                 let rawSirk = bacaJembatanApk('tm_usber_sirkulasi_resmi', '');
                 if (rawSirk) {
                     let sirkObj = JSON.parse(rawSirk);
@@ -1242,52 +1277,53 @@
                 }
 
                 let rawRekapBulan = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
-                if (rawRekapBulan) {
-                    let rObj = JSON.parse(rawRekapBulan);
-                    if (rObj && Array.isArray(rObj.rows) && rObj.rows.length > 0) {
-                        let todayDate = new Date().getDate();
-                        let lastBeforeToday = null;
-                        rObj.rows.forEach(r => {
-                            let dNum = parseInt(r.tgl);
-                            if (!dNum) return;
-                            if (dNum < todayDate) lastBeforeToday = r;
-                            const setCell = (pref, val) => {
-                                let el = document.getElementById(pref + dNum);
-                                if (el && val !== undefined && val !== '') {
-                                    el.value = String(val);
-                                    if (!pref.includes('_pc_') && !pref.includes('_pm_')) formatRibuan(el);
-                                }
-                            };
-                            setCell('t_d_', r.drop);
-                            setCell('t_jd_', r.jml_drop);
-                            setCell('t_s_', r.stort);
-                            setCell('t_js_', r.jml_stort);
-                            setCell('t_si_', r.sirk);
-                            setCell('t_ac_', r.ac);
-                            setCell('t_jc_', r.jc);
-                            setCell('t_sc_', r.sc);
-                            setCell('t_am_', r.am);
-                            setCell('t_jm_', r.jm);
-                            setCell('t_sm_', r.sm);
-                            setCell('t_al_', r.al);
-                            setCell('t_jl_', r.jl);
-                            setCell('t_sl_', r.sl);
-                        });
-                        if (lastBeforeToday) {
-                            let elD2 = document.getElementById('d2'); if (elD2 && lastBeforeToday.jml_drop) { elD2.value = String(lastBeforeToday.jml_drop); formatRibuan(elD2); }
-                            let elS2 = document.getElementById('s2'); if (elS2 && lastBeforeToday.jml_stort) { elS2.value = String(lastBeforeToday.jml_stort); formatRibuan(elS2); }
-                            let elSi = document.getElementById('siRec'); if (elSi && lastBeforeToday.sirk) { elSi.value = String(lastBeforeToday.sirk); formatRibuan(elSi); }
-                        }
-                        adaMasuk = true;
+                let rows = (ubmi.rekap_rows && ubmi.rekap_rows.length > 0) ? ubmi.rekap_rows : (rawRekapBulan ? JSON.parse(rawRekapBulan).rows : []);
+                if (Array.isArray(rows) && rows.length > 0) {
+                    let todayDate = new Date().getDate();
+                    let lastBeforeToday = null;
+                    rows.forEach(r => {
+                        let dNum = parseInt(r.tgl);
+                        if (!dNum) return;
+                        if (dNum < todayDate) lastBeforeToday = r;
+                        const setCell = (pref, val) => {
+                            let el = document.getElementById(pref + dNum);
+                            if (el && val !== undefined && val !== '') {
+                                el.value = String(val);
+                                if (!pref.includes('_pc_') && !pref.includes('_pm_')) formatRibuan(el);
+                            }
+                        };
+                        setCell('t_d_', r.drop);
+                        setCell('t_jd_', r.jml_drop);
+                        setCell('t_s_', r.stort);
+                        setCell('t_js_', r.jml_stort);
+                        setCell('t_si_', r.sirk);
+                        setCell('t_ac_', r.ac);
+                        setCell('t_jc_', r.jc);
+                        setCell('t_sc_', r.sc);
+                        setCell('t_am_', r.am);
+                        setCell('t_jm_', r.jm);
+                        setCell('t_sm_', r.sm);
+                        setCell('t_al_', r.al);
+                        setCell('t_jl_', r.jl);
+                        setCell('t_sl_', r.sl);
+                    });
+                    if (lastBeforeToday) {
+                        let elD2 = document.getElementById('d2'); if (elD2 && lastBeforeToday.jml_drop) { elD2.value = String(lastBeforeToday.jml_drop); formatRibuan(elD2); }
+                        let elS2 = document.getElementById('s2'); if (elS2 && lastBeforeToday.jml_stort) { elS2.value = String(lastBeforeToday.jml_stort); formatRibuan(elS2); }
+                        let elSi = document.getElementById('siRec'); if (elSi && lastBeforeToday.sirk) { elSi.value = String(lastBeforeToday.sirk); formatRibuan(elSi); }
+                        let elJ1 = document.getElementById('j1'); if (elJ1 && lastBeforeToday.jc) { elJ1.value = String(lastBeforeToday.jc); formatRibuan(elJ1); }
+                        let elJ2 = document.getElementById('j2'); if (elJ2 && lastBeforeToday.jm) { elJ2.value = String(lastBeforeToday.jm); formatRibuan(elJ2); }
+                        let elJ3 = document.getElementById('j3'); if (elJ3 && lastBeforeToday.jl) { elJ3.value = String(lastBeforeToday.jl); formatRibuan(elJ3); }
                     }
+                    adaMasuk = true;
                 }
             } catch(e) {}
 
             if (adaMasuk) {
                 hitungSemua();
-                showToast("✅ Data Rekap & Saldo CM/MB/ML berhasil ditarik dari UBMI!");
-            } else {
-                showToast("ℹ️ Buka Angsuran Lancar / Rekap Mantri di UBMI dulu.", true);
+                if (!silent) showToast("✅ Tabel Rekap Bulanan & Saldo Lalu otomatis dimuat dari Server UBMI!");
+            } else if (!silent) {
+                showToast("ℹ️ Menunggu sinkronisasi latar belakang dari UBMI...", true);
             }
         }
 
