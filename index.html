@@ -1139,36 +1139,46 @@
                 let ubmi = masterDb.ubmi || {};
                 let aditya = masterDb.aditya || {};
 
-                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML
+                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML (Mendukung Kenaikan maupun Penurunan/Reset ke 0)
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
                 let sObj = rawSuper ? JSON.parse(rawSuper) : {};
-                let stortVal = ubmi.storting || sObj.storting || 0;
+                let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
+                let bObj = rawBrain ? JSON.parse(rawBrain) : {};
+                let punyaDataUbmi = Boolean(ubmi.updatedAt || sObj.timestamp || bObj.timestamp);
+
+                let stortVal = ubmi.storting !== undefined ? ubmi.storting : (bObj.storting !== undefined ? bObj.storting : (sObj.storting || 0));
                 let cmVal = ubmi.cm_angs !== undefined ? ubmi.cm_angs : (sObj.cm || 0);
                 let mbVal = ubmi.mb_angs !== undefined ? ubmi.mb_angs : (sObj.mb || 0);
                 let mlVal = ubmi.ml_angs !== undefined ? ubmi.ml_angs : (sObj.ml || 0);
-                let tfVal = ubmi.tf || sObj.tf || 0;
+                let tfVal = ubmi.tf !== undefined ? ubmi.tf : (sObj.tf || 0);
 
-                if (stortVal > 0) {
+                if (punyaDataUbmi) {
                     let elSt = document.getElementById('st_storting');
-                    if (elSt) { elSt.value = String(stortVal); formatRibuan(elSt); adaPerubahan = true; }
+                    if (elSt) { elSt.value = stortVal > 0 ? String(stortVal) : ''; if (stortVal > 0) formatRibuan(elSt); adaPerubahan = true; }
+                    let elA1 = document.getElementById('a1'); if (elA1) { elA1.value = cmVal > 0 ? String(cmVal) : ''; if (cmVal > 0) formatRibuan(elA1); adaPerubahan = true; }
+                    let elA2 = document.getElementById('a2'); if (elA2) { elA2.value = mbVal > 0 ? String(mbVal) : ''; if (mbVal > 0) formatRibuan(elA2); adaPerubahan = true; }
+                    let elA3 = document.getElementById('a3'); if (elA3) { elA3.value = mlVal > 0 ? String(mlVal) : ''; if (mlVal > 0) formatRibuan(elA3); adaPerubahan = true; }
                 }
-                if (cmVal > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(cmVal); formatRibuan(el); adaPerubahan = true; } }
-                if (mbVal > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(mbVal); formatRibuan(el); adaPerubahan = true; } }
-                if (mlVal > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(mlVal); formatRibuan(el); adaPerubahan = true; } }
 
-                // Cek juga TF Hari Ini
+                // Cek juga TF Hari Ini (Jika di-reset ke 0 di UBMI, otomatis kosongkan juga di Kalkulator)
                 let d = new Date();
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
-                if (rawTf > 0) tfVal = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
-                if (tfVal > 0) {
+                let rawTfStr = bacaJembatanApk(tfKey, "");
+                if (rawTfStr !== "") {
+                    let rawTf = parseInt(rawTfStr || "0");
+                    tfVal = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                }
+                if (punyaDataUbmi || rawTfStr !== "") {
                     let elTfUbmi = document.getElementById('st_tf_ubmi');
-                    if (elTfUbmi) { elTfUbmi.value = String(tfVal); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
+                    if (elTfUbmi) {
+                        elTfUbmi.value = tfVal > 0 ? String(tfVal) : '';
+                        if (tfVal > 0) formatRibuan(elTfUbmi);
+                        hitungTotalTFInput();
+                        adaPerubahan = true;
+                    }
                 }
 
-                // 2. Tarik Drop Baru & Drop Pelunasan (Prioritaskan Hasil Server Otentikasi Drop Aditya & Bank Nasabah)
-                let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
-                let bObj = rawBrain ? JSON.parse(rawBrain) : {};
+                // 2. Tarik Drop Baru & Drop Pelunasan (Prioritaskan Hasil Server Otentikasi Drop Aditya & Bank Nasabah)                
                 let dbVal = (ubmi.drop_baru !== undefined) ? ubmi.drop_baru : (bObj.drop_baru || 0);
                 let plVal = (ubmi.drop_pl !== undefined) ? ubmi.drop_pl : (bObj.drop_pl || 0);
 
