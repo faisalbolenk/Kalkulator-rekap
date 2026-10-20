@@ -3677,9 +3677,35 @@
             muatRiwayatTF();
             bacaParameterURL(); 
 
-            setInterval(() => {
-                tarikTargetRekapDariAditya(true);
-            }, 2000);
+            // Pantau terus perubahan Storting, TF, & Drop dari UBMI maupun Target dari Aditya setiap 1,2 detik secara otomatis!
+            window.lastAutoSyncHash = '';
+            const pantauPerubahanLintasTabOtomatis = () => {
+                try {
+                    tarikTargetRekapDariAditya(true);
+                    let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
+                    let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
+                    let rawMaster = bacaJembatanApk('tm_master_server_db', '');
+                    let bObj = rawBrain ? JSON.parse(rawBrain) : {};
+                    let sObj = rawSuper ? JSON.parse(rawSuper) : {};
+                    let mObj = rawMaster ? (JSON.parse(rawMaster).ubmi || {}) : {};
+
+                    let liveHash = `${bObj.storting || 0}|${bObj.tf || 0}|${bObj.drop_baru || 0}|${bObj.drop_pl || 0}|${sObj.cm || 0}|${sObj.mb || 0}|${sObj.ml || 0}|${mObj.storting || 0}`;
+                    if (liveHash !== window.lastAutoSyncHash) {
+                        window.lastAutoSyncHash = liveHash;
+                        // Jangan timpa jika user sedang mengetik manual di dalam kotak input
+                        let activeId = document.activeElement ? document.activeElement.id : '';
+                        if (!['st_storting', 'st_drop_baru', 'st_drop_pelunasan', 'st_tf_ubmi', 'a1', 'a2', 'a3'].includes(activeId)) {
+                            tarikDataHariIniDariUBMI(true);
+                        }
+                    }
+                } catch(e) {}
+            };
+
+            setInterval(pantauPerubahanLintasTabOtomatis, 1200);
+            window.addEventListener('focus', pantauPerubahanLintasTabOtomatis);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) pantauPerubahanLintasTabOtomatis();
+            });
             
             setTimeout(() => { isAppReady = true; }, 1000); 
         }
