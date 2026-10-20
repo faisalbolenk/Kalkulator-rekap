@@ -160,27 +160,33 @@
         .form-group input, .form-group select { text-align: left; background: #fff; }
         .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; }
 
-        /* ================= GAYA KHUSUS TAB NASABAH ================= */
-        .nasabah-item { display: flex; padding: 10px 5px; border-bottom: 1px solid #eee; align-items: center; gap: 8px; background: white; transition: 0.2s; }
+        /* ================= GAYA KHUSUS TAB NASABAH ULTRA PRO ================= */
+        .nasabah-item { display: flex; padding: 8px 5px; border-bottom: 1px solid #eee; align-items: center; gap: 6px; background: white; transition: 0.2s; }
         .nasabah-item:last-child { border-bottom: none; }
-        .nasabah-item:hover { background-color: #f8f9fa; }
+        .nasabah-item.paid-full { background-color: #dcfce7; border-left: 4px solid #10b981; }
+        .nasabah-item.paid-less { background-color: #fef3c7; border-left: 4px solid #f59e0b; }
+        .nasabah-item.paid-zero { background-color: #ffe4e6; border-left: 4px solid #f43f5e; }
         
-        .ns-left { display: flex; flex-direction: column; align-items: center; min-width: 55px; }
-        .ns-date { font-size: 9px; color: #666; margin-bottom: 3px; font-weight: bold; }
+        .ns-left { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
+        .ns-date { font-size: 9px; color: #666; margin-bottom: 2px; font-weight: bold; }
         
-        .ns-badge-green { background: #28a745; color: white; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-bottom: 3px; width: 100%; text-align: center; box-sizing:border-box; transition: 0.2s; border: none; cursor: pointer; }
-        .ns-badge-green:active { transform: scale(0.95); }
+        .ns-badge-green { background: #28a745; color: white; padding: 4px 2px; border-radius: 5px 5px 2px 2px; font-weight: bold; font-size: 11px; width: 100%; text-align: center; box-sizing:border-box; transition: 0.1s; border: none; cursor: pointer; user-select: none; }
+        .ns-badge-green:active { transform: scale(0.93); }
         
-        .ns-btn-bayar { background: #1a2238; color: white; padding: 5px; border: none; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; width: 100%; box-sizing:border-box; transition:0.2s;}
-        .ns-btn-bayar:active { transform: scale(0.95); }
+        .ns-btn-bayar { background: #2563eb; color: white; padding: 2px; border: none; border-radius: 2px 2px 5px 5px; font-weight: bold; font-size: 10px; cursor: pointer; width: 100%; box-sizing:border-box; margin-top: 2px; transition:0.1s; user-select: none;}
+        .ns-btn-bayar:active { transform: scale(0.93); }
         
         .ns-mid { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
         .ns-name { font-weight: bold; font-size: 12px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111; margin-bottom: 2px;}
         .ns-sub { font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1px;}
         
-        .ns-right { display: flex; flex-direction: column; text-align: right; min-width: 90px; border-left: 1px solid #ddd; padding-left: 8px; }
+        .ns-right { display: flex; flex-direction: column; text-align: right; min-width: 92px; border-left: 1px solid #ddd; padding-left: 8px; }
         .ns-val { font-size: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; transition:0.3s;}
         .ns-val.border-bottom { border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 3px; }
+
+        .hari-chip-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 6px; scrollbar-width: none; }
+        .hari-chip { padding: 4px 8px; border-radius: 14px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; font-size: 10.5px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .hari-chip.active { background: #007bff; color: white; border-color: #007bff; }
 
         /* ================= CSS NOTIFIKASI TOAST ================= */
         #toast {
@@ -398,6 +404,7 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     
+                    <!-- 1. KOLOM DROP (BARU / LUNAS -> MENJUMLAHKAN SAAT DITUTUP) -->
                     <div class="ui-input-box" id="box_drop_container" style="position: relative;">
                         <label class="ui-label" id="label_drop">Drop (Ketuk=Baru/Lunas)</label>
                         
@@ -413,32 +420,63 @@
                         <input type="hidden" id="st_drop">
                     </div>
 
-                    <div class="ui-input-box">
-                        <label class="ui-label">Kasbon</label>
-                        <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon" oninput="formatRibuan(this); hitungSemua()">
+                    <!-- 2. KOLOM KASBON (KANTOR / TAMBAH -> MENJUMLAHKAN SAAT DITUTUP & IKUT HITUNGAN) -->
+                    <div class="ui-input-box" id="box_kasbon_container" style="position: relative;">
+                        <label class="ui-label" id="label_kasbon">Kasbon (Ketuk=Kantor/Tambah)</label>
+                        
+                        <div id="view_kasbon_total" onclick="toggleKasbonView(true)">
+                            <input type="text" class="ui-input" id="st_kasbon_display" placeholder="100" readonly style="font-weight: bold; text-align: center; color: #333; cursor: pointer;">
+                        </div>
+
+                        <div id="view_kasbon_split" style="display: none; gap: 4px;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon_kantor" placeholder="Kantor" oninput="formatRibuan(this); hitungTotalKasbon()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_kasbon_tambah" placeholder="Tambah" oninput="formatRibuan(this); hitungTotalKasbon()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
+                        </div>
+
+                        <input type="hidden" id="st_kasbon">
                     </div>
+
+                    <!-- 3. KOLOM TRANSPORT -->
                     <div class="ui-input-box">
                         <label class="ui-label">Transport</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_transport" oninput="formatRibuan(this); hitungSemua()">
                     </div>
                     
+                    <!-- 4. KOLOM SU (BISA DIKETIK + TOMBOL HITUNG PECAHAN UANG 💵) -->
                     <div class="ui-input-box">
-                        <label class="ui-label">SU</label>
-                        <input type="text" class="ui-input" id="st_su" readonly style="background-color: #f8f9fa;">
+                        <label class="ui-label" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span id="label_su" onclick="resetSuKeKantor()" style="cursor:pointer;">SU <span style="font-weight:normal; font-size:9px; color:#007bff;">(Ketik=Cek)</span></span>
+                            <span onclick="bukaModalHitungFisik()" style="cursor:pointer; background:#e0f2fe; color:#0369a1; padding:0px 5px; border-radius:4px; font-size:9.5px; border:1px solid #7dd3fc;" title="Hitung Lembaran Uang Tunai">💵 Hitung</span>
+                        </label>
+                        <input type="text" class="ui-input" inputmode="numeric" id="st_su" oninput="formatRibuan(this); hitungUangTambahDariSU();" placeholder="0" style="background-color: #fff; font-weight: bold;">
                     </div>
 
-                    <div class="ui-input-box">
-                        <label class="ui-label">TF</label>
-                        <input type="text" class="ui-input" inputmode="numeric" id="st_transfer" oninput="formatRibuan(this); hitungSisaTransfer(); hitungSemua();">
+                    <!-- 5. KOLOM TF (UBMI / TAMBAH -> MENJUMLAHKAN SAAT DITUTUP & IKUT HITUNGAN) -->
+                    <div class="ui-input-box" id="box_tf_container" style="position: relative;">
+                        <label class="ui-label" id="label_tf">TF (Ketuk=UBMI/Tambah)</label>
+                        
+                        <div id="view_tf_total" onclick="toggleTfView(true)">
+                            <input type="text" class="ui-input" id="st_tf_display" placeholder="0" readonly style="font-weight: bold; text-align: center; color: #333; cursor: pointer;">
+                        </div>
+
+                        <div id="view_tf_split" style="display: none; gap: 4px;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_tf_ubmi" placeholder="UBMI" oninput="formatRibuan(this); hitungTotalTFInput()" style="flex: 1; border-color: #007bff; color: #007bff; font-weight: bold; text-align: center;">
+                            <input type="text" class="ui-input" inputmode="numeric" id="st_tf_tambah" placeholder="Tambah" oninput="formatRibuan(this); hitungTotalTFInput()" style="flex: 1; border-color: #28a745; color: #28a745; font-weight: bold; text-align: center;">
+                        </div>
+
+                        <input type="hidden" id="st_transfer">
                     </div>
+
+                    <!-- 6. KOLOM STORTING -->
                     <div class="ui-input-box">
                         <label class="ui-label">STORTING</label>
                         <input type="text" class="ui-input" inputmode="numeric" id="st_storting" oninput="formatRibuan(this); syncDariStoran()" onblur="formatRibuan(this); syncDariStoran()" onchange="formatRibuan(this); syncDariStoran()" onpaste="setTimeout(() => { formatRibuan(this); syncDariStoran(); hitungSemua(); }, 50)" placeholder="0" style="font-weight: bold;">
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: center; margin-bottom: 5px;">
-                    <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 6px 30px; border-radius: 4px; cursor: pointer; font-size: 14px;">🗑️</button>
+                <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 5px;">
+                    <button onclick="hapusData('storan')" style="border: 1px solid #f29c6b; background: transparent; padding: 6px 26px; border-radius: 4px; cursor: pointer; font-size: 14px;" title="Reset Storan">🗑️</button>
+                    <button id="btn_undo_storan" onclick="kembalikanResetTerakhir()" style="display: none; border: 1px solid #0284c7; background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">↩️ Kembalikan</button>
                 </div>
             </div>
 
@@ -513,9 +551,14 @@
                     </div>
                 </div>
 
-                <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA()" style="width: 100%; margin-top: 15px; font-size: 13px; background: #25D366; box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);">
-                    📤 Kirim ke WA (Gambar & Teks)
-                </button>
+                <div style="display: flex; gap: 6px; margin-top: 15px;">
+                    <button id="btn-kirim-wa" class="btn-salin" onclick="kirimKeWA('gambar')" style="flex: 1.2; font-size: 12px; background: #25D366; box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);">
+                        📸 WA (Gambar & Teks)
+                    </button>
+                    <button id="btn-kirim-wa-teks" class="btn-salin" onclick="kirimKeWA('teks')" style="flex: 1; font-size: 12px; background: #007bff; box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);">
+                        📝 WA (Teks Saja)
+                    </button>
+                </div>
             </div>
 
             <input type="hidden" id="st_storan_auto">
@@ -525,7 +568,10 @@
     <!-- TABS REKAP -->
     <div id="menu-rekap" class="tab-content">
         <div class="card">
-            <h3><span>1. Rekap Harian (Lalu)</span><span class="auto-save">✅ Auto</span></h3>
+            <h3>
+                <span>1. Rekap Harian (Lalu)</span>
+                <button type="button" onclick="tarikRekapBulananDariUBMI()" style="background:#059669; color:#fff; border:none; padding:4px 8px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">📥 Tarik Rekap UBMI</button>
+            </h3>
             <div style="display: none;"><input type="text" id="d1"><input type="text" id="s1"><input type="text" id="drRec"><input type="text" id="stRec"></div>
             
             <div class="grid-3" style="margin-bottom: 8px;">
@@ -566,7 +612,10 @@
                     <td class="hasil-cell" id="res1">-</td><td class="hasil-cell" id="res2">-</td><td class="hasil-cell" id="res3">-</td>
                 </tr>
             </table>
-            <button class="btn-hapus" style="width: 100%; margin-top: 8px;" onclick="hapusData('rekap')">🗑️ Reset Rekap</button>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+                <button class="btn-hapus" style="flex:1;" onclick="hapusData('rekap')">🗑️ Reset Rekap</button>
+                <button id="btn_undo_rekap" onclick="kembalikanResetTerakhir()" style="display:none; flex:1; border:none; background:#0284c7; color:white; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">↩️ Kembalikan</button>
+            </div>
         </div>
 
         <div class="card" style="padding: 6px;">
@@ -630,20 +679,39 @@
         </div>
     </div>
     
-    <!-- ================= TABS NASABAH ================= -->
+    <!-- ================= TABS NASABAH ULTRA PRO (PETIR ADITYA + TOMBOL CEPAT) ================= -->
     <div id="menu-nasabah" class="tab-content" style="position: relative;">
-        <div class="card" style="margin-bottom: 8px; display: flex; gap: 6px; align-items:center;">
-            <input type="text" id="cari-nasabah" placeholder="🔍 Cari Nama / NIK..." onkeyup="renderNasabah()" style="flex: 1; padding:8px; border-radius:6px; font-size:13px;">
-            <button class="btn-salin" onclick="bukaFormNasabah()" style="width: auto; background: #007bff; padding:8px 12px; font-size:13px;">➕ Tambah</button>
+        <div class="card" style="margin-bottom: 6px; padding: 8px;">
+            <div style="display: flex; gap: 5px; align-items:center; margin-bottom: 6px;">
+                <input type="text" id="cari-nasabah" placeholder="🔍 Cari Nama / NIK / Alamat..." onkeyup="renderNasabah()" style="flex: 1; padding:7px; border-radius:6px; font-size:12px;">
+                <button class="btn-salin" onclick="bukaFormNasabah()" style="width: auto; background: #007bff; padding:7px 10px; font-size:11.5px; white-space:nowrap;">➕ Tambah</button>
+                <button class="btn-salin" onclick="sedotNasabahDariUBMI()" style="width: auto; background: #059669; padding:7px 10px; font-size:11.5px; white-space:nowrap;" title="Tarik Nasabah dari Memori UBMI">📥 UBMI</button>
+            </div>
+            <div class="hari-chip-bar" id="bar_filter_hari_ns">
+                <span class="hari-chip active" onclick="pilihFilterHariNasabah('', this)">Semua</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Senin', this)">Senin</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Selasa', this)">Selasa</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Rabu', this)">Rabu</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Kamis', this)">Kamis</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Jum\'at', this)">Jum'at</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('Sabtu', this)">Sabtu</span>
+                <span class="hari-chip" onclick="pilihFilterHariNasabah('SIAP_PL', this)" style="border-color:#10b981; color:#047857;">🎯 Bisa PL</span>
+            </div>
         </div>
 
-        <div id="form-nasabah" class="card" style="display: none; background: #f8f9fa; border: 1px solid #ced4da;">
-            <h3 style="margin-top:0; color:#333;">Data Nasabah Baru</h3>
-            <div class="grid-2">
-                <div class="ui-input-box"><label class="ui-label">Nama Nasabah</label><input type="text" class="ui-input" id="nb_nama" placeholder="JOHN DOE"></div>
-                <div class="ui-input-box"><label class="ui-label">No Rekening / NIK</label><input type="text" class="ui-input" id="nb_nik" placeholder="3318..."></div>
+        <div id="form-nasabah" class="card" style="display: none; background: #f8f9fa; border: 2px solid #007bff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #ddd; padding-bottom:6px;">
+                <h3 style="margin:0; border:none; padding:0; color:#1e3a8a;">⚡ Tambah Nasabah (Mode Petir)</h3>
+                <button type="button" onclick="tempelKtpPetirNasabah()" style="background:#ffc107; color:#000; border:1px solid #d39e00; padding:5px 10px; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.15);">⚡ Tempel Teks KTP</button>
             </div>
-            <div class="ui-input-box" style="margin-top:6px;"><label class="ui-label">Alamat / Area</label><input type="text" class="ui-input" id="nb_alamat" placeholder="Pati Lor"></div>
+
+            <textarea id="nb_paste_ktp" placeholder="Jika clipboard terkunci, tahan & tempel (Paste) teks scan KTP di sini..." oninput="prosesTeksKtpNasabah(this.value)" style="display:none; width:100%; height:55px; margin-bottom:8px; padding:6px; border:2px dashed #007bff; border-radius:6px; font-size:11px; background:#fff;"></textarea>
+
+            <div class="grid-2">
+                <div class="ui-input-box"><label class="ui-label">Nama (Ketuk=Koreksi KTP)</label><input type="text" class="ui-input" id="nb_nama" onclick="bukaKoreksiTeksKtp(this)" placeholder="NAMA NASABAH"></div>
+                <div class="ui-input-box"><label class="ui-label">NIK 16 Digit</label><input type="text" class="ui-input" id="nb_nik" placeholder="3318..."></div>
+            </div>
+            <div class="ui-input-box" style="margin-top:6px;"><label class="ui-label">Alamat / Desa (Ketuk=Koreksi KTP)</label><input type="text" class="ui-input" id="nb_alamat" onclick="bukaKoreksiTeksKtp(this)" placeholder="Desa / Alamat"></div>
             
             <div class="grid-2" style="margin-top:6px;">
                 <div class="ui-input-box"><label class="ui-label">Tgl Pinjaman</label><input type="date" class="ui-input" id="nb_tgl_pinjam"></div>
@@ -661,13 +729,29 @@
                 </div>
             </div>
 
-            <div class="grid-2" style="margin-top:6px;">
-                <div class="ui-input-box"><label class="ui-label">Total Pinjaman (P)</label><input type="text" inputmode="numeric" class="ui-input" id="nb_p" oninput="formatRibuan(this)" placeholder="Mis: 1.040.000"></div>
-                <div class="ui-input-box"><label class="ui-label">Nominal Angsuran (A)</label><input type="text" inputmode="numeric" class="ui-input" id="nb_a" oninput="formatRibuan(this)" placeholder="Mis: 104.000"></div>
+            <div style="margin-top:8px;">
+                <label class="ui-label" style="display:block; margin-bottom:4px; color:#1d4ed8;">⚡ Pilih Pinjaman Pokok (Otomatis Hitung P 130% & Angsuran 10%):</label>
+                <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:4px; margin-bottom:6px;">
+                    <button type="button" onclick="pilihPresetDropNasabah(300000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">300rb</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(400000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">400rb</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(500000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">500rb</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(700000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">700rb</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(800000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">800rb</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(1000000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">1 jt</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(1300000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">1,3 jt</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(1500000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">1,5 jt</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(2000000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">2 jt</button>
+                    <button type="button" onclick="pilihPresetDropNasabah(2500000)" style="padding:5px 2px; font-size:10.5px; font-weight:bold; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8; border-radius:4px; cursor:pointer;">2,5 jt</button>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top:4px;">
+                <div class="ui-input-box"><label class="ui-label">Total Pinjaman (P)</label><input type="text" inputmode="numeric" class="ui-input" id="nb_p" oninput="formatRibuan(this)" placeholder="Mis: 650.000"></div>
+                <div class="ui-input-box"><label class="ui-label">Nominal Angsuran (A)</label><input type="text" inputmode="numeric" class="ui-input" id="nb_a" oninput="formatRibuan(this)" placeholder="Mis: 65.000"></div>
             </div>
             <div class="btn-group" style="margin-top: 12px;">
-                <button class="btn-salin" onclick="simpanNasabahBaru()" style="font-size:14px;">💾 Simpan Nasabah</button>
-                <button class="btn-hapus" onclick="tutupFormNasabah()" style="font-size:14px; background:#6c757d;">Batal</button>
+                <button class="btn-salin" onclick="simpanNasabahBaru()" style="font-size:13px;">💾 Simpan Nasabah</button>
+                <button class="btn-hapus" onclick="tutupFormNasabah()" style="font-size:13px; background:#6c757d;">Batal</button>
             </div>
         </div>
 
@@ -694,7 +778,7 @@
                 <ul id="list-riwayat" style="list-style:none; padding:0; font-size:12px; margin-bottom:15px; border-top:1px solid #ddd;"></ul>
                 
                 <div style="display:flex; gap:6px; margin-bottom:8px;">
-                    <button class="btn-salin" onclick="bayarManualModal()" style="background:#28a745; width:100%;">+ Bayar Manual</button>
+                    <button class="btn-salin" onclick="bayarManualModal()" style="background:#28a745; width:100%;">+ Bayar Cepat</button>
                     <button class="btn-hapus" onclick="hapusRiwayatTerakhir()" style="background:#dc3545; width:100%;">🗑️ Hapus Angsuran</button>
                 </div>
                 <div style="display:flex; gap:6px; margin-bottom:8px;">
@@ -841,19 +925,19 @@
             <div class="form-group" style="margin-top:8px;">
                 <label>Template Pesan WA:</label>
                 <textarea id="cfg_wa_template" rows="4" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: monospace;"></textarea>
-                <span class="hint">Gunakan variabel (jangan diubah tulisannya): <br><b>{teksDrop}</b>, <b>{teksDropBaru}</b>, dan <b>{teksMurni}</b></span>
+                <span class="hint">Gunakan variabel (jangan diubah tulisannya): <br><b>{teksDrop}</b>, <b>{teksDropBaru}</b>, <b>{teksStorting}</b>, dan <b>{teksMurni}</b></span>
             </div>
 
             <button class="btn-salin" style="width: 100%; margin-top: 10px; background: #007bff;" onclick="simpanPengaturan()">💾 Simpan Setelan</button>
             
             <div class="form-group" style="margin-top:16px; border-top:1px solid #eee; padding-top:12px;">
-                <label style="color:#856404;">💾 Cadangan & Pemulihan (Offline JSON)</label>
+                <label style="color:#856404;">🗄️ Super Backup & Restore 3-in-1 (Kalkulator + UBMI + Aditya)</label>
                 <div style="display: flex; gap: 6px; margin-top: 6px;">
-                    <button class="btn-salin" style="flex: 1; background: #28a745; font-size:11px;" onclick="backupDataJSON()">⬇️ Backup Data</button>
+                    <button class="btn-salin" style="flex: 1; background: #28a745; font-size:11px;" onclick="backupDataJSON()">⬇️ Super Backup</button>
                     <input type="file" id="file_restore" accept=".json" style="display: none;" onchange="restoreDataJSON(event)">
-                    <button class="btn-hapus" style="flex: 1; background: #ff9800; font-size:11px;" onclick="document.getElementById('file_restore').click()">⬆️ Restore Data</button>
+                    <button class="btn-hapus" style="flex: 1; background: #ff9800; font-size:11px;" onclick="document.getElementById('file_restore').click()">⬆️ Super Restore</button>
                 </div>
-                <span class="hint">Simpan file ke memori HP sebagai cadangan darurat di luar Cloud.</span>
+                <span class="hint">Menyimpan seluruh data Kalkulator Pati 5, Simulasi/TF UBMI, & Cadangan/Bank Aditya dalam 1 file JSON.</span>
             </div>
 
             <button class="btn-hapus" style="width: 100%; margin-top: 20px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
@@ -902,6 +986,7 @@
         let USER_ID = null;
         let selectedBulanTahun = getBulanTahunString();
         let dataRiwayatTF = [];
+        window.lastResetBackup = null;
 
         function getTodayString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
         function getBulanTahunString() { let d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
@@ -920,20 +1005,32 @@
             }
         }
 
+        // FITUR #8: SUPER BACKUP & RESTORE 3-IN-1 (KALKULATOR + UBMI + ADITYA)
+        const BRIDGE_KEYS_3IN1 = [
+            'tm_simulasi_rincian_perm', 'tm_tf_stempel_list', 'tm_angsuran_murni_perm_v1',
+            'tm_buku_cadangan_v2', 'tm_crash_nik_perm_v3', 'tm_bank_nasabah_mega',
+            'tm_jembatan_aditya_full', 'tm_qd_status_v2', 'tm_weekly_unit_cache_v2',
+            'tm_settings_usber', 'tm_user_config'
+        ];
+
         function backupDataJSON() {
             let backupObj = {};
             for(let i=0; i<localStorage.length; i++) {
                 let key = localStorage.key(i);
-                if(key.startsWith(USER_ID + '_')) {
+                if(key.startsWith(USER_ID + '_') || BRIDGE_KEYS_3IN1.includes(key)) {
                     backupObj[key] = localStorage.getItem(key);
                 }
             }
+            BRIDGE_KEYS_3IN1.forEach(k => {
+                let v = bacaJembatanApk(k, "");
+                if (v) backupObj[k] = v;
+            });
             let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj));
             let dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "Backup_Pati5_" + USER_ID + "_" + getTodayString() + ".json");
+            dlAnchorElem.setAttribute("download", "SuperBackup_3in1_Pati5_" + getTodayString() + ".json");
             dlAnchorElem.click();
-            showToast("Backup Data Berhasil Diunduh!");
+            showToast("✅ Super Backup 3-in-1 Berhasil Diunduh!");
         }
 
         function restoreDataJSON(event) {
@@ -945,8 +1042,11 @@
                     let data = JSON.parse(e.target.result);
                     for(let key in data) {
                         localStorage.setItem(key, data[key]);
+                        if (BRIDGE_KEYS_3IN1.includes(key)) {
+                            simpanJembatanApk(key, data[key]);
+                        }
                     }
-                    showToast("Data Berhasil Dipulihkan! Merefresh...");
+                    showToast("✅ Super Restore 3-in-1 Berhasil! Merefresh...");
                     setTimeout(() => { window.location.reload(); }, 1500);
                 } catch(err) {
                     alert("Gagal membaca file backup JSON!");
@@ -1033,7 +1133,6 @@
         function tarikDataHariIniDariUBMI(silent = false) {
             let adaPerubahan = false;
             try {
-                // 1. Tarik Storting, TF, Drop Baru & Drop PL dari "Satu Otak 3 Tab" (tm_one_brain_memory & tm_super_sync_usber_to_calc)
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
                 if (rawSuper) {
                     let sObj = JSON.parse(rawSuper);
@@ -1045,7 +1144,10 @@
                         if (sObj.cm > 0) { let el = document.getElementById('a1'); if (el) { el.value = String(sObj.cm); formatRibuan(el); adaPerubahan = true; } }
                         if (sObj.mb > 0) { let el = document.getElementById('a2'); if (el) { el.value = String(sObj.mb); formatRibuan(el); adaPerubahan = true; } }
                         if (sObj.ml > 0) { let el = document.getElementById('a3'); if (el) { el.value = String(sObj.ml); formatRibuan(el); adaPerubahan = true; } }
-                        if (sObj.tf > 0) { let el = document.getElementById('st_transfer'); if (el) { el.value = String(sObj.tf); formatRibuan(el); adaPerubahan = true; } }
+                        if (sObj.tf > 0) {
+                            let elTfUbmi = document.getElementById('st_tf_ubmi');
+                            if (elTfUbmi) { elTfUbmi.value = String(sObj.tf); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
+                        }
                     }
                 }
 
@@ -1057,9 +1159,11 @@
                             let elSt = document.getElementById('st_storting');
                             if (elSt) { elSt.value = String(bObj.storting); formatRibuan(elSt); adaPerubahan = true; }
                         }
-                        if (bObj.drop_baru > 0) {
-                            let elDB = document.getElementById('st_drop_baru');
-                            if (elDB) { elDB.value = String(bObj.drop_baru); formatRibuan(elDB); adaPerubahan = true; }
+                        let elDB = document.getElementById('st_drop_baru');
+                        if (elDB) {
+                            elDB.value = bObj.drop_baru > 0 ? String(bObj.drop_baru) : '';
+                            if (bObj.drop_baru > 0) formatRibuan(elDB);
+                            adaPerubahan = true;
                         }
                         if (bObj.drop_pl > 0) {
                             let elPL = document.getElementById('st_drop_pelunasan');
@@ -1069,17 +1173,15 @@
                     }
                 }
 
-                // 2. Cek TF Hari Ini dari memori UBMI
                 let d = new Date();
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 let rawTf = parseInt(bacaJembatanApk(tfKey, "0") || "0");
                 if (rawTf > 0) {
                     let tfRibuan = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
-                    let elTF = document.getElementById('st_transfer');
-                    if (elTF) { elTF.value = String(tfRibuan); formatRibuan(elTF); adaPerubahan = true; }
+                    let elTfUbmi = document.getElementById('st_tf_ubmi');
+                    if (elTfUbmi) { elTfUbmi.value = String(tfRibuan); formatRibuan(elTfUbmi); hitungTotalTFInput(); adaPerubahan = true; }
                 }
 
-                // 3. Cek Bank Nasabah dari Aditya/UBMI untuk menghitung Drop Baru & Pelunasan secara akurat
                 let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
                 let bankList = JSON.parse(rawBank || '[]');
                 if (Array.isArray(bankList) && bankList.length > 0) {
@@ -1092,7 +1194,6 @@
                     });
                     let elDB = document.getElementById('st_drop_baru');
                     let elPL = document.getElementById('st_drop_pelunasan');
-                    // Jika tidak ada Drop Baru di Bank Nasabah (sumDB === 0), kosongkan kotak Baru agar tidak tersisa angka 500 palsu!
                     if (elDB) {
                         elDB.value = sumDB > 0 ? String(sumDB) : '';
                         if (sumDB > 0) formatRibuan(elDB);
@@ -1104,7 +1205,7 @@
                     hitungTotalDrop();
                     adaPerubahan = true;
                 }
-            } catch(e) {} // <--- BARIS INI YANG HILANG SAAT PASTE TADI
+            } catch(e) {}
 
             if (adaPerubahan) {
                 syncDariStoran();
@@ -1112,6 +1213,81 @@
                 if (!silent) showToast("✅ Storting, TF & Drop berhasil ditarik dari UBMI/Aditya!");
             } else if (!silent) {
                 showToast("ℹ️ Belum ada perubahan baru dari UBMI.", true);
+            }
+        }
+
+        // FITUR #6: TARIK REKAP BULANAN DARI HALAMAN /kasir/rekap/permantri UBMI
+        function tarikRekapBulananDariUBMI() {
+            let adaMasuk = false;
+            try {
+                let rawSirk = bacaJembatanApk('tm_usber_sirkulasi_resmi', '');
+                if (rawSirk) {
+                    let sirkObj = JSON.parse(rawSirk);
+                    if (sirkObj.sirkulasi > 0) {
+                        let elSi = document.getElementById('siRec');
+                        if (elSi && !elSi.value) { elSi.value = String(Math.round(sirkObj.sirkulasi / 1000)); formatRibuan(elSi); adaMasuk = true; }
+                    }
+                    if (sirkObj.cm_saldo > 0) {
+                        let elSc = document.getElementById('sa1');
+                        if (elSc) { elSc.value = String(Math.round(sirkObj.cm_saldo / 1000)); formatRibuan(elSc); adaMasuk = true; }
+                    }
+                    if (sirkObj.mb_saldo > 0) {
+                        let elSm = document.getElementById('sa2');
+                        if (elSm) { elSm.value = String(Math.round(sirkObj.mb_saldo / 1000)); formatRibuan(elSm); adaMasuk = true; }
+                    }
+                    if (sirkObj.ml_saldo > 0) {
+                        let elSl = document.getElementById('sa3');
+                        if (elSl) { elSl.value = String(Math.round(sirkObj.ml_saldo / 1000)); formatRibuan(elSl); adaMasuk = true; }
+                    }
+                }
+
+                let rawRekapBulan = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
+                if (rawRekapBulan) {
+                    let rObj = JSON.parse(rawRekapBulan);
+                    if (rObj && Array.isArray(rObj.rows) && rObj.rows.length > 0) {
+                        let todayDate = new Date().getDate();
+                        let lastBeforeToday = null;
+                        rObj.rows.forEach(r => {
+                            let dNum = parseInt(r.tgl);
+                            if (!dNum) return;
+                            if (dNum < todayDate) lastBeforeToday = r;
+                            const setCell = (pref, val) => {
+                                let el = document.getElementById(pref + dNum);
+                                if (el && val !== undefined && val !== '') {
+                                    el.value = String(val);
+                                    if (!pref.includes('_pc_') && !pref.includes('_pm_')) formatRibuan(el);
+                                }
+                            };
+                            setCell('t_d_', r.drop);
+                            setCell('t_jd_', r.jml_drop);
+                            setCell('t_s_', r.stort);
+                            setCell('t_js_', r.jml_stort);
+                            setCell('t_si_', r.sirk);
+                            setCell('t_ac_', r.ac);
+                            setCell('t_jc_', r.jc);
+                            setCell('t_sc_', r.sc);
+                            setCell('t_am_', r.am);
+                            setCell('t_jm_', r.jm);
+                            setCell('t_sm_', r.sm);
+                            setCell('t_al_', r.al);
+                            setCell('t_jl_', r.jl);
+                            setCell('t_sl_', r.sl);
+                        });
+                        if (lastBeforeToday) {
+                            let elD2 = document.getElementById('d2'); if (elD2 && lastBeforeToday.jml_drop) { elD2.value = String(lastBeforeToday.jml_drop); formatRibuan(elD2); }
+                            let elS2 = document.getElementById('s2'); if (elS2 && lastBeforeToday.jml_stort) { elS2.value = String(lastBeforeToday.jml_stort); formatRibuan(elS2); }
+                            let elSi = document.getElementById('siRec'); if (elSi && lastBeforeToday.sirk) { elSi.value = String(lastBeforeToday.sirk); formatRibuan(elSi); }
+                        }
+                        adaMasuk = true;
+                    }
+                }
+            } catch(e) {}
+
+            if (adaMasuk) {
+                hitungSemua();
+                showToast("✅ Data Rekap & Saldo CM/MB/ML berhasil ditarik dari UBMI!");
+            } else {
+                showToast("ℹ️ Buka Angsuran Lancar / Rekap Mantri di UBMI dulu.", true);
             }
         }
 
@@ -1154,7 +1330,7 @@
                 hitungSemua();
                 if (!silent) showToast("🎯 Data Target & Rekap Aditya berhasil ditarik!");
             } else if (!silent) {
-                showToast("ℹ️ Klik '🎯 TARGET (Sync)' di Aditya dulu untuk mengirim target.", true);
+                showToast("ℹ️ Klik '🎯 TARGET' di Aditya dulu untuk mengirim target.", true);
             }
         }
 
@@ -1177,13 +1353,17 @@
                 if (valMB) { document.getElementById('a2').value = valMB; adaDataMasuk = true; }
                 if (valML) { document.getElementById('a3').value = valML; adaDataMasuk = true; }
                 if (valDrop) { document.getElementById('st_drop_baru').value = valDrop; hitungTotalDrop(); adaDataMasuk = true; }
-                if (valTF) { let elTF = document.getElementById('st_transfer'); if(elTF) { elTF.value = valTF; formatRibuan(elTF); adaDataMasuk = true; } }
+                if (valTF) {
+                    let elTFUbmi = document.getElementById('st_tf_ubmi');
+                    if (elTFUbmi) { elTFUbmi.value = valTF; formatRibuan(elTFUbmi); hitungTotalTFInput(); adaDataMasuk = true; }
+                }
 
                 if (adaDataMasuk) {
-                    ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru', 'st_transfer'].forEach(id => {
+                    ['st_storting', 'a1', 'a2', 'a3', 'st_drop_baru', 'st_tf_ubmi'].forEach(id => {
                         let el = document.getElementById(id);
                         if(el && el.value) { formatRibuan(el); }
                     });
+                    hitungTotalTFInput();
                     isAppReady = true; 
                     hitungSemua(); 
                     simpanKalkulator();
@@ -1297,6 +1477,8 @@
                 if (typeof tarikDataHariIniDariUBMI === "function") tarikDataHariIniDariUBMI(true);
                 if (typeof tarikTargetRekapDariAditya === "function") tarikTargetRekapDariAditya(true);
                 if (typeof hitungTotalDrop === "function") hitungTotalDrop();
+                if (typeof hitungTotalKasbon === "function") hitungTotalKasbon();
+                if (typeof hitungTotalTFInput === "function") hitungTotalTFInput();
                 if (typeof syncDariStoran === "function") syncDariStoran();
                 if (typeof hitungSemua === "function") hitungSemua();
             }, 50);
@@ -1313,15 +1495,178 @@
             let lblSaldo = document.getElementById("judulBulanSaldo");
             if(lblSaldo) lblSaldo.innerText = `Target Sistem: Angsuran Bulan ${bulanIniString} (Support UBMI Baru)`;
         }
-
-        // -----------------------------------------------------
-        // BLOK NASABAH & RIWAYAT
-        // -----------------------------------------------------
+        
+        // =====================================================
+        // BLOK NASABAH & RIWAYAT ULTRA PRO (PETIR KTP + TOMBOL CEPAT)
+        // =====================================================
         let dataNasabah = [];
         let idNasabahTerpilih = null; 
+        let filterHariNasabahAktif = '';
+        window.lastKtpRawLines = [];
 
-        function bukaFormNasabah() { document.getElementById('form-nasabah').style.display = 'block'; }
-        function tutupFormNasabah() { document.getElementById('form-nasabah').style.display = 'none'; }
+        function bukaFormNasabah() {
+            let f = document.getElementById('form-nasabah');
+            if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+            let tglEl = document.getElementById('nb_tgl_pinjam');
+            if (tglEl && !tglEl.value) tglEl.value = getTodayString();
+            const mapH = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
+            let hEl = document.getElementById('nb_hari_bayar');
+            if (hEl) hEl.value = mapH[new Date().getDay()];
+        }
+        function tutupFormNasabah() {
+            document.getElementById('form-nasabah').style.display = 'none';
+            let pasteBox = document.getElementById('nb_paste_ktp');
+            if (pasteBox) { pasteBox.style.display = 'none'; pasteBox.value = ''; }
+        }
+
+        function pilihFilterHariNasabah(hari, chipEl) {
+            filterHariNasabahAktif = hari;
+            document.querySelectorAll('#bar_filter_hari_ns .hari-chip').forEach(c => c.classList.remove('active'));
+            if (chipEl) chipEl.classList.add('active');
+            renderNasabah();
+        }
+
+        function pilihPresetDropNasabah(nomDrop) {
+            let pVal = Math.round(nomDrop * 1.3);
+            let aVal = Math.round(pVal / 10);
+            let elP = document.getElementById('nb_p');
+            let elA = document.getElementById('nb_a');
+            if (elP) { elP.value = String(pVal); formatRibuan(elP); }
+            if (elA) { elA.value = String(aVal); formatRibuan(elA); }
+        }
+
+        async function tempelKtpPetirNasabah() {
+            let pasteBox = document.getElementById('nb_paste_ktp');
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    let txt = await navigator.clipboard.readText();
+                    if (txt && txt.trim() !== '') {
+                        prosesTeksKtpNasabah(txt);
+                        showToast("⚡ Teks KTP berhasil diproses!");
+                        return;
+                    }
+                }
+            } catch(e) {}
+            if (pasteBox) {
+                pasteBox.style.display = 'block';
+                pasteBox.focus();
+                showToast("📋 Tempel (Paste) teks KTP di kotak biru!", true);
+            }
+        }
+
+        function prosesTeksKtpNasabah(text) {
+            if (!text) return;
+            let textNoSpace = text.replace(/\s+/g, '');
+            let nikMatch = text.match(/\b\d{16}\b/) || textNoSpace.match(/\d{16}/);
+            if (nikMatch) document.getElementById('nb_nik').value = nikMatch[0];
+
+            let lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            window.lastKtpRawLines = lines;
+
+            const blacklist = ['PROVINSI', 'KABUPATEN', 'KOTA', 'NIK', 'NAMA', 'TEMPAT', 'TGL', 'LAHIR', 'JENIS', 'KELAMIN', 'ALAMAT', 'RT', 'RW', 'KEL', 'DESA', 'KECAMATAN', 'AGAMA', 'STATUS', 'PERKAWINAN', 'PEKERJAAN', 'KEWARGANEGARAAN', 'BERLAKU', 'HINGGA', 'GOL', 'DARAH', 'WNI', 'SEUMUR', 'HIDUP', 'ISLAM', 'KRISTEN', 'KATOLIK', 'HINDU', 'BUDDHA', 'KONGHUCU', 'KAWIN', 'BELUM', 'CERAI', 'MATI', 'MENGURUS', 'RUMAH', 'TANGGA', 'PELAJAR', 'MAHASISWA', 'WIRASWASTA', 'KARYAWAN', 'BURUH', 'PEREMPUAN', 'LAKI', 'DSN', 'KRAJAN', 'GOLONGAN'];
+
+            let alamat = "";
+            for (let i = 0; i < lines.length; i++) {
+                let lineUpper = lines[i].toUpperCase();
+                if (lineUpper.includes('ALAMAT')) {
+                    let extracted = lines[i].replace(/ALAMAT\s*[:;]?\s*/i, '').trim();
+                    if (extracted.length > 2) alamat = extracted;
+                    else if (i + 1 < lines.length) alamat = lines[i + 1].replace(/^[:;]\s*/, '').trim();
+                    break;
+                }
+            }
+            const sampahKTP = [/jenis kelamin/gi, /agama/gi, /status perkawinan/gi, /pekerjaan/gi, /kewarganegaraan/gi, /berlaku hingga/gi, /gol\.?\s*darah/gi, /rt\/?rw/gi, /kel\/?desa/gi, /kecamatan/gi, /provinsi/gi, /kabupaten/gi, /golongan/gi, /darah/gi, /kudus/gi, /pati/gi, /jepara/gi, /gol/gi];
+            sampahKTP.forEach(reg => { alamat = alamat.replace(reg, ''); });
+            alamat = alamat.replace(/[:;-]/g, ' ').replace(/\s+/g, ' ').trim();
+            if (alamat) document.getElementById('nb_alamat').value = alamat;
+
+            let nama = "";
+            let possibleNames = [];
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].toUpperCase();
+                if (line.includes('NAMA') && line.includes(':')) {
+                    let extracted = line.substring(line.indexOf(':') + 1).replace(/[^A-Z\s.,'-]/g, '').trim();
+                    if (extracted.length > 2) { nama = extracted; break; }
+                } else if (line === 'NAMA' && lines[i+1]) {
+                    let nextLine = lines[i+1].toUpperCase();
+                    if (!blacklist.some(b => nextLine.includes(b)) && !/\d/.test(nextLine)) {
+                        nama = nextLine.replace(/[^A-Z\s.,'-]/g, '').trim(); break;
+                    }
+                }
+                let hasNumber = /\d/.test(line);
+                let isBlacklisted = blacklist.some(b => line === b || line.includes(' ' + b + ' ') || line.startsWith(b + ' '));
+                if (!hasNumber && !isBlacklisted && line.length > 2 && !line.includes('/')) {
+                    let cleanLine = line.replace(/[^A-Z\s.,'-]/g, '').trim();
+                    if (cleanLine.length > 2) possibleNames.push(cleanLine);
+                }
+            }
+            if (!nama && possibleNames.length > 0) nama = possibleNames[0];
+            if (nama) document.getElementById('nb_nama').value = nama;
+
+            if (!document.getElementById('nb_p').value) pilihPresetDropNasabah(500000);
+        }
+
+        function bukaKoreksiTeksKtp(inputEl) {
+            let old = document.getElementById('ktp-dd-helper');
+            if (old) old.remove();
+            if (!window.lastKtpRawLines || window.lastKtpRawLines.length === 0) return;
+
+            let dd = document.createElement('div');
+            dd.id = 'ktp-dd-helper';
+            let rect = inputEl.getBoundingClientRect();
+            dd.style.cssText = `position:fixed; top:${Math.min(window.innerHeight - 190, rect.bottom + 4)}px; left:${Math.max(10, rect.left)}px; width:${Math.max(inputEl.offsetWidth, 210)}px; max-height:175px; overflow-y:auto; background:#fff; border:2px solid #007bff; border-radius:8px; z-index:99999; box-shadow:0 8px 20px rgba(0,0,0,0.3);`;
+            dd.innerHTML = `<div style="background:#007bff; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; display:flex; justify-content:space-between;"><span>💡 Pilih Baris KTP:</span><span style="cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✖</span></div>`;
+            [...new Set(window.lastKtpRawLines)].forEach(line => {
+                let item = document.createElement('div');
+                item.textContent = line;
+                item.style.cssText = 'padding:7px 10px; font-size:12px; font-weight:bold; color:#333; border-bottom:1px solid #eee; cursor:pointer;';
+                item.onclick = () => { inputEl.value = line; dd.remove(); };
+                dd.appendChild(item);
+            });
+            document.body.appendChild(dd);
+        }
+
+        function sedotNasabahDariUBMI() {
+            let added = 0;
+            try {
+                const mapHariNama = { senin:'Senin', selasa:'Selasa', rabu:'Rabu', kamis:'Kamis', jumat:"Jum'at", sabtu:'Sabtu' };
+                let rawBridge = bacaJembatanApk('tm_jembatan_aditya_full', '{}');
+                let bridgeObj = JSON.parse(rawBridge || '{}');
+                Object.keys(bridgeObj).forEach(hKey => {
+                    let dayLoans = bridgeObj[hKey]?.loans || [];
+                    dayLoans.forEach(l => {
+                        if (!l || !l.nama) return;
+                        let exists = dataNasabah.some(x => (l.nik && x.nik === l.nik) || x.nama.toUpperCase() === l.nama.toUpperCase());
+                        if (!exists) {
+                            let pVal = parseInt(l.pinjaman || 650000);
+                            let sVal = parseInt(l.saldo || pVal);
+                            let aVal = Math.round(pVal / 10);
+                            dataNasabah.push({
+                                id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+                                nama: l.nama,
+                                nik: l.nik || '',
+                                alamat: '-',
+                                tglPinjam: getTodayString(),
+                                hariBayar: mapHariNama[hKey.toLowerCase()] || 'Senin',
+                                p: pVal,
+                                a: aVal,
+                                s: sVal,
+                                riwayat: []
+                            });
+                            added++;
+                        }
+                    });
+                });
+            } catch(e) {}
+
+            if (added > 0) {
+                saveNasabahCloudLocal();
+                renderNasabah();
+                showToast(`✅ ${added} Nasabah aktif berhasil disedot dari UBMI!`);
+            } else {
+                showToast("ℹ️ Belum ada nasabah baru di memori UBMI.", true);
+            }
+        }
 
         function simpanNasabahBaru() {
             let nama = document.getElementById('nb_nama').value.trim();
@@ -1333,6 +1678,7 @@
             let a_raw = getNum('nb_a');
             
             if(!nama || p_raw <= 0) { alert("Nama dan Nominal Pinjaman harus diisi dengan benar!"); return; }
+            if(!a_raw || a_raw <= 0) a_raw = Math.round(p_raw / 10);
             if(!tglP) tglP = getTodayString(); 
             
             let id = Date.now().toString(); 
@@ -1349,11 +1695,10 @@
             document.getElementById('nb_nik').value = '';
             document.getElementById('nb_alamat').value = '';
             document.getElementById('nb_tgl_pinjam').value = '';
-            document.getElementById('nb_hari_bayar').value = 'Senin';
             document.getElementById('nb_p').value = '';
             document.getElementById('nb_a').value = '';
             
-            showToast("Nasabah berhasil ditambahkan!");
+            showToast("✅ Nasabah berhasil ditambahkan!");
             renderNasabah();
         }
 
@@ -1371,48 +1716,83 @@
         }
 
         function renderNasabah() {
-            let filter = document.getElementById('cari-nasabah').value.toLowerCase();
+            let filter = (document.getElementById('cari-nasabah')?.value || '').toLowerCase();
             let container = document.getElementById('list-nasabah');
             if(!container) return;
             container.innerHTML = '';
+            let todayIso = getTodayString();
             
-            let filtered = dataNasabah.filter(n => n.nama.toLowerCase().includes(filter) || n.nik.includes(filter));
+            let filtered = dataNasabah.filter(n => {
+                let matchText = (n.nama || '').toLowerCase().includes(filter) || (n.nik || '').includes(filter) || (n.alamat || '').toLowerCase().includes(filter);
+                if (!matchText) return false;
+                if (filterHariNasabahAktif === 'SIAP_PL') {
+                    let dropPokok = Math.round((n.p || 650000) / 1.3);
+                    return n.s > 0 && n.s <= Math.round(dropPokok * 0.45);
+                }
+                if (filterHariNasabahAktif && n.hariBayar !== filterHariNasabahAktif) return false;
+                return true;
+            });
             
-            let akumulasiP = 0;
-            let akumulasiA = 0;
-            let akumulasiS = 0;
+            let akumulasiP = 0, akumulasiA = 0, akumulasiS = 0;
 
             filtered.forEach((n, idx) => {
-                let badge_a = formatAngka(n.a / 1000); 
+                let murniRibuan = Math.round((n.a || 65000) / 1000);
                 let lastPayDate = "-";
-                if(n.riwayat && n.riwayat.length > 0) { lastPayDate = n.riwayat[n.riwayat.length-1].tglpendek; }
+                let paidTodayItem = null;
+                if(n.riwayat && n.riwayat.length > 0) {
+                    let lastR = n.riwayat[n.riwayat.length - 1];
+                    lastPayDate = lastR.tglpendek;
+                    if (lastR.tgl === todayIso) paidTodayItem = lastR;
+                }
                 
                 let totalDibayar = n.p - n.s;
-                let txtA = formatAngka(totalDibayar);
-
                 akumulasiP += n.p;
                 akumulasiS += n.s;
                 akumulasiA += totalDibayar;
 
+                let dropPokok = Math.round((n.p || 650000) / 1.3);
+                let sudahBayarKali = n.a > 0 ? Math.max(0, Math.round(totalDibayar / n.a)) : 0;
+                let isBisaPL = (n.s > 0 && n.s <= Math.round(dropPokok * 0.45));
+                let badgePlHtml = isBisaPL ? `<span style="background:#a7f3d0; color:#065f46; border:1px solid #34d399; font-size:8.5px; font-weight:900; padding:0 3px; border-radius:3px; margin-left:4px;">(bisa pl)</span>` : '';
+
+                let rowClass = "nasabah-item";
+                let topBtnLabel = formatAngka(murniRibuan);
+                let topBtnBg = "#28a745";
+                if (paidTodayItem) {
+                    if (paidTodayItem.bayar === 0) {
+                        rowClass += " paid-zero";
+                        topBtnLabel = "0 ↺";
+                        topBtnBg = "#dc3545";
+                    } else if (paidTodayItem.bayar < n.a) {
+                        rowClass += " paid-less";
+                        topBtnLabel = formatAngka(paidTodayItem.bayar / 1000) + " ↺";
+                        topBtnBg = "#d97706";
+                    } else {
+                        rowClass += " paid-full";
+                        topBtnLabel = formatAngka(paidTodayItem.bayar / 1000) + " ↺";
+                        topBtnBg = "#059669";
+                    }
+                }
+
                 let html = `
-                <div class="nasabah-item">
-                    <div style="font-size:10px; width:20px; color:#999; text-align:center; font-weight:bold;">${idx+1}</div>
+                <div class="${rowClass}">
+                    <div style="font-size:10px; width:18px; color:#999; text-align:center; font-weight:bold;">${idx+1}</div>
                     
                     <div class="ns-left">
-                        <div class="ns-date">${lastPayDate}</div>
-                        <button class="ns-badge-green" onclick="bayarInstan('${n.id}')" title="Klik untuk bayar pas">${badge_a}</button>
-                        <button class="ns-btn-bayar" onclick="bayarKustom('${n.id}')">Bayar</button>
+                        <div class="ns-date">${lastPayDate} • ${sudahBayarKali}x</div>
+                        <button type="button" class="ns-badge-green" style="background:${topBtnBg};" onclick="bayarInstan('${n.id}')" oncontextmenu="event.preventDefault(); bayarLunasInstan('${n.id}');" title="Ketuk=Bayar/Batal Hari Ini | Tahan=Lunas">${topBtnLabel}</button>
+                        <button type="button" class="ns-btn-bayar" onclick="bayarKustom('${n.id}')">▾ Pilih</button>
                     </div>
                     
-                    <div class="ns-mid" onclick="lihatRiwayat('${n.id}')" title="Klik untuk lihat rincian & riwayat">
-                        <div class="ns-name">${n.nama}</div>
-                        <div class="ns-sub">${n.nik}</div>
+                    <div class="ns-mid" onclick="lihatRiwayat('${n.id}')" title="Ketuk untuk rincian & riwayat">
+                        <div class="ns-name">${n.nama} ${badgePlHtml}</div>
+                        <div class="ns-sub">${n.nik || '-'} • ${n.hariBayar || '-'} ${n.alamat ? '• ' + n.alamat : ''}</div>
                     </div>
                     
                     <div class="ns-right">
                         <div class="ns-val"><span style="color:#666;">P</span><span>${formatAngka(n.p)}</span></div>
-                        <div class="ns-val border-bottom"><span style="color:#666;">A</span><span style="font-weight:bold; color:#333;">${txtA}</span></div>
-                        <div class="ns-val"><span style="font-weight:bold; color:#0056b3;">S</span><span style="font-weight:bold; color:#0056b3;">${formatAngka(n.s)}</span></div>
+                        <div class="ns-val border-bottom"><span style="color:#666;">A</span><span style="font-weight:bold; color:#333;">${formatAngka(totalDibayar)}</span></div>
+                        <div class="ns-val"><span style="font-weight:bold; color:#0056b3;">S</span><span style="font-weight:bold; color:${n.s <= 0 ? '#16a34a' : '#0056b3'};">${n.s <= 0 ? 'LUNAS' : formatAngka(n.s)}</span></div>
                     </div>
                 </div>`;
                 container.innerHTML += html;
@@ -1426,42 +1806,124 @@
             if(spanS) spanS.innerText = formatAngka(akumulasiS);
 
             if(filtered.length === 0) {
-                container.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-style:italic;">Belum ada data nasabah atau pencarian tidak ditemukan.</div>';
+                container.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-style:italic;">Belum ada data nasabah. Tekan ➕ Tambah atau 📥 UBMI.</div>';
             }
         }
 
         function bayarInstan(id) {
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
+            let todayIso = getTodayString();
+            if (n.riwayat && n.riwayat.length > 0 && n.riwayat[n.riwayat.length - 1].tgl === todayIso) {
+                let batalItem = n.riwayat.pop();
+                n.s = Math.min(n.p, n.s + (batalItem.bayar || 0));
+                saveNasabahCloudLocal();
+                renderNasabah();
+                showToast(`↩️ Angsuran ${n.nama} hari ini dibatalkan!`, true);
+                return;
+            }
             if(n.s <= 0) { showToast("Saldo sudah Lunas!", true); return; }
-            prosesPembayaran(n, n.a);
-            showToast("✅ Berhasil: Rp " + formatAngka(n.a));
+            let bayarPas = Math.min(n.s, n.a);
+            prosesPembayaran(n, bayarPas);
+            showToast(`✅ ${n.nama}: Rp ${formatAngka(bayarPas)}`);
+        }
+
+        function bayarLunasInstan(id) {
+            let n = dataNasabah.find(x => x.id === id);
+            if(!n || n.s <= 0) return;
+            if (confirm(`Lunasi sisa saldo ${n.nama} sebesar Rp ${formatAngka(n.s)}?`)) {
+                let sisaLunas = n.s;
+                prosesPembayaran(n, sisaLunas);
+                showToast(`🎉 ${n.nama} LUNAS (Rp ${formatAngka(sisaLunas)})!`);
+            }
+        }
+
+        // POP-UP ANGKA CEPAT (0, 30, 35, 50, 55, 60, 65, 100, 130) SEPERTI UBMI
+        function tampilkanModalAngkaCepat(judul, defaultRibuan, onPilihCallback) {
+            let old = document.getElementById('modal-angka-cepat-ns');
+            if (old) old.remove();
+
+            let overlay = document.createElement('div');
+            overlay.id = 'modal-angka-cepat-ns';
+            overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:99999; display:flex; align-items:center; justify-content:center; padding:15px;';
+
+            let box = document.createElement('div');
+            box.style.cssText = 'background:#fff; width:100%; max-width:310px; border-radius:12px; padding:14px; border:2px solid #007bff; box-shadow:0 10px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:8px;';
+            box.innerHTML = `<div style="font-size:13px; font-weight:bold; color:#004085; text-align:center; border-bottom:1px solid #eee; padding-bottom:6px;">${judul}</div>`;
+
+            let inp = document.createElement('input');
+            inp.type = 'text';
+            inp.inputMode = 'numeric';
+            inp.value = String(defaultRibuan || 65);
+            inp.style.cssText = 'width:100%; height:40px; font-size:18px; font-weight:bold; text-align:center; border:2px solid #007bff; border-radius:8px;';
+            box.appendChild(inp);
+
+            let grid = document.createElement('div');
+            grid.style.cssText = 'display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;';
+
+            const eksekusi = (valInput) => {
+                let clean = parseInt(String(valInput).replace(/\D/g, '') || '0');
+                let finalRp = (clean > 0 && clean < 1000) ? (clean * 1000) : clean;
+                overlay.remove();
+                onPilihCallback(finalRp);
+            };
+
+            [0, 30, 35, 50, 55, 60, 65, 100, 130].forEach(v => {
+                let b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = String(v);
+                b.style.cssText = `height:34px; font-size:13px; font-weight:bold; border-radius:6px; cursor:pointer; border:1px solid ${v===0?'#fca5a5':'#93c5fd'}; background:${v===0?'#fef2f2':'#eff6ff'}; color:${v===0?'#dc2626':'#1d4ed8'};`;
+                b.onclick = () => eksekusi(v);
+                grid.appendChild(b);
+            });
+            box.appendChild(grid);
+
+            let act = document.createElement('div');
+            act.style.cssText = 'display:flex; gap:6px; margin-top:4px;';
+            let bBatal = document.createElement('button');
+            bBatal.textContent = 'Batal';
+            bBatal.style.cssText = 'flex:1; height:36px; background:#6c757d; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;';
+            bBatal.onclick = () => overlay.remove();
+
+            let bSimpan = document.createElement('button');
+            bSimpan.textContent = 'Simpan';
+            bSimpan.style.cssText = 'flex:1.2; height:36px; background:#28a745; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;';
+            bSimpan.onclick = () => eksekusi(inp.value);
+
+            act.appendChild(bBatal);
+            act.appendChild(bSimpan);
+            box.appendChild(act);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+            setTimeout(() => { inp.focus(); inp.select(); }, 30);
         }
 
         function bayarKustom(id) {
             let n = dataNasabah.find(x => x.id === id);
             if(!n) return;
             if(n.s <= 0) { showToast("Saldo sudah Lunas!", true); return; }
-            let konfirm = prompt(`Pembayaran Kustom: ${n.nama}\nMasukkan nominal yang dibayar:`, n.a);
-            if(konfirm === null || konfirm === "") return;
-            
-            let valBayar = parseFloat(konfirm.replace(/[^0-9\-,]/g, ''));
-            if(isNaN(valBayar) || valBayar <= 0) { alert("Nominal tidak valid!"); return; }
-            prosesPembayaran(n, valBayar);
-            showToast("✅ Berhasil: Rp " + formatAngka(valBayar));
+            let defRibuan = Math.round((n.a || 65000) / 1000);
+            tampilkanModalAngkaCepat(`Pilih Angsuran: ${n.nama}`, defRibuan, (valBayar) => {
+                let todayIso = getTodayString();
+                if (n.riwayat && n.riwayat.length > 0 && n.riwayat[n.riwayat.length - 1].tgl === todayIso) {
+                    let old = n.riwayat.pop();
+                    n.s = Math.min(n.p, n.s + (old.bayar || 0));
+                }
+                prosesPembayaran(n, valBayar);
+                showToast(`✅ ${n.nama}: Rp ${formatAngka(valBayar)}`);
+            });
         }
 
         function bayarManualModal() {
             if(!idNasabahTerpilih) return;
             let n = dataNasabah.find(x => x.id === idNasabahTerpilih);
-            let konfirm = prompt(`Bayar Manual untuk ${n.nama}\nMasukkan nominal:`, n.a);
-            if(konfirm === null || konfirm === "") return;
-            let valBayar = parseFloat(konfirm.replace(/[^0-9\-,]/g, ''));
-            if(isNaN(valBayar) || valBayar <= 0) { alert("Nominal tidak valid!"); return; }
-            
-            prosesPembayaran(n, valBayar);
-            lihatRiwayat(idNasabahTerpilih); 
-            showToast("✅ Berhasil dibayar secara manual");
+            if(!n) return;
+            let defRibuan = Math.round((n.a || 65000) / 1000);
+            tampilkanModalAngkaCepat(`Bayar: ${n.nama}`, defRibuan, (valBayar) => {
+                prosesPembayaran(n, valBayar);
+                lihatRiwayat(idNasabahTerpilih);
+                showToast(`✅ Berhasil dibayar: Rp ${formatAngka(valBayar)}`);
+            });
         }
 
         function prosesPembayaran(n, valBayar) {
@@ -1488,8 +1950,11 @@
             
             document.getElementById('info-nasabah-modal').innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span><b>NIK:</b> ${n.nik}</span>
-                    <button onclick="editNIKModal('${n.id}')" style="background:#ffc107; color:#000; border:none; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">✏️ Edit NIK</button>
+                    <span><b>NIK:</b> ${n.nik || '-'}</span>
+                    <div style="display:flex; gap:4px;">
+                        <button onclick="navigator.clipboard.writeText('${n.nik || ''}'); showToast('📋 NIK Disalin!');" style="background:#007bff; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">📋 Copy NIK</button>
+                        <button onclick="editNIKModal('${n.id}')" style="background:#ffc107; color:#000; border:none; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">✏️ Edit</button>
+                    </div>
                 </div>
                 <div style="margin-bottom:2px;"><b>Alamat:</b> <span style="font-style:italic;">${n.alamat || '-'}</span></div>
                 <div style="color:#17a2b8; font-weight:bold;">Pinjam: ${tglPnjmFormat} | Hari: ${hrByrFormat}</div>
@@ -1506,7 +1971,7 @@
                     <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
                         <div style="flex:1;">
                             <div style="color:#555; font-size:10px;">${r.tgl}</div>
-                            <div style="color:#28a745; font-weight:bold;">+ ${formatAngka(r.bayar)}</div>
+                            <div style="color:${r.bayar === 0 ? '#dc3545' : '#28a745'}; font-weight:bold;">${r.bayar === 0 ? 'Libur (0)' : '+ ' + formatAngka(r.bayar)}</div>
                         </div>
                         <div style="text-align:right;">
                             <div style="color:#0056b3; font-weight:bold; font-size:11px;">Sisa: ${formatAngka(r.sisa)}</div>
@@ -1575,7 +2040,7 @@
                 if(pKonfirm === null || pKonfirm === "") return;
                 let valP = parseFloat(pKonfirm.replace(/[^0-9\-,]/g, ''));
                 
-                let aKonfirm = prompt(`Masukkan Nominal Angsuran (A) Baru untuk ${n.nama}:`, n.a);
+                let aKonfirm = prompt(`Masukkan Nominal Angsuran (A) Baru untuk ${n.nama}:`, Math.round(valP / 10));
                 if(aKonfirm === null || aKonfirm === "") return;
                 let valA = parseFloat(aKonfirm.replace(/[^0-9\-,]/g, ''));
                 
@@ -1767,6 +2232,9 @@
             tbody.innerHTML = htmlStoran; tbodyTarget.innerHTML = htmlTarget;
         }
 
+        // =====================================================
+        // MESIN PENJUMLAHAN 2 KOLOM: DROP, KASBON, & TF (SEPERTI DROP)
+        // =====================================================
         function hitungTotalDrop() {
             let baru = getNum('st_drop_baru'); 
             let lunas = getNum('st_drop_pelunasan');
@@ -1781,9 +2249,48 @@
             syncDariStoran(); 
         }
 
+        function hitungTotalKasbon() {
+            let kantor = getNum('st_kasbon_kantor');
+            let tambah = getNum('st_kasbon_tambah');
+            let total = kantor + tambah;
+
+            let elTotal = document.getElementById('st_kasbon');
+            if (elTotal) elTotal.value = total === 0 ? "" : formatAngka(total);
+
+            let elDisplay = document.getElementById('st_kasbon_display');
+            if (elDisplay) elDisplay.value = total === 0 ? "" : formatAngka(total);
+
+            hitungSemua();
+        }
+
+        function hitungTotalTFInput() {
+            let ubmi = getNum('st_tf_ubmi');
+            let tambah = getNum('st_tf_tambah');
+            let total = ubmi + tambah;
+
+            let elTotal = document.getElementById('st_transfer');
+            if (elTotal) elTotal.value = total === 0 ? "" : formatAngka(total);
+
+            let elDisplay = document.getElementById('st_tf_display');
+            if (elDisplay) elDisplay.value = total === 0 ? "" : formatAngka(total);
+
+            // FITUR #2: AUTO-ISI K5 DI TAB TF KLP
+            if (total > 0) {
+                let elK5 = document.getElementById('tf_klp_5');
+                if (elK5 && document.activeElement !== elK5) {
+                    elK5.value = formatAngka(total);
+                    hitungTotalTF();
+                }
+            }
+
+            hitungSisaTransfer();
+            hitungSemua();
+        }
+
         function setDefaultsOtomatis() {
             let trEl = document.getElementById('st_transport');
-            let kbEl = document.getElementById('st_kasbon');
+            let kbKantorEl = document.getElementById('st_kasbon_kantor');
+            let kbMainEl = document.getElementById('st_kasbon');
             let day = new Date().getDay(); 
             let defTransport = "0";
             if (day === 1) defTransport = localStorage.getItem(USER_ID + '_Cfg_Tr1') || "25";
@@ -1795,7 +2302,11 @@
             let defKasbon = "100";
             let changed = false;
             if (trEl && (!trEl.value || trEl.value === "")) { trEl.value = defTransport; changed = true; }
-            if (kbEl && (!kbEl.value || kbEl.value === "")) { kbEl.value = defKasbon; changed = true; }
+            if (kbKantorEl && (!kbKantorEl.value || kbKantorEl.value === "") && (!kbMainEl || !kbMainEl.value)) {
+                kbKantorEl.value = defKasbon;
+                hitungTotalKasbon();
+                changed = true;
+            }
             if (changed) { hitungSemua(); }
         }
 
@@ -1821,7 +2332,7 @@
         }
 
         const rekapIds = ['d1', 'd2', 's1', 's2', 'drRec', 'stRec', 'siRec', 'a1', 'a2', 'a3', 'j1', 'j2', 'j3', 'sa1', 'sa2', 'sa3', 'p1', 'p2'];
-        const storanIds = ['st_drop_baru', 'st_drop_pelunasan', 'st_drop', 'st_kasbon', 'st_storting', 'st_transport', 'st_transfer', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
+        const storanIds = ['st_drop_baru', 'st_drop_pelunasan', 'st_drop', 'st_kasbon_kantor', 'st_kasbon_tambah', 'st_kasbon', 'st_tf_ubmi', 'st_tf_tambah', 'st_transfer', 'st_storting', 'st_transport', 'tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
         const targetIds = ['tg_program', 'tg_index']; 
         const semuaIds = rekapIds.concat(storanIds, targetIds);
         let timerCloudSimpan = null;
@@ -1872,10 +2383,165 @@
             triggerSimpanCloud();
         }
 
+        // =====================================================
+        // MESIN SU MANUAL & HITUNG PECAHAN UANG FISIK (FITUR #1)
+        // =====================================================
+        window.isSuManualMode = false;
+
         function hitungSisaTransfer() {
-            let storan = getNum('st_storan_auto'); let transfer = getNum('st_transfer');
-            let sisa = storan - transfer;
-            let suEl = document.getElementById('st_su'); if(suEl) suEl.value = formatAngka(sisa);
+            let storan = getNum('st_storan_auto');
+            let transfer = getNum('st_transfer');
+            let suSistem = storan - transfer;
+            window.lastSuKantorVal = suSistem;
+
+            // Hitung juga SU Murni Kantor (Tanpa Kasbon Tambah & Tanpa TF Tambah)
+            let drop = getNum('st_drop');
+            let cfgStoranPokok = (parseFloat(localStorage.getItem(USER_ID + '_Cfg_PctStoran')) || 20) / 100;
+            let kbKantor = getNum('st_kasbon_kantor') || getNum('st_kasbon');
+            let storting = getNum('st_storting');
+            let transport = getNum('st_transport');
+            let tfUbmi = getNum('st_tf_ubmi') || getNum('st_transfer');
+            window.lastSuMurniKantorOnly = ((drop * cfgStoranPokok) + kbKantor + storting - drop - transport) - tfUbmi;
+
+            let suEl = document.getElementById('st_su');
+            let lblSu = document.getElementById('label_su');
+
+            if (!window.isSuManualMode) {
+                if (suEl && document.activeElement !== suEl) {
+                    suEl.value = formatAngka(suSistem);
+                    suEl.style.borderColor = '#ced4da';
+                    suEl.style.color = '#333';
+                }
+                if (lblSu) {
+                    let kbTambah = getNum('st_kasbon_tambah');
+                    if (kbTambah > 0) {
+                        lblSu.innerHTML = `SU <span style="font-size:9px; color:#28a745;">(Kantor: ${formatAngka(window.lastSuMurniKantorOnly)})</span>`;
+                    } else {
+                        lblSu.innerHTML = `SU <span style="font-weight:normal; font-size:9px; color:#007bff;">(Ketik=Cek)</span>`;
+                    }
+                }
+            } else {
+                hitungUangTambahDariSU(true);
+            }
+        }
+
+        function hitungUangTambahDariSU(fromAutoCalc = false) {
+            let suEl = document.getElementById('st_su');
+            let lblSu = document.getElementById('label_su');
+            if (!suEl || !lblSu) return;
+
+            if (suEl.value.trim() === '') {
+                window.isSuManualMode = false;
+                if (!fromAutoCalc) hitungSisaTransfer();
+                return;
+            }
+
+            window.isSuManualMode = true;
+            let uangFisik = getNum('st_su');
+            let patokanKantor = (window.lastSuMurniKantorOnly !== undefined) ? window.lastSuMurniKantorOnly : (window.lastSuKantorVal || 0);
+            let selisihTambah = uangFisik - patokanKantor;
+            let warna = selisihTambah >= 0 ? '#28a745' : '#dc3545';
+            let tanda = selisihTambah > 0 ? '+' : '';
+
+            suEl.style.borderColor = '#28a745';
+            suEl.style.color = '#0056b3';
+            lblSu.innerHTML = `Ktr:<b>${formatAngka(patokanKantor)}</b> | <span style="color:${warna}; font-weight:bold;">Tambah:${tanda}${formatAngka(selisihTambah)} ↺</span>`;
+        }
+
+        function resetSuKeKantor() {
+            window.isSuManualMode = false;
+            let suEl = document.getElementById('st_su');
+            if (suEl) suEl.blur();
+            hitungSisaTransfer();
+            showToast("🔄 SU dikembalikan ke hitungan otomatis!");
+        }
+
+        function bukaModalHitungFisik() {
+            let old = document.getElementById('modal-pecahan-uang');
+            if (old) old.remove();
+
+            let overlay = document.createElement('div');
+            overlay.id = 'modal-pecahan-uang';
+            overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; padding:14px;';
+
+            let box = document.createElement('div');
+            box.style.cssText = 'background:#fff; width:100%; max-width:315px; border-radius:12px; padding:14px; border:2px solid #0284c7; box-shadow:0 10px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:6px;';
+            box.innerHTML = `<div style="font-size:13px; font-weight:bold; color:#0369a1; text-align:center; border-bottom:1px solid #eee; padding-bottom:6px;">💵 Hitung Lembaran Uang Tunai di Tas</div>`;
+
+            const pecahanList = [
+                { label: '100 rb', kali: 100 },
+                { label: '50 rb', kali: 50 },
+                { label: '20 rb', kali: 20 },
+                { label: '10 rb', kali: 10 },
+                { label: '5 rb', kali: 5 },
+                { label: '2 rb', kali: 2 },
+                { label: '1 rb / Koin', kali: 1 }
+            ];
+
+            let rowsWrap = document.createElement('div');
+            rowsWrap.style.cssText = 'display:flex; flex-direction:column; gap:4px;';
+
+            let totalPreview = document.createElement('div');
+            totalPreview.style.cssText = 'background:#f0f9ff; border:1px solid #bae6fd; padding:8px; border-radius:6px; text-align:center; font-weight:bold; font-size:12px; color:#0369a1; margin-top:4px;';
+            totalPreview.innerHTML = 'Total Uang Fisik: <b>0</b>';
+
+            const hitungTotalLembar = () => {
+                let sumRibuan = 0;
+                rowsWrap.querySelectorAll('input').forEach(inp => {
+                    let lbr = parseFloat(inp.value) || 0;
+                    let k = parseFloat(inp.dataset.kali) || 0;
+                    sumRibuan += (lbr * k);
+                });
+                let suKtr = (window.lastSuMurniKantorOnly !== undefined) ? window.lastSuMurniKantorOnly : (window.lastSuKantorVal || 0);
+                let selisih = sumRibuan - suKtr;
+                totalPreview.innerHTML = `Total Fisik: <b style="font-size:14px;">${formatAngka(sumRibuan)}</b><br><span style="font-size:11px; color:${selisih>=0?'#16a34a':'#dc2626'};">SU Kantor: ${formatAngka(suKtr)} | Tambah: ${selisih>0?'+':''}${formatAngka(selisih)}</span>`;
+                return sumRibuan;
+            };
+
+            pecahanList.forEach(p => {
+                let r = document.createElement('div');
+                r.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:6px;';
+                r.innerHTML = `<span style="font-size:12px; font-weight:bold; color:#334155; width:80px;">${p.label} ×</span>`;
+                let inp = document.createElement('input');
+                inp.type = 'number';
+                inp.inputMode = 'numeric';
+                inp.dataset.kali = String(p.kali);
+                inp.placeholder = '0 lembar';
+                inp.style.cssText = 'flex:1; padding:5px; font-size:13px; font-weight:bold; text-align:center; border:1px solid #cbd5e1; border-radius:6px;';
+                inp.oninput = hitungTotalLembar;
+                r.appendChild(inp);
+                rowsWrap.appendChild(r);
+            });
+
+            box.appendChild(rowsWrap);
+            box.appendChild(totalPreview);
+
+            let act = document.createElement('div');
+            act.style.cssText = 'display:flex; gap:6px; margin-top:6px;';
+            let bTutup = document.createElement('button');
+            bTutup.textContent = 'Batal';
+            bTutup.style.cssText = 'flex:1; height:36px; background:#6c757d; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;';
+            bTutup.onclick = () => overlay.remove();
+
+            let bPakai = document.createElement('button');
+            bPakai.textContent = '✅ Masukkan ke SU';
+            bPakai.style.cssText = 'flex:1.4; height:36px; background:#0284c7; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;';
+            bPakai.onclick = () => {
+                let tot = hitungTotalLembar();
+                let suEl = document.getElementById('st_su');
+                if (suEl) {
+                    suEl.value = String(tot);
+                    formatRibuan(suEl);
+                    hitungUangTambahDariSU();
+                }
+                overlay.remove();
+            };
+
+            act.appendChild(bTutup);
+            act.appendChild(bPakai);
+            box.appendChild(act);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
         }
 
         function propagasiSaldoTabel() {
@@ -2013,7 +2679,6 @@
                 for(let i=1; i<=3; i++) {
                     let a = getNum('a'+i); let j = getNum('j'+i); let sa = getNum('sa'+i);
                     let pRaw = getNum('p'+(i==3?1:i)) || 1;
-                    // Jika diketik pakai koma / satuan juta (misal 46,9 atau 54), otomatis x10 (jadi 469 atau 540) agar hasil % sama persis!
                     let p = (pRaw > 0 && pRaw < 200) ? (pRaw * 10) : (pRaw >= 2000 ? (pRaw / 100) : pRaw);
                     let hasil = a + j; let sisa = sa - a; let pctRaw = (sisa / p);
 
@@ -2081,16 +2746,48 @@
 
         function hapusTabel() { if(confirm("⚠️ Yakin hapus isi Tabel bulan " + selectedBulanTahun + "?")) { localStorage.removeItem(USER_ID + '_Tabel_' + selectedBulanTahun); muatTabel(); } }
         
+        // FITUR #3: ANTI-SALAH RESET (SIMPAN BACKUP SEBELUM DIHAPUS & TAMPILKAN TOMBOL KEMBALIKAN)
         function hapusData(jenis) {
             if(confirm(`⚠️ Reset semua input ${jenis}?`)) {
                 let targetIds_del = (jenis === 'rekap') ? rekapIds : storanIds;
-                targetIds_del.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; }); 
+                let backup = {};
+                targetIds_del.forEach(id => {
+                    let el = document.getElementById(id);
+                    if (el) { backup[id] = el.value; el.value = ''; }
+                });
+                window.lastResetBackup = { jenis: jenis, data: backup };
+
                 if (jenis === 'storan') {
+                    window.isSuManualMode = false;
                     setDefaultsOtomatis(); 
                     hitungTotalDrop();
+                    hitungTotalKasbon();
+                    hitungTotalTFInput();
+                    let btnU = document.getElementById('btn_undo_storan');
+                    if (btnU) btnU.style.display = 'inline-block';
+                } else {
+                    let btnUR = document.getElementById('btn_undo_rekap');
+                    if (btnUR) btnUR.style.display = 'inline-block';
                 }
                 hitungSemua();
             }
+        }
+
+        function kembalikanResetTerakhir() {
+            if (!window.lastResetBackup || !window.lastResetBackup.data) return;
+            let bData = window.lastResetBackup.data;
+            for (let id in bData) {
+                let el = document.getElementById(id);
+                if (el) el.value = bData[id];
+            }
+            hitungTotalDrop();
+            hitungTotalKasbon();
+            hitungTotalTFInput();
+            hitungSemua();
+            let btnU = document.getElementById('btn_undo_storan'); if (btnU) btnU.style.display = 'none';
+            let btnUR = document.getElementById('btn_undo_rekap'); if (btnUR) btnUR.style.display = 'none';
+            window.lastResetBackup = null;
+            showToast("✅ Angka sebelum di-reset berhasil dikembalikan!");
         }
 
         // ================= LOGIKA KHUSUS TAB TF =================
@@ -2288,7 +2985,6 @@
             trElemen.classList.add('active-row');
         }
 
-        // Tarik langsung dari Jembatan Memori UBMI (tm_jembatan_saldo_usber atau BackupAplikasi) tanpa perlu Copy-Paste
         function tarikSaldoOtomatisDariUBMI(silentIfEmpty = false) {
             try {
                 let rawBridge = bacaJembatanApk('tm_jembatan_saldo_usber', '');
@@ -2301,7 +2997,6 @@
                     }
                 }
 
-                // Cadangan: Cek apakah ada snapshot nasabah aktif hari ini dari UBMI (tm_active_loans_snapshot_v1)
                 let rawSnap = bacaJembatanApk('tm_active_loans_snapshot_v1', '');
                 if (rawSnap && rawSnap.length > 10) {
                     let listLoans = JSON.parse(rawSnap);
@@ -2332,7 +3027,6 @@
             return false;
         }
 
-        // Render Tabel Saldo dari Array Grup Terstruktur
         function renderTabelSaldoDariGrupTerstruktur(groupsArray) {
             const resultContainer = document.getElementById("resultContainerSaldo");
             resultContainer.innerHTML = "";
@@ -2462,7 +3156,6 @@
             }
         }
 
-        // Kirim Otomatis Saldo & Angsuran CM, MB, ML ke Tab Rekap (Tabel 2. Hitung CM, MB, ML)
         function kirimHasilSaldoKeTabRekap() {
             if (!window.saldoTotalGroups || window.saldoTotalGroups === 0) return;
 
@@ -2471,7 +3164,6 @@
                 let meta = window.saldoGroupMeta[i] || {};
                 let elS = document.getElementById(`finalSaldoS_${i}`);
                 let valS = elS ? parseFloat(elS.innerText.replace(/\./g, '').replace(/,/g, '') || '0') : 0;
-                // Jika dalam juta/ratusan ribu, ubah ke satuan ribuan kalkulator (misal 4.500.000 -> 4.500)
                 if (valS >= 10000) valS = Math.round(valS / 1000);
 
                 let gType = (meta.type || '').toUpperCase();
@@ -2489,7 +3181,6 @@
             showToast("✅ Saldo CM, MB, & ML berhasil dimasukkan ke Tab Rekap!");
         }
 
-        // Parser Pintar untuk Teks Copy-Paste (Mendukung UBMI Versi Baru Tanpa NIK & UBMI Versi Lama)
         function prosesDataSaldo() {
             const inputText = (document.getElementById("inputTextSaldo").value || "").trim();
             if (!inputText) {
@@ -2497,10 +3188,7 @@
                 return;
             }
 
-            // Bersihkan baris "Jumlah June2026" agar tidak dianggap sebagai header grup bulan baru
             let cleanedText = inputText.replace(/Jumlah\s+(ML|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})[^\n]*/gi, '');
-
-            // Potong berdasarkan header grup bulan (termasuk grup ML atau BulanTahun)
             const blocks = cleanedText.split(/(?=(?:^|\n)\s*(?:(?:mb|cm|ml|normal)\s+)?(?:ML|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{4})\b)/i);
 
             const d = new Date();
@@ -2517,7 +3205,6 @@
 
                 let items = [];
 
-                // COBA FORMAT 1: Format UBMI Lama (Ada NIK 16 Digit & S ...)
                 const regexLama = new RegExp(`([A-Za-z\\s.\\-]+?)\\s+(\\d{16})[\\s\\S]*?S\\s*([\\d.,]+)[\\s\\S]*?Asli Bln ${currBulanStr}:\\s*(?:Rp\\s*)?([\\d.,]+)`, 'gi');
                 let mLama;
                 while ((mLama = regexLama.exec(block)) !== null) {
@@ -2529,7 +3216,6 @@
                     items.push({ nama: namaBersih, a: valA, s: valS });
                 }
 
-                // COBA FORMAT 2: Format UBMI Baru (Tanpa NIK di layar: Tanggal DD-MM diikuti Nama, Pinj, Sisa/lunas, & Asli Bln XX: Rp ...)
                 if (items.length === 0) {
                     let cardChunks = block.split(/(?=\b\d{2}-\d{2}\b)/);
                     cardChunks.forEach(chunk => {
@@ -2538,14 +3224,12 @@
                         let namaNasabah = mDateName[2].replace(/\[TF\]/ig, '').trim();
                         if (!namaNasabah || namaNasabah.length < 2) return;
 
-                        // Cari nilai Asli Bln XX: Rp ...
                         let valA = 0;
                         let mAsli = chunk.match(/Asli\s+Bln\s+\d{2}:\s*(?:Rp\s*)?([\d.,]+)/i);
                         if (mAsli) {
                             valA = parseInt(mAsli[1].replace(/[^\d]/g, '') || '0');
                         }
 
-                        // Cari nilai Sisa Saldo (angka terakhir sebelum Asli Bln atau kata 'lunas')
                         let beforeAsli = mAsli ? chunk.slice(0, mAsli.index) : chunk;
                         let valS = 0;
                         if (/\blunas\b/i.test(beforeAsli)) {
@@ -2673,7 +3357,6 @@
             let teksAsli = tombol ? tombol.innerHTML : "📥 Paste & Hitung";
             if (tombol) tombol.innerHTML = "⏳ Memproses...";
             
-            // 1. Prioritaskan Jembatan APK jika kotak teks masih kosong
             if (!textarea.value || textarea.value.trim() === "") {
                 if (tarikSaldoOtomatisDariUBMI(true)) {
                     if (tombol) tombol.innerHTML = teksAsli;
@@ -2681,7 +3364,6 @@
                 }
             }
 
-            // 2. Baca dari Clipboard
             try {
                 let textFromClipboard = await navigator.clipboard.readText();
                 if (textFromClipboard && textFromClipboard.trim() !== "") {
@@ -2722,7 +3404,11 @@
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_transfer'] = '';
                         dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
-                        dataObj['st_kasbon'] = '100'; 
+                        dataObj['st_kasbon_kantor'] = '100'; 
+                        dataObj['st_kasbon_tambah'] = '';
+                        dataObj['st_kasbon'] = '100';
+                        dataObj['st_tf_ubmi'] = '';
+                        dataObj['st_tf_tambah'] = '';
                         
                         let dayNew = new Date().getDay(); let defTr = "25";
                         if (dayNew === 1) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr1') || "25";
@@ -2750,10 +3436,23 @@
                             if(el.tagName === 'INPUT' && el.type === 'text' && !id.startsWith('t_')) formatRibuan(el);
                         }
                     });
+                    // Kompatibilitas data lama jika st_kasbon_kantor atau st_tf_ubmi belum ada
+                    let elKbKtr = document.getElementById('st_kasbon_kantor');
+                    let elKbTot = document.getElementById('st_kasbon');
+                    if (elKbKtr && !elKbKtr.value && elKbTot && elKbTot.value) {
+                        elKbKtr.value = elKbTot.value;
+                    }
+                    let elTfUbmi = document.getElementById('st_tf_ubmi');
+                    let elTfTot = document.getElementById('st_transfer');
+                    if (elTfUbmi && !elTfUbmi.value && elTfTot && elTfTot.value) {
+                        elTfUbmi.value = elTfTot.value;
+                    }
                 } catch (e) { console.error("Gagal memuat kalkulator", e); }
             }
             setDefaultsOtomatis();
             hitungTotalDrop();
+            hitungTotalKasbon();
+            hitungTotalTFInput();
             hitungSemua(); 
         }
 
@@ -2799,7 +3498,7 @@
                 document.getElementById('cfg_faktor_sirkulasi').value = localStorage.getItem(USER_ID + '_Cfg_FaktorSirkulasi') || '1.3';
                 document.getElementById('cfg_nama_petugas').value = localStorage.getItem(USER_ID + '_Cfg_NamaPetugas') || 'Sigit Ari Wibowo (Pati 5)';
                 if(document.getElementById('cfg_tampilkan_drop_baru')) document.getElementById('cfg_tampilkan_drop_baru').value = localStorage.getItem(USER_ID + '_Cfg_DropBaruMode') || 'on';
-                document.getElementById('cfg_wa_template').value = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+                document.getElementById('cfg_wa_template').value = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksStorting}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
                 
                 if(document.getElementById('cfg_tr_1')) {
                     document.getElementById('cfg_tr_1').value = localStorage.getItem(USER_ID + '_Cfg_Tr1') || '25';
@@ -2814,42 +3513,88 @@
 
         function cekVisibilitasDropBaru() {}
 
-        async function kirimKeWA() {
+        async function kirimKeWA(mode = 'gambar') {
             let rawDropStr = document.getElementById('st_drop').value || "0";
             let teksDrop = (rawDropStr === "0" || rawDropStr === "") ? "StopDrob" : "drop:" + rawDropStr;
 
-            let dayOfWeek = new Date().getDay(); let targetInput = document.getElementById('tm_' + dayOfWeek);
+            let rawStortStr = document.getElementById('st_storting').value || "0";
+            let teksStorting = "storting:" + rawStortStr;
+
+            let dayOfWeek = new Date().getDay();
+            let targetInput = document.getElementById('tm_' + dayOfWeek);
             let targetHariIni = targetInput ? getNum('tm_' + dayOfWeek) : 0;
             
-            let storting = getNum('st_storting'); let dropMurni = getNum('st_drop_pelunasan'); 
+            let storting = getNum('st_storting');
+            let dropMurni = getNum('st_drop_pelunasan'); 
             let hasilKurung = storting - targetHariIni - (dropMurni * 0.26);
             let tanda = hasilKurung <= 0 ? "" : "+"; 
             let stringMurni = `murni:${formatAngka(targetHariIni)}(${tanda}${formatAngka(hasilKurung)})`;
 
             let strDropBaru = getNum('st_drop_baru') > 0 ? `drop baru:${document.getElementById('st_drop_baru').value}` : "";
-            let waTemplate = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
+            let waTemplate = localStorage.getItem(USER_ID + '_Cfg_WATemplate') || "Klp V\n{teksDrop}\n{teksDropBaru}\n{teksStorting}\n{teksMurni}\nMasih melanjutkan maksimalkan penarikan pakk .";
 
-            let teksWA = waTemplate.replace('{teksDrop}', teksDrop).replace('{teksDropBaru}', strDropBaru).replace('{teksMurni}', stringMurni);
-            teksWA = teksWA.replace(/\n\s*\n/g, '\n'); 
+            if (!waTemplate.includes('{teksStorting}')) {
+                waTemplate = waTemplate.replace('{teksMurni}', '{teksStorting}\n{teksMurni}');
+            }
 
-            let captureEl = document.getElementById('area-screenshot'); let btn = document.getElementById('btn-kirim-wa');
-            let originalText = btn.innerText; btn.innerText = "⏳ Memproses..."; btn.disabled = true;
+            let teksWA = waTemplate
+                .replace('{teksDrop}', teksDrop)
+                .replace('{teksDropBaru}', strDropBaru)
+                .replace('{teksStorting}', teksStorting)
+                .replace('{teksMurni}', stringMurni);
+            teksWA = teksWA.replace(/\n\s*\n/g, '\n');
+
+            // MODE 1: KIRIM TEKS SAJA KE WA
+            if (mode === 'teks') {
+                try { await navigator.clipboard.writeText(teksWA); } catch(e) {}
+                showToast("📋 Teks Laporan Disalin & Membuka WA...");
+                window.open(`https://wa.me/?text=${encodeURIComponent(teksWA)}`, '_blank');
+                return;
+            }
+
+            // MODE 2: KIRIM GAMBAR & TEKS KE WA
+            let captureEl = document.getElementById('area-screenshot');
+            let btn = document.getElementById('btn-kirim-wa');
+            let originalText = btn.innerText;
+            btn.innerText = "⏳ Memproses...";
+            btn.disabled = true;
+
+            toggleDropView(false);
+            toggleKasbonView(false);
+            toggleTfView(false);
 
             try {
-                if (typeof html2canvas === 'undefined') { alert("⚠️ Library belum termuat."); btn.innerText = originalText; btn.disabled = false; return; }
+                if (typeof html2canvas === 'undefined') {
+                    alert("⚠️ Library belum termuat.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
                 let canvas = await html2canvas(captureEl, { scale: 2, backgroundColor: document.body.classList.contains('dark-mode') ? "#1a1a1a" : "#f8f9fa" });
+
                 canvas.toBlob(async function(blob) {
                     let file = new File([blob], "Laporan_Pati5.jpg", { type: "image/jpeg" });
                     try { await navigator.clipboard.writeText(teksWA); } catch(e) {}
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try { await navigator.share({ files: [file], text: teksWA }); } catch (err) { }
                     } else {
-                        let url = window.URL.createObjectURL(blob); let a = document.createElement('a'); a.style.display = 'none';
-                        a.href = url; a.download = 'Laporan_Pati5.jpg'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
+                        let url = window.URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'Laporan_Pati5.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
                     }
-                    btn.innerText = originalText; btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.disabled = false;
                 }, "image/jpeg", 0.9);
-            } catch (e) { alert("❌ Gagal membuat gambar."); btn.innerText = originalText; btn.disabled = false; }
+            } catch (e) {
+                alert("❌ Gagal membuat gambar.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function exportKeCSV(tableClass, namaFile) {
@@ -2896,7 +3641,6 @@
             muatRiwayatTF();
             bacaParameterURL(); 
 
-            // Pantau terus jembatan Aditya & UBMI setiap 2 detik saat tab Kalkulator terbuka
             setInterval(() => {
                 tarikTargetRekapDariAditya(true);
             }, 2000);
@@ -2955,6 +3699,7 @@
             });
         }
 
+        // BUKA-TUTUP 2 KOTAK: DROP, KASBON, & TF (OTOMATIS MENJUMLAHKAN SAAT DITUTUP)
         function toggleDropView(isSplit) {
             let viewTotal = document.getElementById('view_drop_total');
             let viewSplit = document.getElementById('view_drop_split');
@@ -2964,11 +3709,7 @@
                 viewTotal.style.display = 'none';
                 viewSplit.style.display = 'flex';
                 labelDrop.innerHTML = '<span style="color:#28a745;">Baru</span> / <span style="color:#007bff;">Lunas</span>';
-                
-                setTimeout(() => {
-                    let elBaru = document.getElementById('st_drop_baru');
-                    if (elBaru) elBaru.focus();
-                }, 50);
+                setTimeout(() => { let elBaru = document.getElementById('st_drop_baru'); if (elBaru) elBaru.focus(); }, 50);
             } else {
                 hitungTotalDrop(); 
                 viewTotal.style.display = 'block';
@@ -2977,22 +3718,72 @@
             }
         }
 
-        document.addEventListener('click', function(event) {
-            let container = document.getElementById('box_drop_container');
-            let viewSplit = document.getElementById('view_drop_split');
+        function toggleKasbonView(isSplit) {
+            let viewTotal = document.getElementById('view_kasbon_total');
+            let viewSplit = document.getElementById('view_kasbon_split');
+            let labelKb = document.getElementById('label_kasbon');
             
-            if (container && viewSplit && viewSplit.style.display === 'flex') {
-                let isClickInside = container.contains(event.target);
-                if (!isClickInside) {
-                    toggleDropView(false); 
-                }
+            if (isSplit) {
+                viewTotal.style.display = 'none';
+                viewSplit.style.display = 'flex';
+                labelKb.innerHTML = '<span style="color:#007bff;">Kantor</span> / <span style="color:#28a745;">Tambah</span>';
+                setTimeout(() => { let elT = document.getElementById('st_kasbon_tambah'); if (elT) elT.focus(); }, 50);
+            } else {
+                hitungTotalKasbon();
+                viewTotal.style.display = 'block';
+                viewSplit.style.display = 'none';
+                let tVal = getNum('st_kasbon_tambah');
+                labelKb.innerHTML = tVal > 0 ? `Kasbon <span style="color:#28a745;">(+${formatAngka(tVal)})</span>` : 'Kasbon (Ketuk=Kantor/Tambah)';
+            }
+        }
+
+        function toggleTfView(isSplit) {
+            let viewTotal = document.getElementById('view_tf_total');
+            let viewSplit = document.getElementById('view_tf_split');
+            let labelTf = document.getElementById('label_tf');
+            
+            if (isSplit) {
+                viewTotal.style.display = 'none';
+                viewSplit.style.display = 'flex';
+                labelTf.innerHTML = '<span style="color:#007bff;">UBMI</span> / <span style="color:#28a745;">Tambah</span>';
+                setTimeout(() => { let elT = document.getElementById('st_tf_tambah'); if (elT) elT.focus(); }, 50);
+            } else {
+                hitungTotalTFInput();
+                viewTotal.style.display = 'block';
+                viewSplit.style.display = 'none';
+                let tVal = getNum('st_tf_tambah');
+                labelTf.innerHTML = tVal > 0 ? `TF <span style="color:#28a745;">(+${formatAngka(tVal)})</span>` : 'TF (Ketuk=UBMI/Tambah)';
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            let dCont = document.getElementById('box_drop_container');
+            let dSplit = document.getElementById('view_drop_split');
+            if (dCont && dSplit && dSplit.style.display === 'flex' && !dCont.contains(event.target)) {
+                toggleDropView(false); 
+            }
+
+            let kbCont = document.getElementById('box_kasbon_container');
+            let kbSplit = document.getElementById('view_kasbon_split');
+            if (kbCont && kbSplit && kbSplit.style.display === 'flex' && !kbCont.contains(event.target)) {
+                toggleKasbonView(false);
+            }
+
+            let tfCont = document.getElementById('box_tf_container');
+            let tfSplit = document.getElementById('view_tf_split');
+            if (tfCont && tfSplit && tfSplit.style.display === 'flex' && !tfCont.contains(event.target)) {
+                toggleTfView(false);
+            }
+
+            let ddKtp = document.getElementById('ktp-dd-helper');
+            if (ddKtp && !ddKtp.contains(event.target) && event.target.id !== 'nb_nama' && event.target.id !== 'nb_alamat') {
+                ddKtp.remove();
             }
         });
 
         window.onload = function() {
             let statusEl = document.getElementById('status-cloud');
 
-            // Auto-Unlock Pintar khusus jika dibuka di dalam APK milik Mas Sigit
             try {
                 if (window.AndroidTM && typeof window.AndroidTM.getDeviceHWID === 'function') {
                     let hwid = window.AndroidTM.getDeviceHWID();
