@@ -939,6 +939,16 @@
                 </div>
                 <span class="hint">Menyimpan seluruh data Kalkulator Pati 5, Simulasi/TF UBMI, & Cadangan/Bank Aditya dalam 1 file JSON.</span>
             </div>
+            
+            <!-- PUSAT KONTROL SCRIPT & MONITOR USER AKTIF (KHUSUS ADMIN SIGIT) -->
+            <div id="admin-control-center-box" style="display:none; margin-top:16px; border-top:2px solid #007bff; padding-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="color:#004085; font-weight:bold; font-size:12.5px; margin:0;">📡 Pusat Kontrol Script & Monitor User</label>
+                    <button type="button" onclick="muatDaftarKontrolUserAdmin()" style="background:#007bff; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 Segarkan</button>
+                </div>
+                <span class="hint" style="margin-bottom:8px;">Matikan saklar <b>Aditya</b> atau <b>UBMI</b> untuk menonaktifkan fitur script pada teman tanpa mengunci aplikasinya.</span>
+                <div id="list-admin-kontrol-user" style="display:flex; flex-direction:column; gap:6px; max-height:320px; overflow-y:auto;"></div>
+            </div>
 
             <button class="btn-hapus" style="width: 100%; margin-top: 20px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
         </div>
@@ -3660,14 +3670,112 @@
 
         let isAppLoaded = false;
         let fallbackTimer = null;
+        
+        const DAFTAR_TETAP_USER_PATI = {
+            "PATI-5B6A6700BF5D0D96": "sigit(admin)",
+            "PATI-E66379CD268AB26C": "roy2",
+            "PATI-F9B61EB5D3980EF4": "alanubbojonegoro",
+            "DVC-9E3CF5F4": "Edi",
+            "PATI-A2407D3F227D4C22": "ryanpati5",
+            "PATI-B9CD88D4D8DC8ABF": "dwipati3",
+            "PATI-E110B16CF821DAA8": "wantopati5",
+            "PATI-BEA64FCC30A72E2A": "fikikm",
+            "PATI-E98EE19AD496065E": "adipati5",
+            "PATI-0D4A1094808F7A21": "chandrapati3",
+            "PATI-D8367A885FC4547D": "adityapati2"
+        };
+
+        function formatWaktuTerakhirAktif(ts) {
+            if (!ts) return "Belum tercatat";
+            let diffSec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+            let d = new Date(ts);
+            let jamMenit = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+            let tgl = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2);
+            if (diffSec < 60) return `Baru saja (${jamMenit})`;
+            if (diffSec < 3600) return `${Math.floor(diffSec / 60)} mnt lalu (${jamMenit})`;
+            if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} jam lalu (${jamMenit})`;
+            return `${tgl} ${jamMenit}`;
+        }
+
+        function muatDaftarKontrolUserAdmin() {
+            if (USER_ID !== 'adminpati5') return;
+            let container = document.getElementById('list-admin-kontrol-user');
+            if (!container) return;
+            container.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">⏳ Memuat status pengguna...</div>';
+
+            database.ref('KalkulatorPati5/KontrolScript').once('value').then(snap => {
+                let dbVal = snap.val() || {};
+                let allHwids = new Set([...Object.keys(DAFTAR_TETAP_USER_PATI), ...Object.keys(dbVal)]);
+                let rows = [];
+
+                allHwids.forEach(hwid => {
+                    let info = dbVal[hwid] || {};
+                    let nama = info.nama || DAFTAR_TETAP_USER_PATI[hwid] || hwid;
+                    let lastSeen = info.lastSeen || 0;
+                    let lastApp = info.lastApp || '-';
+                    let allowAditya = info.allowAditya !== undefined ? Boolean(info.allowAditya) : true;
+                    let allowUsber = info.allowUsber !== undefined ? Boolean(info.allowUsber) : true;
+                    let isOnline = (Date.now() - lastSeen) < (10 * 60 * 1000); // Online jika aktif < 10 menit terakhir
+                    rows.push({ hwid, nama, lastSeen, lastApp, allowAditya, allowUsber, isOnline });
+                });
+
+                rows.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+                container.innerHTML = '';
+
+                rows.forEach(u => {
+                    let isAdminRow = (u.hwid === "PATI-5B6A6700BF5D0D96");
+                    let card = document.createElement('div');
+                    card.style.cssText = 'background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;';
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="font-size:12px; color:#0f172a;">${u.isOnline ? '🟢' : '⚪'} ${u.nama}</b>
+                                <div style="font-size:10px; color:#64748b;">${u.hwid}</div>
+                            </div>
+                            <div style="text-align:right; font-size:10px; color:${u.isOnline ? '#16a34a' : '#64748b'}; font-weight:bold;">
+                                ${u.lastSeen ? `📱 ${u.lastApp}<br>${formatWaktuTerakhirAktif(u.lastSeen)}` : 'Belum aktif'}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; border-top:1px dashed #e2e8f0; padding-top:6px;">
+                            <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowAditya', ${!u.allowAditya}, '${u.nama}')" style="flex:1; padding:5px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:${u.allowAditya ? '#10b981' : '#dc2626'}; cursor:pointer;">
+                                Aditya: ${u.allowAditya ? 'ON ✅' : 'OFF ❌'}
+                            </button>
+                            <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowUsber', ${!u.allowUsber}, '${u.nama}')" style="flex:1; padding:5px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:${u.allowUsber ? '#2563eb' : '#dc2626'}; cursor:pointer;">
+                                UBMI: ${u.allowUsber ? 'ON ✅' : 'OFF ❌'}
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        function ubahKontrolScriptUser(hwid, fieldName, newVal, namaUser) {
+            if (USER_ID !== 'adminpati5') return;
+            database.ref('KalkulatorPati5/KontrolScript/' + hwid).update({
+                hwid: hwid,
+                nama: namaUser,
+                [fieldName]: Boolean(newVal)
+            }).then(() => {
+                showToast(`✅ Script ${fieldName === 'allowAditya' ? 'Aditya' : 'UBMI'} untuk ${namaUser}: ${newVal ? 'ON' : 'OFF'}`);
+                muatDaftarKontrolUserAdmin();
+            });
+        }
 
         function initAppUI() {
+
             let userRole = localStorage.getItem('KalkulatorPati_Role') || 'aktif';
             if (USER_ID !== 'adminpati5' && userRole !== 'vip') {
                 ['tab-nasabah', 'tab-tf'].forEach(idTab => {
                     let tombol = document.getElementById(idTab);
                     if (tombol) tombol.style.display = 'none'; 
                 });
+            }
+
+            if (USER_ID === 'adminpati5') {
+                let boxAdmin = document.getElementById('admin-control-center-box');
+                if (boxAdmin) boxAdmin.style.display = 'block';
+                muatDaftarKontrolUserAdmin();
             }
 
             let inputBulanEl = document.getElementById('input_bulan_rekap');
