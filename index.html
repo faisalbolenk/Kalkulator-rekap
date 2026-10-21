@@ -3277,7 +3277,7 @@
                     cardChunks.forEach(chunk => {
                         let mDateName = chunk.match(/\b(\d{2}-\d{2})\s+([^\n\r]+)/);
                         if (!mDateName) return;
-                        let namaNasabah = mDateName[2].replace(/\[TF\]/ig, '').trim();
+                        let namaNasabah = mDateName[2].replaceAll('[TF]', '').replaceAll('[tf]', '').trim();
                         if (!namaNasabah || namaNasabah.length < 2) return;
 
                         let valA = 0;
