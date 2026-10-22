@@ -3679,7 +3679,9 @@
             "PATI-A2407D3F227D4C22": "ryanpati5",
             "PATI-B9CD88D4D8DC8ABF": "dwipati3",
             "PATI-E110B16CF821DAA8": "wantopati5",
+            "PATI-BEA64FCC3DA72E2A": "fikikm",
             "PATI-BEA64FCC30A72E2A": "fikikm",
+            "PATI-890EE19AD496065E": "adipati5",
             "PATI-E98EE19AD496065E": "adipati5",
             "PATI-0D4A1094808F7A21": "chandrapati3",
             "PATI-D8367A885FC4547D": "adityapati2"
@@ -3697,6 +3699,54 @@
             return `${tgl} ${jamMenit}`;
         }
 
+        function tambahAtauEditUserHwidAdmin(hwidDefault = '', namaDefault = '') {
+            if (USER_ID !== 'adminpati5') return;
+            let rawHwid = prompt("Masukkan ID HWID Perangkat (contoh: PATI-XXXX):", hwidDefault);
+            if (!rawHwid || !rawHwid.trim()) return;
+            let cleanHwid = rawHwid.trim().toUpperCase();
+
+            let rawNama = prompt(`Masukkan Nama User untuk HWID [${cleanHwid}]:`, namaDefault || DAFTAR_TETAP_USER_PATI[cleanHwid] || '');
+            if (rawNama === null) return;
+            let cleanNama = rawNama.trim() || cleanHwid;
+
+            database.ref('KalkulatorPati5/KontrolScript/' + cleanHwid).update({
+                hwid: cleanHwid,
+                nama: cleanNama,
+                active: true,
+                statusDaftar: 'approved',
+                allowAditya: true,
+                allowUsber: true,
+                updatedAt: Date.now()
+            }).then(() => {
+                showToast(`✅ ${cleanNama} (${cleanHwid}) berhasil disimpan & diaktifkan!`);
+                muatDaftarKontrolUserAdmin();
+            });
+        }
+
+        function gantiNamaUserHwidAdmin(hwid, namaLama) {
+            if (USER_ID !== 'adminpati5') return;
+            let namaBaru = prompt(`Ubah Nama untuk HWID [${hwid}]:`, namaLama === hwid ? '' : namaLama);
+            if (namaBaru === null || !namaBaru.trim()) return;
+            database.ref('KalkulatorPati5/KontrolScript/' + hwid).update({
+                hwid: hwid,
+                nama: namaBaru.trim(),
+                active: true,
+                statusDaftar: 'approved'
+            }).then(() => {
+                showToast(`✅ Nama berhasil diubah menjadi: ${namaBaru.trim()}`);
+                muatDaftarKontrolUserAdmin();
+            });
+        }
+
+        function hapusUserHwidAdmin(hwid, nama) {
+            if (USER_ID !== 'adminpati5') return;
+            if (!confirm(`⚠️ Hapus perangkat ${nama} (${hwid}) dari daftar kontrol?`)) return;
+            database.ref('KalkulatorPati5/KontrolScript/' + hwid).remove().then(() => {
+                showToast(`🗑️ ${nama} (${hwid}) dihapus dari daftar.`);
+                muatDaftarKontrolUserAdmin();
+            });
+        }
+
         function muatDaftarKontrolUserAdmin() {
             if (USER_ID !== 'adminpati5') return;
             let container = document.getElementById('list-admin-kontrol-user');
@@ -3705,44 +3755,95 @@
 
             database.ref('KalkulatorPati5/KontrolScript').once('value').then(snap => {
                 let dbVal = snap.val() || {};
-                let allHwids = new Set([...Object.keys(DAFTAR_TETAP_USER_PATI), ...Object.keys(dbVal)]);
-                let rows = [];
 
-                allHwids.forEach(hwid => {
-                    let info = dbVal[hwid] || {};
-                    let nama = info.nama || DAFTAR_TETAP_USER_PATI[hwid] || hwid;
-                    let lastSeen = info.lastSeen || 0;
-                    let lastApp = info.lastApp || '-';
-                    let allowAditya = info.allowAditya !== undefined ? Boolean(info.allowAditya) : true;
-                    let allowUsber = info.allowUsber !== undefined ? Boolean(info.allowUsber) : true;
-                    let isOnline = (Date.now() - lastSeen) < (10 * 60 * 1000); // Online jika aktif < 10 menit terakhir
-                    rows.push({ hwid, nama, lastSeen, lastApp, allowAditya, allowUsber, isOnline });
+                // Otomatis perbaiki nama di Firebase jika masih berupa kode HWID padahal ada di DAFTAR_TETAP_USER_PATI
+                Object.keys(dbVal).forEach(hKey => {
+                    if (DAFTAR_TETAP_USER_PATI[hKey] && (!dbVal[hKey].nama || dbVal[hKey].nama === hKey)) {
+                        dbVal[hKey].nama = DAFTAR_TETAP_USER_PATI[hKey];
+                        database.ref('KalkulatorPati5/KontrolScript/' + hKey).update({ nama: DAFTAR_TETAP_USER_PATI[hKey], active: true });
+                    }
                 });
 
-                rows.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+                // Gabungkan daftar tetap (sembunyikan typo lama jika HWID baru sudah ada)
+                let allHwids = new Set([...Object.keys(DAFTAR_TETAP_USER_PATI), ...Object.keys(dbVal)]);
+                if (dbVal["PATI-890EE19AD496065E"]) allHwids.delete("PATI-E98EE19AD496065E");
+                if (dbVal["PATI-BEA64FCC3DA72E2A"]) allHwids.delete("PATI-BEA64FCC30A72E2A");
+
+                let rows = [];
+                allHwids.forEach(hwid => {
+                    let info = dbVal[hwid] || {};
+                    let nama = (info.nama && info.nama !== hwid) ? info.nama : (DAFTAR_TETAP_USER_PATI[hwid] || info.nama || hwid);
+                    let lastSeen = info.lastSeen || 0;
+                    let lastApp = info.lastApp || '-';
+                    let isPending = info.statusDaftar === 'pending' && info.active === false;
+                    let isActiveLicense = info.active !== undefined ? Boolean(info.active) : true;
+                    let allowAditya = info.allowAditya !== undefined ? Boolean(info.allowAditya) : true;
+                    let allowUsber = info.allowUsber !== undefined ? Boolean(info.allowUsber) : true;
+                    let isOnline = (Date.now() - lastSeen) < (10 * 60 * 1000);
+                    rows.push({ hwid, nama, lastSeen, lastApp, allowAditya, allowUsber, isOnline, isPending, isActiveLicense });
+                });
+
+                // Urutkan: yang minta akses baru (pending) paling atas, lalu berdasarkan waktu aktif terakhir
+                rows.sort((a, b) => {
+                    if (a.isPending !== b.isPending) return a.isPending ? -1 : 1;
+                    return (b.lastSeen || 0) - (a.lastSeen || 0);
+                });
+
                 container.innerHTML = '';
+
+                // Bar Tombol Tambah / Daftarkan HWID Baru Secara Instan
+                let addBar = document.createElement('div');
+                addBar.style.cssText = 'display:flex; gap:6px; margin-bottom:4px;';
+                addBar.innerHTML = `
+                    <button type="button" onclick="tambahAtauEditUserHwidAdmin('', '')" style="flex:1; padding:8px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; border:none; border-radius:6px; font-size:11.5px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.12);">
+                        ➕ Daftarkan HWID / User Baru
+                    </button>
+                `;
+                container.appendChild(addBar);
 
                 rows.forEach(u => {
                     let isAdminRow = (u.hwid === "PATI-5B6A6700BF5D0D96");
                     let card = document.createElement('div');
-                    card.style.cssText = 'background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;';
+                    let borderCol = u.isPending ? '#f59e0b' : (u.isActiveLicense ? '#cbd5e1' : '#fca5a5');
+                    let bgCol = u.isPending ? '#fffbeb' : (u.isActiveLicense ? '#f8fafc' : '#fef2f2');
+                    card.style.cssText = `background:${bgCol}; border:1.5px solid ${borderCol}; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;`;
+
+                    let statusBadge = u.isPending
+                        ? `<span style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🟡 Minta Akses Baru</span>`
+                        : (!u.isActiveLicense ? `<span style="background:#fee2e2; color:#dc2626; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🔒 Terkunci</span>` : '');
+
                     card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <b style="font-size:12px; color:#0f172a;">${u.isOnline ? '🟢' : '⚪'} ${u.nama}</b>
-                                <div style="font-size:10px; color:#64748b;">${u.hwid}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:4px;">
+                            <div style="overflow:hidden;">
+                                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                                    <b style="font-size:12px; color:#0f172a;">${u.isOnline ? '🟢' : '⚪'} ${u.nama}</b>
+                                    ${statusBadge}
+                                    <button type="button" onclick="gantiNamaUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; border-radius:4px; padding:1px 5px; font-size:9.5px; font-weight:bold; cursor:pointer;" title="Ubah Nama User">✏️ Nama</button>
+                                    ${!isAdminRow ? `<button type="button" onclick="hapusUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; border-radius:4px; padding:1px 5px; font-size:9.5px; font-weight:bold; cursor:pointer;" title="Hapus HWID">🗑️</button>` : ''}
+                                </div>
+                                <div style="font-size:10px; color:#64748b; margin-top:2px; user-select:all;">${u.hwid}</div>
                             </div>
-                            <div style="text-align:right; font-size:10px; color:${u.isOnline ? '#16a34a' : '#64748b'}; font-weight:bold;">
+                            <div style="text-align:right; font-size:10px; color:${u.isOnline ? '#16a34a' : '#64748b'}; font-weight:bold; flex-shrink:0;">
                                 ${u.lastSeen ? `📱 ${u.lastApp}<br>${formatWaktuTerakhirAktif(u.lastSeen)}` : 'Belum aktif'}
                             </div>
                         </div>
-                        <div style="display:flex; gap:6px; border-top:1px dashed #e2e8f0; padding-top:6px;">
-                            <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowAditya', ${!u.allowAditya}, '${u.nama}')" style="flex:1; padding:5px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:${u.allowAditya ? '#10b981' : '#dc2626'}; cursor:pointer;">
-                                Aditya: ${u.allowAditya ? 'ON ✅' : 'OFF ❌'}
-                            </button>
-                            <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowUsber', ${!u.allowUsber}, '${u.nama}')" style="flex:1; padding:5px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:${u.allowUsber ? '#2563eb' : '#dc2626'}; cursor:pointer;">
-                                UBMI: ${u.allowUsber ? 'ON ✅' : 'OFF ❌'}
-                            </button>
+                        <div style="display:flex; gap:5px; border-top:1px dashed #e2e8f0; padding-top:6px;">
+                            ${u.isPending ? `
+                                <button type="button" onclick="tambahAtauEditUserHwidAdmin('${u.hwid}', '${u.nama === u.hwid ? '' : u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px; border:none; border-radius:6px; font-size:11px; font-weight:bold; color:#fff; background:#16a34a; cursor:pointer;">
+                                    ✅ Terima & Beri Nama
+                                </button>
+                            ` : `
+                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowAditya',${!u.allowAditya}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:5px 3px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowAditya ? '#10b981' : '#dc2626'}; cursor:pointer;">
+                                    Aditya: ${u.allowAditya ? 'ON ✅' : 'OFF ❌'}
+                                </button>
+                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowUsber',${!u.allowUsber}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:5px 3px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowUsber ? '#2563eb' : '#dc2626'}; cursor:pointer;">
+                                    UBMI: ${u.allowUsber ? 'ON ✅' : 'OFF ❌'}
+                                </button>
+                                ${!isAdminRow ? `
+                                <button type="button" onclick="ubahKontrolScriptUser('${u.hwid}', 'active', ${!u.isActiveLicense}, '${u.nama.replace(/'/g, "\\'")}')" style="padding:5px 7px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.isActiveLicense ? '#64748b' : '#dc2626'}; cursor:pointer;" title="Kunci atau Buka Akses Perangkat">
+                                    ${u.isActiveLicense ? '🔓' : '🔒'}
+                                </button>` : ''}
+                            `}
                         </div>
                     `;
                     container.appendChild(card);
@@ -3752,12 +3853,15 @@
 
         function ubahKontrolScriptUser(hwid, fieldName, newVal, namaUser) {
             if (USER_ID !== 'adminpati5') return;
-            database.ref('KalkulatorPati5/KontrolScript/' + hwid).update({
+            let payload = {
                 hwid: hwid,
                 nama: namaUser,
                 [fieldName]: Boolean(newVal)
-            }).then(() => {
-                showToast(`✅ Script ${fieldName === 'allowAditya' ? 'Aditya' : 'UBMI'} untuk ${namaUser}: ${newVal ? 'ON' : 'OFF'}`);
+            };
+            if (fieldName === 'active' && newVal) payload.statusDaftar = 'approved';
+            database.ref('KalkulatorPati5/KontrolScript/' + hwid).update(payload).then(() => {
+                let label = fieldName === 'allowAditya' ? 'Script Aditya' : (fieldName === 'allowUsber' ? 'Script UBMI' : 'Lisensi Perangkat');
+                showToast(`✅ ${label} untuk ${namaUser}: ${newVal ? 'AKTIF' : 'NONAKTIF'}`);
                 muatDaftarKontrolUserAdmin();
             });
         }
