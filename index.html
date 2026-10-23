@@ -365,11 +365,13 @@
 
     <div class="tab-container">
         <button id="tab-storan" class="tab-btn active" onclick="bukaTab(event, 'menu-storan')">💰 Storan</button>
-        <button id="tab-rekap" class="tab-btn" onclick="bukaTab(event, 'menu-rekap')">📝 Rekap</button>
+        <button id="tab-rekap" class="tab-btn" onclick="bukaTab(event, 'menu-rekap'); tarikRekapBulananDariUBMI(true);">📝 Rekap</button>
         <button id="tab-target" class="tab-btn" onclick="bukaTab(event, 'menu-target')">🎯 Target</button>
         <button id="tab-nasabah" class="tab-btn" onclick="bukaTab(event, 'menu-nasabah')">👥 Nasabah</button>
         <button id="tab-tf" class="tab-btn" onclick="bukaTab(event, 'menu-tf')">🏦 TF Klp</button>
         <button id="tab-saldo" class="tab-btn" onclick="bukaTab(event, 'menu-saldo')">📋 Saldo</button>
+        <button id="tab-operator" class="tab-btn" style="display:none; background:#1e3a8a; color:#fff;" onclick="bukaTab(event, 'menu-operator'); muatDaftarKontrolUserAdmin();">🛡️ Operator</button>
+        <button id="tab-database" class="tab-btn" style="display:none; background:#0f766e; color:#fff;" onclick="bukaTab(event, 'menu-database'); muatDatabaseFirebaseAdmin();">🗄️ Database</button>
         <button id="tab-pengaturan" class="tab-btn" onclick="bukaTab(event, 'menu-pengaturan')">⚙️ Setelan</button>
     </div>
 
@@ -940,17 +942,70 @@
                 <span class="hint">Menyimpan seluruh data Kalkulator Pati 5, Simulasi/TF UBMI, & Cadangan/Bank Aditya dalam 1 file JSON.</span>
             </div>
             
-            <!-- PUSAT KONTROL SCRIPT & MONITOR USER AKTIF (KHUSUS ADMIN SIGIT) -->
-            <div id="admin-control-center-box" style="display:none; margin-top:16px; border-top:2px solid #007bff; padding-top:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label style="color:#004085; font-weight:bold; font-size:12.5px; margin:0;">📡 Pusat Kontrol Script & Monitor User</label>
-                    <button type="button" onclick="muatDaftarKontrolUserAdmin()" style="background:#007bff; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 Segarkan</button>
-                </div>
-                <span class="hint" style="margin-bottom:8px;">Matikan saklar <b>Aditya</b> atau <b>UBMI</b> untuk menonaktifkan fitur script pada teman tanpa mengunci aplikasinya.</span>
-                <div id="list-admin-kontrol-user" style="display:flex; flex-direction:column; gap:6px; max-height:320px; overflow-y:auto;"></div>
+            <button class="btn-hapus" style="width: 100%; margin-top: 20px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
+        </div>
+    </div>
+
+    <!-- ================= TAB KHUSUS ADMIN: OPERATOR HWID ================= -->
+    <div id="menu-operator" class="tab-content">
+        <div class="card">
+            <h3>
+                <span>🛡️ Operator Kontrol HWID & Lisensi</span>
+                <button type="button" onclick="muatDaftarKontrolUserAdmin()" style="background:#007bff; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🔄 Segarkan</button>
+            </h3>
+            <span class="hint" style="margin-bottom:10px;">
+                Kelola akses perangkat teman. Matikan saklar <b>Aditya</b> atau <b>UBMI</b> untuk menonaktifkan script tanpa mengunci aplikasi, atau tekan <b>🗑️</b> untuk menghapus HWID secara permanen.
+            </span>
+
+            <div style="display:flex; gap:6px; margin-bottom:10px;">
+                <button type="button" onclick="tambahAtauEditUserHwidAdmin('', '')" style="flex:1.4; padding:9px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; border:none; border-radius:6px; font-size:11.5px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.12);">
+                    ➕ Daftarkan HWID Baru
+                </button>
+                <button type="button" id="btn-toggle-deleted-hwid" onclick="toggleLihatHwidTerhapus()" style="flex:1; padding:9px; background:#64748b; color:#fff; border:none; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">
+                    🗑️ Lihat Terhapus
+                </button>
             </div>
 
-            <button class="btn-hapus" style="width: 100%; margin-top: 20px; background: #dc3545;" onclick="logoutAkun()">🚪 Keluar Akun</button>
+            <div id="list-admin-kontrol-user" style="display:flex; flex-direction:column; gap:8px; max-height:62vh; overflow-y:auto; padding-right:2px;"></div>
+        </div>
+    </div>
+
+    <!-- ================= TAB KHUSUS ADMIN: MANAJER DATABASE FIREBASE ================= -->
+    <div id="menu-database" class="tab-content">
+        <div class="card">
+            <h3>
+                <span>🗄️ Manajer Database Firebase</span>
+                <button type="button" onclick="muatDatabaseFirebaseAdmin()" style="background:#0f766e; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🔄 Muat Ulang</button>
+            </h3>
+            <div id="fb-db-summary-bar" style="background:#f0fdf4; border:1px solid #86efac; color:#166534; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span>📊 Memuat rincian penyimpanan Firebase...</span>
+            </div>
+
+            <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+                <button type="button" onclick="rapikanDatabaseFirebaseOtomatis()" style="flex:1.3; padding:9px; background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:none; border-radius:6px; font-size:11.5px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
+                    🧹 Rapikan & Bersihkan Sampah Firebase
+                </button>
+                <button type="button" onclick="unduhFullDatabaseFirebase()" style="flex:1; padding:9px; background:#059669; color:#fff; border:none; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">
+                    ⬇️ Backup Cloud
+                </button>
+            </div>
+
+            <div id="list-firebase-nodes" style="display:flex; flex-direction:column; gap:8px; max-height:58vh; overflow-y:auto; padding-right:2px;"></div>
+        </div>
+
+        <!-- Modal Lihat / Edit JSON Node Firebase -->
+        <div id="modal-edit-firebase" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; justify-content:center; align-items:center; padding:14px;">
+            <div style="background:#fff; width:100%; max-width:380px; border-radius:10px; padding:14px; border:2px solid #0f766e; display:flex; flex-direction:column; gap:8px; box-shadow:0 10px 25px rgba(0,0,0,0.4);">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:6px;">
+                    <b id="judul-modal-fb" style="font-size:13px; color:#0f766e;">📂 Isi Data Node</b>
+                    <span onclick="tutupModalEditFirebase()" style="cursor:pointer; font-size:15px; font-weight:bold; color:#666;">✖</span>
+                </div>
+                <textarea id="textarea-modal-fb" style="width:100%; height:240px; font-family:monospace; font-size:11px; padding:8px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; color:#0f172a; resize:none;"></textarea>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" onclick="simpanEditJsonFirebaseAdmin()" style="flex:1.2; padding:9px; background:#059669; color:#fff; border:none; border-radius:6px; font-weight:bold; font-size:12px; cursor:pointer;">💾 Simpan Perubahan</button>
+                    <button type="button" onclick="tutupModalEditFirebase()" style="flex:1; padding:9px; background:#64748b; color:#fff; border:none; border-radius:6px; font-weight:bold; font-size:12px; cursor:pointer;">Tutup</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1143,13 +1198,12 @@
         function tarikDataHariIniDariUBMI(silent = false) {
             let adaPerubahan = false;
             try {
-                // 0. BACA LANGSUNG DARI GUDANG DATA SERVER TERPUSAT (tm_master_server_db)
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
                 let masterDb = rawMaster ? JSON.parse(rawMaster) : {};
                 let ubmi = masterDb.ubmi || {};
                 let aditya = masterDb.aditya || {};
 
-                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML (Mendukung Kenaikan maupun Penurunan/Reset ke 0)
+                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML Hari Ini dari UBMI
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
                 let sObj = rawSuper ? JSON.parse(rawSuper) : {};
                 let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
@@ -1170,7 +1224,7 @@
                     let elA3 = document.getElementById('a3'); if (elA3) { elA3.value = mlVal > 0 ? String(mlVal) : ''; if (mlVal > 0) formatRibuan(elA3); adaPerubahan = true; }
                 }
 
-                // Cek juga TF Hari Ini (Jika di-reset ke 0 di UBMI, otomatis kosongkan juga di Kalkulator)
+                // Cek TF Hari Ini dari UBMI
                 let d = new Date();
                 let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 let rawTfStr = bacaJembatanApk(tfKey, "");
@@ -1188,11 +1242,10 @@
                     }
                 }
 
-                // 2. Tarik Drop Baru & Drop Pelunasan (Prioritaskan Hasil Server Otentikasi Drop Aditya & Bank Nasabah)                
+                // 2. Tarik Drop Baru & Drop Pelunasan Murni dari Otentikasi Drop Aditya & UBMI
                 let dbVal = (ubmi.drop_baru !== undefined) ? ubmi.drop_baru : (bObj.drop_baru || 0);
                 let plVal = (ubmi.drop_pl !== undefined) ? ubmi.drop_pl : (bObj.drop_pl || 0);
 
-                // Jika Server Aditya sudah mengecek tabel Otentikasi Drop hari ini, gunakan angka pasti dari Otentikasi Drop!
                 if (aditya.otentikasi_checked_date === getTodayString()) {
                     dbVal = aditya.drop_baru_otentikasi || 0;
                     if (aditya.drop_pl_otentikasi > 0) plVal = aditya.drop_pl_otentikasi;
@@ -1226,16 +1279,10 @@
                 }
                 hitungTotalDrop();
 
-                // 3. Isi Otomatis Saldo Awal CM/MB/ML & Rekap Bulanan jika tersedia di Gudang Server
-                if (ubmi.sa_cm > 0) { let el = document.getElementById('sa1'); if (el && !el.value) { el.value = String(ubmi.sa_cm); formatRibuan(el); } }
-                if (ubmi.sa_mb > 0) { let el = document.getElementById('sa2'); if (el && !el.value) { el.value = String(ubmi.sa_mb); formatRibuan(el); } }
-                if (ubmi.sa_ml > 0) { let el = document.getElementById('sa3'); if (el && !el.value) { el.value = String(ubmi.sa_ml); formatRibuan(el); } }
+                // 3. Sinkronkan Menu Rekap MURNI dari Tab Rekap Mantri Pati 5 (UBMI)
+                tarikRekapBulananDariUBMI(true);
 
-                if (ubmi.rekap_rows && ubmi.rekap_rows.length > 0) {
-                    tarikRekapBulananDariUBMI(true);
-                }
-
-                // 4. Tarik juga Target, Program, Index, Pengajuan & Gagalkan dari Gudang Server Aditya
+                // 4. Tarik Target, Program, Index, Pengajuan & Gagalkan Murni dari Server Aditya
                 if (Array.isArray(aditya.targets) && aditya.targets.some(t => t > 0)) {
                     const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
                     for (let i = 0; i < 6; i++) {
@@ -1263,48 +1310,48 @@
             if (adaPerubahan) {
                 syncDariStoran();
                 hitungSemua();
-                if (!silent) showToast("✅ Seluruh Data Gudang Server UBMI & Aditya Berhasil Dimuat!");
+                if (!silent) showToast("✅ Data Valid dari Server UBMI & Aditya Berhasil Dimuat!");
             } else if (!silent) {
                 showToast("ℹ️ Data sudah paling baru sesuai Server.", true);
             }
         }
 
+        // MENU REKAP: 100% AMBIL DARI TAB REKAP MANTRI PATI 5 (UBMI)
         function tarikRekapBulananDariUBMI(silent = false) {
             let adaMasuk = false;
             try {
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
                 let ubmi = rawMaster ? (JSON.parse(rawMaster).ubmi || {}) : {};
 
-                let rawSirk = bacaJembatanApk('tm_usber_sirkulasi_resmi', '');
-                if (rawSirk) {
-                    let sirkObj = JSON.parse(rawSirk);
-                    if (sirkObj.sirkulasi > 0) {
-                        let elSi = document.getElementById('siRec');
-                        if (elSi && !elSi.value) { elSi.value = String(Math.round(sirkObj.sirkulasi / 1000)); formatRibuan(elSi); adaMasuk = true; }
-                    }
-                    if (sirkObj.cm_saldo > 0) {
-                        let elSc = document.getElementById('sa1');
-                        if (elSc) { elSc.value = String(Math.round(sirkObj.cm_saldo / 1000)); formatRibuan(elSc); adaMasuk = true; }
-                    }
-                    if (sirkObj.mb_saldo > 0) {
-                        let elSm = document.getElementById('sa2');
-                        if (elSm) { elSm.value = String(Math.round(sirkObj.mb_saldo / 1000)); formatRibuan(elSm); adaMasuk = true; }
-                    }
-                    if (sirkObj.ml_saldo > 0) {
-                        let elSl = document.getElementById('sa3');
-                        if (elSl) { elSl.value = String(Math.round(sirkObj.ml_saldo / 1000)); formatRibuan(elSl); adaMasuk = true; }
-                    }
+                let rawRekapBulan = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
+                let parsedRekap = rawRekapBulan ? JSON.parse(rawRekapBulan) : {};
+                let rows = (Array.isArray(parsedRekap.rows) && parsedRekap.rows.length > 0)
+                    ? parsedRekap.rows
+                    : (Array.isArray(ubmi.rekap_rows) ? ubmi.rekap_rows : []);
+
+                // Ambil Program CM & MB dari Tab Rekap Mantri UBMI jika ada
+                let progCmUbmi = parsedRekap.prog_cm || bacaJembatanApk('tm_rekap_prog_cm', '');
+                let progMbUbmi = parsedRekap.prog_mb || bacaJembatanApk('tm_rekap_prog_mb', '');
+                if (progCmUbmi) {
+                    let elP1 = document.getElementById('p1');
+                    if (elP1 && document.activeElement !== elP1) elP1.value = String(progCmUbmi).replace('.', ',');
+                }
+                if (progMbUbmi) {
+                    let elP2 = document.getElementById('p2');
+                    if (elP2 && document.activeElement !== elP2) elP2.value = String(progMbUbmi).replace('.', ',');
                 }
 
-                let rawRekapBulan = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
-                let rows = (ubmi.rekap_rows && ubmi.rekap_rows.length > 0) ? ubmi.rekap_rows : (rawRekapBulan ? JSON.parse(rawRekapBulan).rows : []);
                 if (Array.isArray(rows) && rows.length > 0) {
                     let todayDate = new Date().getDate();
                     let lastBeforeToday = null;
+                    let todayRowRekap = null;
+
                     rows.forEach(r => {
                         let dNum = parseInt(r.tgl);
                         if (!dNum) return;
                         if (dNum < todayDate) lastBeforeToday = r;
+                        if (dNum === todayDate) todayRowRekap = r;
+
                         const setCell = (pref, val) => {
                             let el = document.getElementById(pref + dNum);
                             if (el && val !== undefined && val !== '') {
@@ -1327,23 +1374,60 @@
                         setCell('t_jl_', r.jl);
                         setCell('t_sl_', r.sl);
                     });
+
+                    // Isi Rekap Harian (Lalu) & Saldo/Jumlah Lalu CM, MB, ML 100% dari baris terakhir sebelum hari ini di Rekap Mantri Pati 5
                     if (lastBeforeToday) {
-                        let elD2 = document.getElementById('d2'); if (elD2 && lastBeforeToday.jml_drop) { elD2.value = String(lastBeforeToday.jml_drop); formatRibuan(elD2); }
-                        let elS2 = document.getElementById('s2'); if (elS2 && lastBeforeToday.jml_stort) { elS2.value = String(lastBeforeToday.jml_stort); formatRibuan(elS2); }
-                        let elSi = document.getElementById('siRec'); if (elSi && lastBeforeToday.sirk) { elSi.value = String(lastBeforeToday.sirk); formatRibuan(elSi); }
-                        let elJ1 = document.getElementById('j1'); if (elJ1 && lastBeforeToday.jc) { elJ1.value = String(lastBeforeToday.jc); formatRibuan(elJ1); }
-                        let elJ2 = document.getElementById('j2'); if (elJ2 && lastBeforeToday.jm) { elJ2.value = String(lastBeforeToday.jm); formatRibuan(elJ2); }
-                        let elJ3 = document.getElementById('j3'); if (elJ3 && lastBeforeToday.jl) { elJ3.value = String(lastBeforeToday.jl); formatRibuan(elJ3); }
+                        const setInputRekap = (id, val) => {
+                            let el = document.getElementById(id);
+                            if (el && document.activeElement !== el && val !== undefined && val !== '') {
+                                el.value = String(val);
+                                formatRibuan(el);
+                            }
+                        };
+                        setInputRekap('d2', lastBeforeToday.jml_drop);
+                        setInputRekap('s2', lastBeforeToday.jml_stort);
+                        setInputRekap('siRec', lastBeforeToday.sirk);
+                        setInputRekap('j1', lastBeforeToday.jc);
+                        setInputRekap('sa1', lastBeforeToday.sc);
+                        setInputRekap('j2', lastBeforeToday.jm);
+                        setInputRekap('sa2', lastBeforeToday.sm);
+                        setInputRekap('j3', lastBeforeToday.jl);
+                        setInputRekap('sa3', lastBeforeToday.sl);
+                    } else if (rows.length === 1 && todayRowRekap) {
+                        // Jika awal bulan (tanggal 1), hitung saldo awal dari baris pertama Rekap Mantri
+                        const setAwal = (id, sVal, aVal) => {
+                            let el = document.getElementById(id);
+                            let awal = (parseInt(sVal || '0') || 0) + (parseInt(aVal || '0') || 0);
+                            if (el && awal > 0 && document.activeElement !== el) { el.value = String(awal); formatRibuan(el); }
+                        };
+                        setAwal('sa1', todayRowRekap.sc, todayRowRekap.ac);
+                        setAwal('sa2', todayRowRekap.sm, todayRowRekap.am);
+                        setAwal('sa3', todayRowRekap.sl, todayRowRekap.al);
                     }
+
+                    // Jika angsuran CM/MB/ML hari ini belum terisi dari live UBMI, ambil dari baris hari ini di Rekap Mantri
+                    if (todayRowRekap) {
+                        const setTodayIfEmpty = (id, val) => {
+                            let el = document.getElementById(id);
+                            if (el && (!el.value || el.value === '0') && parseInt(val || '0') > 0) {
+                                el.value = String(val);
+                                formatRibuan(el);
+                            }
+                        };
+                        setTodayIfEmpty('a1', todayRowRekap.ac);
+                        setTodayIfEmpty('a2', todayRowRekap.am);
+                        setTodayIfEmpty('a3', todayRowRekap.al);
+                    }
+
                     adaMasuk = true;
                 }
             } catch(e) {}
 
             if (adaMasuk) {
                 hitungSemua();
-                if (!silent) showToast("✅ Tabel Rekap Bulanan & Saldo Lalu otomatis dimuat dari Server UBMI!");
+                if (!silent) showToast("✅ Menu Rekap disinkronkan murni dari Tab Rekap Mantri Pati 5!");
             } else if (!silent) {
-                showToast("ℹ️ Menunggu sinkronisasi latar belakang dari UBMI...", true);
+                showToast("ℹ️ Buka UBMI sebentar agar Tab Rekap Mantri Pati 5 tersedot otomatis.", true);
             }
         }
 
@@ -3680,12 +3764,22 @@
             "PATI-B9CD88D4D8DC8ABF": "dwipati3",
             "PATI-E110B16CF821DAA8": "wantopati5",
             "PATI-BEA64FCC3DA72E2A": "fikikm",
-            "PATI-BEA64FCC30A72E2A": "fikikm",
             "PATI-890EE19AD496065E": "adipati5",
-            "PATI-E98EE19AD496065E": "adipati5",
             "PATI-0D4A1094808F7A21": "chandrapati3",
             "PATI-D8367A885FC4547D": "adityapati2"
         };
+
+        window.tampilkanHwidTerhapus = false;
+
+        function apakahAdminAktif() {
+            if (USER_ID === 'adminpati5') return true;
+            try {
+                if (window.AndroidTM && typeof window.AndroidTM.getDeviceHWID === 'function') {
+                    return window.AndroidTM.getDeviceHWID().trim().toUpperCase() === "PATI-5B6A6700BF5D0D96";
+                }
+            } catch(e) {}
+            return false;
+        }
 
         function formatWaktuTerakhirAktif(ts) {
             if (!ts) return "Belum tercatat";
@@ -3699,8 +3793,18 @@
             return `${tgl} ${jamMenit}`;
         }
 
+        function toggleLihatHwidTerhapus() {
+            window.tampilkanHwidTerhapus = !window.tampilkanHwidTerhapus;
+            let btn = document.getElementById('btn-toggle-deleted-hwid');
+            if (btn) {
+                btn.style.background = window.tampilkanHwidTerhapus ? '#dc2626' : '#64748b';
+                btn.innerHTML = window.tampilkanHwidTerhapus ? '👁️ Sembunyikan Terhapus' : '🗑️ Lihat Terhapus';
+            }
+            muatDaftarKontrolUserAdmin();
+        }
+
         function tambahAtauEditUserHwidAdmin(hwidDefault = '', namaDefault = '') {
-            if (USER_ID !== 'adminpati5') return;
+            if (!apakahAdminAktif()) return;
             let rawHwid = prompt("Masukkan ID HWID Perangkat (contoh: PATI-XXXX):", hwidDefault);
             if (!rawHwid || !rawHwid.trim()) return;
             let cleanHwid = rawHwid.trim().toUpperCase();
@@ -3713,24 +3817,26 @@
                 hwid: cleanHwid,
                 nama: cleanNama,
                 active: true,
+                deleted: null,
                 statusDaftar: 'approved',
                 allowAditya: true,
                 allowUsber: true,
                 updatedAt: Date.now()
             }).then(() => {
-                showToast(`✅ ${cleanNama} (${cleanHwid}) berhasil disimpan & diaktifkan!`);
+                showToast(`✅ ${cleanNama} (${cleanHwid}) berhasil diaktifkan!`);
                 muatDaftarKontrolUserAdmin();
             });
         }
 
         function gantiNamaUserHwidAdmin(hwid, namaLama) {
-            if (USER_ID !== 'adminpati5') return;
+            if (!apakahAdminAktif()) return;
             let namaBaru = prompt(`Ubah Nama untuk HWID [${hwid}]:`, namaLama === hwid ? '' : namaLama);
             if (namaBaru === null || !namaBaru.trim()) return;
             database.ref('KalkulatorPati5/KontrolScript/' + hwid).update({
                 hwid: hwid,
                 nama: namaBaru.trim(),
                 active: true,
+                deleted: null,
                 statusDaftar: 'approved'
             }).then(() => {
                 showToast(`✅ Nama berhasil diubah menjadi: ${namaBaru.trim()}`);
@@ -3738,112 +3844,157 @@
             });
         }
 
+        // PERBAIKAN HAPUS HWID: Tandai deleted: true & kunci semua akses agar tidak pernah muncul kembali dari daftar bawaan atau ping otomatis!
         function hapusUserHwidAdmin(hwid, nama) {
-            if (USER_ID !== 'adminpati5') return;
-            if (!confirm(`⚠️ Hapus perangkat ${nama} (${hwid}) dari daftar kontrol?`)) return;
+            if (!apakahAdminAktif()) return;
+            if (hwid === "PATI-5B6A6700BF5D0D96") {
+                alert("⚠️ HWID Admin Utama tidak boleh dihapus!");
+                return;
+            }
+            if (!confirm(`⚠️ Hapus perangkat ${nama} (${hwid}) dari daftar Operator?\n\nPerangkat ini akan langsung terkunci dan tidak akan muncul lagi di daftar aktif.`)) return;
+
+            database.ref('KalkulatorPati5/KontrolScript/' + hwid).set({
+                hwid: hwid,
+                nama: nama,
+                active: false,
+                deleted: true,
+                allowAditya: false,
+                allowUsber: false,
+                deletedAt: Date.now()
+            }).then(() => {
+                showToast(`🗑️ ${nama} (${hwid}) berhasil dihapus & diblokir permanen!`);
+                muatDaftarKontrolUserAdmin();
+            });
+        }
+
+        function bersihkanPermanenNodeHwid(hwid, nama) {
+            if (!apakahAdminAktif()) return;
+            if (!confirm(`🔥 Hapus bersih data ${nama} (${hwid}) dari server Firebase?`)) return;
             database.ref('KalkulatorPati5/KontrolScript/' + hwid).remove().then(() => {
-                showToast(`🗑️ ${nama} (${hwid}) dihapus dari daftar.`);
+                showToast(`🔥 Node ${hwid} dibersihkan dari Firebase.`);
                 muatDaftarKontrolUserAdmin();
             });
         }
 
         function muatDaftarKontrolUserAdmin() {
-            if (USER_ID !== 'adminpati5') return;
+            if (!apakahAdminAktif()) return;
             let container = document.getElementById('list-admin-kontrol-user');
             if (!container) return;
-            container.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">⏳ Memuat status pengguna...</div>';
+            container.innerHTML = '<div style="text-align:center; padding:12px; color:#666;">⏳ Memuat daftar perangkat dari Firebase...</div>';
 
             database.ref('KalkulatorPati5/KontrolScript').once('value').then(snap => {
                 let dbVal = snap.val() || {};
 
-                // Otomatis perbaiki nama di Firebase jika masih berupa kode HWID padahal ada di DAFTAR_TETAP_USER_PATI
-                Object.keys(dbVal).forEach(hKey => {
-                    if (DAFTAR_TETAP_USER_PATI[hKey] && (!dbVal[hKey].nama || dbVal[hKey].nama === hKey)) {
+                // Migrasi 1x saja untuk daftar bawaan yang belum pernah masuk ke Firebase sama sekali
+                let migrasiPromises = [];
+                Object.keys(DAFTAR_TETAP_USER_PATI).forEach(hKey => {
+                    if (!dbVal[hKey]) {
+                        let initObj = {
+                            hwid: hKey,
+                            nama: DAFTAR_TETAP_USER_PATI[hKey],
+                            active: true,
+                            statusDaftar: 'approved',
+                            allowAditya: true,
+                            allowUsber: true
+                        };
+                        dbVal[hKey] = initObj;
+                        migrasiPromises.push(database.ref('KalkulatorPati5/KontrolScript/' + hKey).update(initObj));
+                    } else if (!dbVal[hKey].deleted && (!dbVal[hKey].nama || dbVal[hKey].nama === hKey)) {
                         dbVal[hKey].nama = DAFTAR_TETAP_USER_PATI[hKey];
-                        database.ref('KalkulatorPati5/KontrolScript/' + hKey).update({ nama: DAFTAR_TETAP_USER_PATI[hKey], active: true });
+                        migrasiPromises.push(database.ref('KalkulatorPati5/KontrolScript/' + hKey).update({ nama: DAFTAR_TETAP_USER_PATI[hKey] }));
                     }
                 });
 
-                // Gabungkan daftar tetap (sembunyikan typo lama jika HWID baru sudah ada)
-                let allHwids = new Set([...Object.keys(DAFTAR_TETAP_USER_PATI), ...Object.keys(dbVal)]);
-                if (dbVal["PATI-890EE19AD496065E"]) allHwids.delete("PATI-E98EE19AD496065E");
-                if (dbVal["PATI-BEA64FCC3DA72E2A"]) allHwids.delete("PATI-BEA64FCC30A72E2A");
+                // Hapus otomatis HWID typo lama jika masih ada di Firebase
+                ["PATI-E98EE19AD496065E", "PATI-BEA64FCC30A72E2A"].forEach(oldTypo => {
+                    if (dbVal[oldTypo]) {
+                        delete dbVal[oldTypo];
+                        database.ref('KalkulatorPati5/KontrolScript/' + oldTypo).remove();
+                    }
+                });
 
                 let rows = [];
-                allHwids.forEach(hwid => {
+                Object.keys(dbVal).forEach(hwid => {
                     let info = dbVal[hwid] || {};
+                    let isDeleted = Boolean(info.deleted === true);
+                    if (isDeleted && !window.tampilkanHwidTerhapus) return;
+
                     let nama = (info.nama && info.nama !== hwid) ? info.nama : (DAFTAR_TETAP_USER_PATI[hwid] || info.nama || hwid);
                     let lastSeen = info.lastSeen || 0;
                     let lastApp = info.lastApp || '-';
-                    let isPending = info.statusDaftar === 'pending' && info.active === false;
-                    let isActiveLicense = info.active !== undefined ? Boolean(info.active) : true;
-                    let allowAditya = info.allowAditya !== undefined ? Boolean(info.allowAditya) : true;
-                    let allowUsber = info.allowUsber !== undefined ? Boolean(info.allowUsber) : true;
-                    let isOnline = (Date.now() - lastSeen) < (10 * 60 * 1000);
-                    rows.push({ hwid, nama, lastSeen, lastApp, allowAditya, allowUsber, isOnline, isPending, isActiveLicense });
+                    let isPending = !isDeleted && info.statusDaftar === 'pending' && info.active === false;
+                    let isActiveLicense = !isDeleted && (info.active !== undefined ? Boolean(info.active) : true);
+                    let allowAditya = !isDeleted && (info.allowAditya !== undefined ? Boolean(info.allowAditya) : true);
+                    let allowUsber = !isDeleted && (info.allowUsber !== undefined ? Boolean(info.allowUsber) : true);
+                    let isOnline = !isDeleted && ((Date.now() - lastSeen) < (10 * 60 * 1000));
+                    rows.push({ hwid, nama, lastSeen, lastApp, allowAditya, allowUsber, isOnline, isPending, isActiveLicense, isDeleted });
                 });
 
-                // Urutkan: yang minta akses baru (pending) paling atas, lalu berdasarkan waktu aktif terakhir
                 rows.sort((a, b) => {
                     if (a.isPending !== b.isPending) return a.isPending ? -1 : 1;
+                    if (a.isDeleted !== b.isDeleted) return a.isDeleted ? 1 : -1;
                     return (b.lastSeen || 0) - (a.lastSeen || 0);
                 });
 
                 container.innerHTML = '';
-
-                // Bar Tombol Tambah / Daftarkan HWID Baru Secara Instan
-                let addBar = document.createElement('div');
-                addBar.style.cssText = 'display:flex; gap:6px; margin-bottom:4px;';
-                addBar.innerHTML = `
-                    <button type="button" onclick="tambahAtauEditUserHwidAdmin('', '')" style="flex:1; padding:8px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; border:none; border-radius:6px; font-size:11.5px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.12);">
-                        ➕ Daftarkan HWID / User Baru
-                    </button>
-                `;
-                container.appendChild(addBar);
+                if (rows.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:16px; color:#888;">Tidak ada perangkat yang ditampilkan.</div>';
+                    return;
+                }
 
                 rows.forEach(u => {
                     let isAdminRow = (u.hwid === "PATI-5B6A6700BF5D0D96");
                     let card = document.createElement('div');
-                    let borderCol = u.isPending ? '#f59e0b' : (u.isActiveLicense ? '#cbd5e1' : '#fca5a5');
-                    let bgCol = u.isPending ? '#fffbeb' : (u.isActiveLicense ? '#f8fafc' : '#fef2f2');
-                    card.style.cssText = `background:${bgCol}; border:1.5px solid ${borderCol}; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;`;
+                    let borderCol = u.isDeleted ? '#ef4444' : (u.isPending ? '#f59e0b' : (u.isActiveLicense ? '#cbd5e1' : '#fca5a5'));
+                    let bgCol = u.isDeleted ? '#fff1f2' : (u.isPending ? '#fffbeb' : (u.isActiveLicense ? '#f8fafc' : '#fef2f2'));
+                    card.style.cssText = `background:${bgCol}; border:1.5px solid ${borderCol}; border-radius:8px; padding:9px; display:flex; flex-direction:column; gap:6px;`;
 
-                    let statusBadge = u.isPending
-                        ? `<span style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🟡 Minta Akses Baru</span>`
-                        : (!u.isActiveLicense ? `<span style="background:#fee2e2; color:#dc2626; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🔒 Terkunci</span>` : '');
+                    let statusBadge = u.isDeleted
+                        ? `<span style="background:#dc2626; color:#fff; font-size:9.5px; padding:1px 6px; border-radius:4px; margin-left:4px;">🗑️ DIHAPUS</span>`
+                        : (u.isPending
+                            ? `<span style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🟡 Minta Akses Baru</span>`
+                            : (!u.isActiveLicense ? `<span style="background:#fee2e2; color:#dc2626; font-size:9.5px; padding:1px 5px; border-radius:4px; margin-left:4px;">🔒 Terkunci</span>` : ''));
 
                     card.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:4px;">
                             <div style="overflow:hidden;">
-                                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
                                     <b style="font-size:12px; color:#0f172a;">${u.isOnline ? '🟢' : '⚪'} ${u.nama}</b>
                                     ${statusBadge}
-                                    <button type="button" onclick="gantiNamaUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; border-radius:4px; padding:1px 5px; font-size:9.5px; font-weight:bold; cursor:pointer;" title="Ubah Nama User">✏️ Nama</button>
-                                    ${!isAdminRow ? `<button type="button" onclick="hapusUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; border-radius:4px; padding:1px 5px; font-size:9.5px; font-weight:bold; cursor:pointer;" title="Hapus HWID">🗑️</button>` : ''}
+                                    <button type="button" onclick="gantiNamaUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; border-radius:4px; padding:2px 6px; font-size:9.5px; font-weight:bold; cursor:pointer;">✏️ Nama</button>
+                                    ${!isAdminRow && !u.isDeleted ? `<button type="button" onclick="hapusUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; border-radius:4px; padding:2px 6px; font-size:9.5px; font-weight:bold; cursor:pointer;" title="Hapus & Blokir HWID">🗑️ Hapus</button>` : ''}
                                 </div>
-                                <div style="font-size:10px; color:#64748b; margin-top:2px; user-select:all;">${u.hwid}</div>
+                                <div style="font-size:10.5px; color:#64748b; margin-top:2px; user-select:all; font-family:monospace;">${u.hwid}</div>
                             </div>
                             <div style="text-align:right; font-size:10px; color:${u.isOnline ? '#16a34a' : '#64748b'}; font-weight:bold; flex-shrink:0;">
                                 ${u.lastSeen ? `📱 ${u.lastApp}<br>${formatWaktuTerakhirAktif(u.lastSeen)}` : 'Belum aktif'}
                             </div>
                         </div>
                         <div style="display:flex; gap:5px; border-top:1px dashed #e2e8f0; padding-top:6px;">
-                            ${u.isPending ? `
+                            ${u.isDeleted ? `
+                                <button type="button" onclick="tambahAtauEditUserHwidAdmin('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:#059669; cursor:pointer;">
+                                    ♻️ Pulihkan Akses
+                                </button>
+                                ${!DAFTAR_TETAP_USER_PATI[u.hwid] ? `
+                                <button type="button" onclick="bersihkanPermanenNodeHwid('${u.hwid}', '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px; border:none; border-radius:6px; font-size:10.5px; font-weight:bold; color:#fff; background:#991b1b; cursor:pointer;">
+                                    🔥 Hapus Node
+                                </button>` : ''}
+                            ` : (u.isPending ? `
                                 <button type="button" onclick="tambahAtauEditUserHwidAdmin('${u.hwid}', '${u.nama === u.hwid ? '' : u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px; border:none; border-radius:6px; font-size:11px; font-weight:bold; color:#fff; background:#16a34a; cursor:pointer;">
                                     ✅ Terima & Beri Nama
                                 </button>
                             ` : `
-                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowAditya',${!u.allowAditya}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:5px 3px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowAditya ? '#10b981' : '#dc2626'}; cursor:pointer;">
+                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowAditya', ${!u.allowAditya}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px 4px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowAditya ? '#10b981' : '#dc2626'}; cursor:pointer;">
                                     Aditya: ${u.allowAditya ? 'ON ✅' : 'OFF ❌'}
                                 </button>
-                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowUsber',${!u.allowUsber}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:5px 3px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowUsber ? '#2563eb' : '#dc2626'}; cursor:pointer;">
+                                <button type="button" ${isAdminRow ? 'disabled' : ''} onclick="ubahKontrolScriptUser('${u.hwid}', 'allowUsber', ${!u.allowUsber}, '${u.nama.replace(/'/g, "\\'")}')" style="flex:1; padding:6px 4px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.allowUsber ? '#2563eb' : '#dc2626'}; cursor:pointer;">
                                     UBMI: ${u.allowUsber ? 'ON ✅' : 'OFF ❌'}
                                 </button>
                                 ${!isAdminRow ? `
-                                <button type="button" onclick="ubahKontrolScriptUser('${u.hwid}', 'active', ${!u.isActiveLicense}, '${u.nama.replace(/'/g, "\\'")}')" style="padding:5px 7px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.isActiveLicense ? '#64748b' : '#dc2626'}; cursor:pointer;" title="Kunci atau Buka Akses Perangkat">
+                                <button type="button" onclick="ubahKontrolScriptUser('${u.hwid}', 'active', ${!u.isActiveLicense}, '${u.nama.replace(/'/g, "\\'")}')" style="padding:6px 8px; border:none; border-radius:6px; font-size:10px; font-weight:bold; color:#fff; background:${u.isActiveLicense ? '#64748b' : '#dc2626'}; cursor:pointer;" title="Kunci atau Buka Akses Perangkat">
                                     ${u.isActiveLicense ? '🔓' : '🔒'}
                                 </button>` : ''}
-                            `}
+                            `)}
                         </div>
                     `;
                     container.appendChild(card);
@@ -3852,10 +4003,11 @@
         }
 
         function ubahKontrolScriptUser(hwid, fieldName, newVal, namaUser) {
-            if (USER_ID !== 'adminpati5') return;
+            if (!apakahAdminAktif()) return;
             let payload = {
                 hwid: hwid,
                 nama: namaUser,
+                deleted: null,
                 [fieldName]: Boolean(newVal)
             };
             if (fieldName === 'active' && newVal) payload.statusDaftar = 'approved';
@@ -3866,20 +4018,232 @@
             });
         }
 
-        function initAppUI() {
+        // =====================================================
+        // MANAJER DATABASE FIREBASE KHUSUS ADMIN
+        // =====================================================
+        window.cachedFullFirebaseData = null;
+        window.currentEditFbPath = '';
 
+        function deskripsiNodeFirebase(key) {
+            if (key === 'KontrolScript') return '🛡️ Data Operator HWID & Status Online Perangkat';
+            if (key === 'BukuCadangan') return '☁️ Data Cadangan Rencana Aditya (Per HWID)';
+            if (key === 'BukuGandenganTg') return '🔗 Data Pasangan Gandengan (tg.nama) UBMI';
+            if (key === 'DaftarAkses') return '🔑 Kode Akses Login Pengguna Kalkulator';
+            if (key === 'DataPengguna') return '👥 Folder Data Kalkulator Pengguna Lain';
+            if (key === 'Kalkulator_Mini') return '💰 Data Storan & Kalkulator Hari Ini (Admin)';
+            if (key === 'Nasabah') return '📋 Database Daftar Nasabah Tersimpan';
+            if (key === 'InputTF') return '🏦 Data Input TF Kelompok Harian';
+            if (key === 'Pengaturan') return '⚙️ Setelan Persentase, Transport & Template WA';
+            if (key.startsWith('Tabel_')) return '📅 Tabel Rekap & Target Bulanan (' + key.replace('Tabel_', '') + ')';
+            if (key.startsWith('RiwayatTF_')) return '💸 Tabel Riwayat TF Bulanan (' + key.replace('RiwayatTF_', '') + ')';
+            return '📂 Node Data Firebase';
+        }
+
+        function muatDatabaseFirebaseAdmin() {
+            if (!apakahAdminAktif()) return;
+            let listEl = document.getElementById('list-firebase-nodes');
+            let sumEl = document.getElementById('fb-db-summary-bar');
+            if (!listEl) return;
+            listEl.innerHTML = '<div style="text-align:center; padding:15px; color:#666;">⏳ Memindai seluruh struktur database Firebase...</div>';
+
+            database.ref('KalkulatorPati5').once('value').then(snap => {
+                let rootVal = snap.val() || {};
+                window.cachedFullFirebaseData = rootVal;
+
+                let keys = Object.keys(rootVal);
+                let totalBytes = new Blob([JSON.stringify(rootVal)]).size;
+                let totalKb = (totalBytes / 1024).toFixed(1);
+
+                if (sumEl) {
+                    sumEl.innerHTML = `
+                        <span>📦 Total Node: <b>${keys.length}</b> Folder</span>
+                        <span>💾 Ukuran Cloud: <b>${totalKb} KB</b></span>
+                    `;
+                }
+
+                listEl.innerHTML = '';
+                if (keys.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; padding:15px; color:#999;">Database Firebase kosong.</div>';
+                    return;
+                }
+
+                keys.sort((a, b) => {
+                    const prio = { 'KontrolScript': 1, 'BukuCadangan': 2, 'BukuGandenganTg': 3, 'DaftarAkses': 4, 'DataPengguna': 5 };
+                    return (prio[a] || 99) - (prio[b] || 99) || a.localeCompare(b);
+                });
+
+                keys.forEach(k => {
+                    let val = rootVal[k];
+                    let rawStr = typeof val === 'string' ? val : JSON.stringify(val);
+                    let sizeKb = (new Blob([rawStr || '']).size / 1024).toFixed(2);
+                    let countInfo = '';
+
+                    try {
+                        let parsed = typeof val === 'string' ? JSON.parse(val) : val;
+                        if (Array.isArray(parsed)) countInfo = `${parsed.length} baris`;
+                        else if (parsed && typeof parsed === 'object') countInfo = `${Object.keys(parsed).length} item`;
+                    } catch(e) {}
+
+                    let card = document.createElement('div');
+                    card.style.cssText = 'background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:9px; display:flex; flex-direction:column; gap:6px;';
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:12px; font-weight:bold; color:#0f172a;">📁 ${k}</div>
+                                <div style="font-size:10.5px; color:#475569; margin-top:2px;">${deskripsiNodeFirebase(k)}</div>
+                            </div>
+                            <div style="text-align:right; font-size:10px; font-weight:bold; color:#0f766e; background:#ccfbf1; padding:2px 7px; border-radius:10px; white-space:nowrap;">
+                                ${countInfo ? countInfo + ' • ' : ''}${sizeKb} KB
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; border-top:1px dashed #e2e8f0; padding-top:6px;">
+                            <button type="button" onclick="lihatDetailNodeFirebase('${k}')" style="flex:1; padding:6px; background:#0284c7; color:#fff; border:none; border-radius:5px; font-size:10.5px; font-weight:bold; cursor:pointer;">👁️ Lihat / Edit Isi</button>
+                            <button type="button" onclick="hapusNodeFirebaseAdmin('${k}')" style="padding:6px 12px; background:#dc2626; color:#fff; border:none; border-radius:5px; font-size:10.5px; font-weight:bold; cursor:pointer;">🗑️ Hapus</button>
+                        </div>
+                    `;
+                    listEl.appendChild(card);
+                });
+            }).catch(err => {
+                listEl.innerHTML = '<div style="text-align:center; padding:15px; color:#dc2626;">⚠️ Gagal memuat database Firebase.</div>';
+            });
+        }
+
+        function lihatDetailNodeFirebase(key) {
+            if (!apakahAdminAktif() || !window.cachedFullFirebaseData) return;
+            window.currentEditFbPath = 'KalkulatorPati5/' + key;
+            let rawVal = window.cachedFullFirebaseData[key];
+            let prettyStr = '';
+            try {
+                let obj = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
+                prettyStr = JSON.stringify(obj, null, 2);
+            } catch(e) {
+                prettyStr = String(rawVal || '');
+            }
+            document.getElementById('judul-modal-fb').innerText = `📂 Node: ${key}`;
+            document.getElementById('textarea-modal-fb').value = prettyStr;
+            document.getElementById('modal-edit-firebase').style.display = 'flex';
+        }
+
+        function tutupModalEditFirebase() {
+            document.getElementById('modal-edit-firebase').style.display = 'none';
+            window.currentEditFbPath = '';
+        }
+
+        function simpanEditJsonFirebaseAdmin() {
+            if (!apakahAdminAktif() || !window.currentEditFbPath) return;
+            let txt = document.getElementById('textarea-modal-fb').value.trim();
+            let nodeKey = window.currentEditFbPath.replace('KalkulatorPati5/', '');
+            let origVal = window.cachedFullFirebaseData ? window.cachedFullFirebaseData[nodeKey] : null;
+
+            try {
+                let parsed = JSON.parse(txt);
+                // Pertahankan tipe penyimpanan asli (apakah disimpan sebagai objek Firebase atau string JSON)
+                let toSave = (typeof origVal === 'string') ? JSON.stringify(parsed) : parsed;
+                database.ref(window.currentEditFbPath).set(toSave).then(() => {
+                    showToast(`✅ Data [${nodeKey}] berhasil diperbarui di Firebase!`);
+                    tutupModalEditFirebase();
+                    muatDatabaseFirebaseAdmin();
+                });
+            } catch(e) {
+                alert("⚠️ Format JSON tidak valid! Pastikan tanda kutip dan kurung kurawal sudah benar.");
+            }
+        }
+
+        function hapusNodeFirebaseAdmin(key) {
+            if (!apakahAdminAktif()) return;
+            if (key === 'KontrolScript') {
+                if (!confirm("⚠️ KontrolScript berisi daftar lisensi HWID. Yakin ingin menghapus seluruhnya?")) return;
+            } else {
+                if (!confirm(`⚠️ Yakin ingin menghapus node [${key}] dari Firebase secara permanen?`)) return;
+            }
+            database.ref('KalkulatorPati5/' + key).remove().then(() => {
+                showToast(`🗑️ Node [${key}] berhasil dihapus dari Firebase!`);
+                muatDatabaseFirebaseAdmin();
+            });
+        }
+
+        function rapikanDatabaseFirebaseOtomatis() {
+            if (!apakahAdminAktif()) return;
+            if (!confirm("🧹 Rapikan & bersihkan database Firebase otomatis?\n\n• Menghapus HWID typo/duplikat lama\n• Menghapus nilai kosong pada Tabel Bulanan\n• Merapikan struktur Cadangan & Gandengan Tg")) return;
+
+            database.ref('KalkulatorPati5').once('value').then(snap => {
+                let root = snap.val() || {};
+                let updates = {};
+                let cleanedCount = 0;
+
+                // 1. Bersihkan HWID typo lama di KontrolScript
+                if (root.KontrolScript) {
+                    ["PATI-E98EE19AD496065E", "PATI-BEA64FCC30A72E2A"].forEach(oldHwid => {
+                        if (root.KontrolScript[oldHwid]) {
+                            updates['KontrolScript/' + oldHwid] = null;
+                            cleanedCount++;
+                        }
+                    });
+                }
+
+                // 2. Bersihkan sel kosong ("", "-", "0") pada Tabel_Bulanan agar ukuran JSON jauh lebih ramping
+                Object.keys(root).forEach(k => {
+                    if (k.startsWith('Tabel_')) {
+                        try {
+                            let tblObj = typeof root[k] === 'string' ? JSON.parse(root[k]) : root[k];
+                            if (tblObj && typeof tblObj === 'object') {
+                                let cleanTbl = {};
+                                let removedKeys = 0;
+                                Object.keys(tblObj).forEach(cellKey => {
+                                    let v = String(tblObj[cellKey] || '').trim();
+                                    if (v !== '' && v !== '-') {
+                                        cleanTbl[cellKey] = v;
+                                    } else {
+                                        removedKeys++;
+                                    }
+                                });
+                                if (removedKeys > 0) {
+                                    updates[k] = JSON.stringify(cleanTbl);
+                                    cleanedCount += removedKeys;
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                });
+
+                if (Object.keys(updates).length > 0) {
+                    database.ref('KalkulatorPati5').update(updates).then(() => {
+                        showToast(`🧹 Firebase berhasil dirapikan (${cleanedCount} item sampah dibersihkan)!`);
+                        muatDatabaseFirebaseAdmin();
+                    });
+                } else {
+                    showToast("✨ Database Firebase Anda sudah sangat rapi dan bersih!");
+                }
+            });
+        }
+
+        function unduhFullDatabaseFirebase() {
+            if (!apakahAdminAktif() || !window.cachedFullFirebaseData) return;
+            let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.cachedFullFirebaseData, null, 2));
+            let a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", "Firebase_Full_Pati5_" + getTodayString() + ".json");
+            a.click();
+            showToast("✅ Seluruh isi Firebase berhasil diunduh!");
+        }
+
+        function initAppUI() {
             let userRole = localStorage.getItem('KalkulatorPati_Role') || 'aktif';
-            if (USER_ID !== 'adminpati5' && userRole !== 'vip') {
+            let isAdmin = apakahAdminAktif();
+
+            if (!isAdmin && userRole !== 'vip') {
                 ['tab-nasabah', 'tab-tf'].forEach(idTab => {
                     let tombol = document.getElementById(idTab);
                     if (tombol) tombol.style.display = 'none'; 
                 });
             }
 
-            if (USER_ID === 'adminpati5') {
-                let boxAdmin = document.getElementById('admin-control-center-box');
-                if (boxAdmin) boxAdmin.style.display = 'block';
-                muatDaftarKontrolUserAdmin();
+            // Hanya munculkan Tab Operator & Tab Database untuk Admin!
+            if (isAdmin) {
+                let tabOp = document.getElementById('tab-operator');
+                let tabDb = document.getElementById('tab-database');
+                if (tabOp) tabOp.style.display = 'inline-block';
+                if (tabDb) tabDb.style.display = 'inline-block';
             }
 
             let inputBulanEl = document.getElementById('input_bulan_rekap');
@@ -3899,34 +4263,42 @@
             muatRiwayatTF();
             bacaParameterURL(); 
 
-            // Pantau terus perubahan Storting, TF, & Drop dari UBMI maupun Target dari Aditya setiap 1,2 detik secara otomatis!
-            window.lastAutoSyncHash = '';
+            // POLLING PINTAR ANTI-LAG: Cek perubahan string mentah dulu tanpa JSON.parse berulang-ulang!
+            window.lastRawSyncSignature = '';
             const pantauPerubahanLintasTabOtomatis = () => {
+                if (document.hidden) return;
                 try {
-                    tarikTargetRekapDariAditya(true);
+                    let rawTargets = bacaJembatanApk('tm_sync_targets', '');
+                    let rawRekapAditya = bacaJembatanApk('tm_sync_rekap', '');
+                    if (rawTargets || rawRekapAditya) {
+                        tarikTargetRekapDariAditya(true);
+                    }
+
                     let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
                     let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
-                    let rawMaster = bacaJembatanApk('tm_master_server_db', '');
-                    let bObj = rawBrain ? JSON.parse(rawBrain) : {};
-                    let sObj = rawSuper ? JSON.parse(rawSuper) : {};
-                    let mObj = rawMaster ? (JSON.parse(rawMaster).ubmi || {}) : {};
+                    let rawRekapMantri = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
 
-                    let liveHash = `${bObj.storting || 0}|${bObj.tf || 0}|${bObj.drop_baru || 0}|${bObj.drop_pl || 0}|${sObj.cm || 0}|${sObj.mb || 0}|${sObj.ml || 0}|${mObj.storting || 0}`;
-                    if (liveHash !== window.lastAutoSyncHash) {
-                        window.lastAutoSyncHash = liveHash;
-                        // Jangan timpa jika user sedang mengetik manual di dalam kotak input
+                    let fastSig = `${rawBrain.length}:${rawBrain.slice(-25)}|${rawSuper.length}:${rawSuper.slice(-25)}|${rawRekapMantri.length}`;
+                    if (fastSig !== window.lastRawSyncSignature) {
+                        window.lastRawSyncSignature = fastSig;
                         let activeId = document.activeElement ? document.activeElement.id : '';
-                        if (!['st_storting', 'st_drop_baru', 'st_drop_pelunasan', 'st_tf_ubmi', 'a1', 'a2', 'a3'].includes(activeId)) {
+                        if (!['st_storting', 'st_drop_baru', 'st_drop_pelunasan', 'st_tf_ubmi', 'a1', 'a2', 'a3', 'd2', 's2', 'siRec'].includes(activeId)) {
                             tarikDataHariIniDariUBMI(true);
                         }
                     }
                 } catch(e) {}
             };
 
-            setInterval(pantauPerubahanLintasTabOtomatis, 1200);
-            window.addEventListener('focus', pantauPerubahanLintasTabOtomatis);
+            setInterval(pantauPerubahanLintasTabOtomatis, 2000);
+            window.addEventListener('focus', () => {
+                window.lastRawSyncSignature = '';
+                pantauPerubahanLintasTabOtomatis();
+            });
             document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) pantauPerubahanLintasTabOtomatis();
+                if (!document.hidden) {
+                    window.lastRawSyncSignature = '';
+                    pantauPerubahanLintasTabOtomatis();
+                }
             });
             
             setTimeout(() => { isAppReady = true; }, 1000); 
