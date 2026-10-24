@@ -4274,11 +4274,13 @@
                         tarikTargetRekapDariAditya(true);
                     }
 
+                    let rawMaster = bacaJembatanApk('tm_master_server_db', '');
                     let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
                     let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
                     let rawRekapMantri = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
+                    let rawJmlDrop = bacaJembatanApk('tm_jml_drop_rekap_mantri', '');
 
-                    let fastSig = `${rawBrain.length}:${rawBrain.slice(-25)}|${rawSuper.length}:${rawSuper.slice(-25)}|${rawRekapMantri.length}`;
+                    let fastSig = `${rawMaster.length}:${rawMaster.slice(-30)}|${rawBrain.slice(-25)}|${rawSuper.slice(-25)}|${rawRekapMantri.length}:${rawRekapMantri.slice(-25)}|${rawJmlDrop}`;
                     if (fastSig !== window.lastRawSyncSignature) {
                         window.lastRawSyncSignature = fastSig;
                         let activeId = document.activeElement ? document.activeElement.id : '';
@@ -4289,7 +4291,7 @@
                 } catch(e) {}
             };
 
-            setInterval(pantauPerubahanLintasTabOtomatis, 2000);
+            setInterval(pantauPerubahanLintasTabOtomatis, 1500);
             window.addEventListener('focus', () => {
                 window.lastRawSyncSignature = '';
                 pantauPerubahanLintasTabOtomatis();
