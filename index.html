@@ -384,10 +384,13 @@
     <div id="menu-storan" class="tab-content active">
         <div class="card" style="padding: 0; background: transparent; box-shadow: none;">
 
-            <!-- BAR KOMANDO PINTAR LINTAS WEB (UBMI & ADITYA) -->
+            <!-- BAR KOMANDO PINTAR LINTAS WEB (UBMI & ADITYA) + SAKLAR OTOMATIS / MANUAL -->
             <div class="sync-bridge-bar">
-                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#059669,#10b981);" onclick="tarikDataHariIniDariUBMI()">📥 Tarik TF & Drop UBMI</button>
-                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);" onclick="tarikTargetRekapDariAditya()">🎯 Tarik Target Aditya</button>
+                <button type="button" id="btn-toggle-sync-mode" class="sync-bridge-btn" style="flex:100%; background:linear-gradient(135deg,#0f766e,#14b8a6); font-size:11.5px; padding:8px;" onclick="toggleModeSinkronKalkulator()">
+                    🤖 Mode Input: OTOMATIS (Diisikan Script)
+                </button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#059669,#10b981);" onclick="tarikDataHariIniDariUBMI(false, true)">📥 Tarik TF & Drop UBMI</button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);" onclick="tarikTargetRekapDariAditya(false, true)">🎯 Tarik Target Aditya</button>
                 <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);" onclick="bukaTab({currentTarget:document.getElementById('tab-saldo')},'menu-saldo'); tarikSaldoOtomatisDariUBMI(true);">📋 Buka Rekap Saldo</button>
             </div>
             
@@ -1193,9 +1196,42 @@
         }
 
         // =====================================================
-        // FITUR SINKRONISASI LINTAS WEB (UBMI & ADITYA -> KALKULATOR)
+        // FITUR MODE OTOMATIS VS MANUAL & SINKRONISASI LINTAS WEB
         // =====================================================
-        function tarikDataHariIniDariUBMI(silent = false) {
+        function isAutoSyncCalcEnabled() {
+            return localStorage.getItem('KalkulatorPati_SyncMode') !== 'manual';
+        }
+
+        function updateTombolModeSinkronUI() {
+            let btn = document.getElementById('btn-toggle-sync-mode');
+            if (!btn) return;
+            if (isAutoSyncCalcEnabled()) {
+                btn.style.background = 'linear-gradient(135deg,#0f766e,#14b8a6)';
+                btn.innerHTML = '🤖 Mode Input: OTOMATIS (Diisikan Script)';
+            } else {
+                btn.style.background = 'linear-gradient(135deg,#d97706,#f59e0b)';
+                btn.innerHTML = '✍️ Mode Input: MANUAL (Isi Sendiri / Dikunci)';
+            }
+        }
+
+        function toggleModeSinkronKalkulator() {
+            let nextMode = isAutoSyncCalcEnabled() ? 'manual' : 'auto';
+            localStorage.setItem('KalkulatorPati_SyncMode', nextMode);
+            updateTombolModeSinkronUI();
+            if (nextMode === 'auto') {
+                window.lastRawSyncSignature = '';
+                tarikDataHariIniDariUBMI(false, true);
+                showToast("🤖 Mode OTOMATIS Aktif: Data otomatis diisi oleh script!");
+            } else {
+                showToast("✍️ Mode MANUAL Aktif: Ketikan Anda aman & tidak akan ditimpa script!");
+            }
+        }
+
+        function tarikDataHariIniDariUBMI(silent = false, forceManualClick = false) {
+            updateTombolModeSinkronUI();
+            // Jika Mode MANUAL aktif, blokir penimpaan otomatis di latar belakang!
+            if (!isAutoSyncCalcEnabled() && !forceManualClick) return;
+
             let adaPerubahan = false;
             try {
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
@@ -1242,27 +1278,31 @@
                     }
                 }
 
-                // 2. Tarik Drop Baru & Drop Pelunasan Murni dari Otentikasi Drop Aditya & UBMI
-                let dbVal = (ubmi.drop_baru !== undefined) ? ubmi.drop_baru : (bObj.drop_baru || 0);
-                let plVal = (ubmi.drop_pl !== undefined) ? ubmi.drop_pl : (bObj.drop_pl || 0);
+                // 2. PERBAIKAN DROP: Utamakan Drop Asli dari Web Kantor (UBMI) & Rekap Mantri UBMI (TANPA mengambil dari Bank Nasabah!)
+                let dbVal = (ubmi.drop_baru !== undefined) ? parseInt(ubmi.drop_baru || 0) : (parseInt(sObj.drop_baru || bObj.drop_baru || 0));
+                let plVal = (ubmi.drop_pl !== undefined) ? parseInt(ubmi.drop_pl || 0) : (parseInt(sObj.drop_pl || bObj.drop_pl || 0));
 
-                if (aditya.otentikasi_checked_date === getTodayString()) {
-                    dbVal = aditya.drop_baru_otentikasi || 0;
-                    if (aditya.drop_pl_otentikasi > 0) plVal = aditya.drop_pl_otentikasi;
-                } else {
-                    let rawBank = bacaJembatanApk('tm_bank_nasabah_mega', '[]');
-                    let bankList = JSON.parse(rawBank || '[]');
-                    if (Array.isArray(bankList) && bankList.length > 0) {
-                        let sumDB = 0, sumPL = 0;
-                        bankList.forEach(item => {
-                            let nom = parseInt(item.nominal || 0);
-                            if (nom >= 1000) nom = Math.round(nom / 1000);
-                            if (item.status === 'DB') sumDB += nom;
-                            else sumPL += nom;
-                        });
-                        dbVal = sumDB;
-                        plVal = sumPL;
+                // Jika di Rekap Mantri UBMI ada angka Drop hari ini namun rincian DB/PL masih 0, gunakan angka Rekap UBMI tersebut
+                let dropRekapHariIni = parseInt(ubmi.drop_hari_ini_rekap || 0);
+                if (!dropRekapHariIni) {
+                    try {
+                        let rawRek = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
+                        let pRek = rawRek ? JSON.parse(rawRek) : {};
+                        let tRow = (pRek.rows || []).find(r => parseInt(r.tgl) === d.getDate());
+                        if (tRow && parseInt(tRow.drop || 0) > 0) dropRekapHariIni = parseInt(tRow.drop);
+                    } catch(e) {}
+                }
+
+                if ((dbVal + plVal) === 0 && dropRekapHariIni > 0) {
+                    if (aditya.otentikasi_checked_date === getTodayString() && ((aditya.drop_baru_otentikasi || 0) + (aditya.drop_pl_otentikasi || 0)) === dropRekapHariIni) {
+                        dbVal = parseInt(aditya.drop_baru_otentikasi || 0);
+                        plVal = parseInt(aditya.drop_pl_otentikasi || 0);
+                    } else {
+                        plVal = dropRekapHariIni;
                     }
+                } else if ((dbVal + plVal) === 0 && aditya.otentikasi_checked_date === getTodayString()) {
+                    dbVal = parseInt(aditya.drop_baru_otentikasi || 0);
+                    plVal = parseInt(aditya.drop_pl_otentikasi || 0);
                 }
 
                 let elDB = document.getElementById('st_drop_baru');
@@ -1272,15 +1312,15 @@
                     if (dbVal > 0) formatRibuan(elDB);
                     adaPerubahan = true;
                 }
-                if (elPL && plVal > 0) {
-                    elPL.value = String(plVal);
-                    formatRibuan(elPL);
+                if (elPL) {
+                    elPL.value = plVal > 0 ? String(plVal) : '';
+                    if (plVal > 0) formatRibuan(elPL);
                     adaPerubahan = true;
                 }
                 hitungTotalDrop();
 
                 // 3. Sinkronkan Menu Rekap MURNI dari Tab Rekap Mantri Pati 5 (UBMI)
-                tarikRekapBulananDariUBMI(true);
+                tarikRekapBulananDariUBMI(true, forceManualClick);
 
                 // 4. Tarik Target, Program, Index, Pengajuan & Gagalkan Murni dari Server Aditya
                 if (Array.isArray(aditya.targets) && aditya.targets.some(t => t > 0)) {
@@ -1317,7 +1357,8 @@
         }
 
         // MENU REKAP: 100% AMBIL DARI TAB REKAP MANTRI PATI 5 (UBMI)
-        function tarikRekapBulananDariUBMI(silent = false) {
+        function tarikRekapBulananDariUBMI(silent = false, forceManualClick = false) {
+            if (!isAutoSyncCalcEnabled() && silent && !forceManualClick) return;
             let adaMasuk = false;
             try {
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
@@ -1329,7 +1370,6 @@
                     ? parsedRekap.rows
                     : (Array.isArray(ubmi.rekap_rows) ? ubmi.rekap_rows : []);
 
-                // Ambil Program CM & MB dari Tab Rekap Mantri UBMI jika ada
                 let progCmUbmi = parsedRekap.prog_cm || bacaJembatanApk('tm_rekap_prog_cm', '');
                 let progMbUbmi = parsedRekap.prog_mb || bacaJembatanApk('tm_rekap_prog_mb', '');
                 if (progCmUbmi) {
@@ -1375,7 +1415,6 @@
                         setCell('t_sl_', r.sl);
                     });
 
-                    // Isi Rekap Harian (Lalu) & Saldo/Jumlah Lalu CM, MB, ML 100% dari baris terakhir sebelum hari ini di Rekap Mantri Pati 5
                     if (lastBeforeToday) {
                         const setInputRekap = (id, val) => {
                             let el = document.getElementById(id);
@@ -1394,7 +1433,6 @@
                         setInputRekap('j3', lastBeforeToday.jl);
                         setInputRekap('sa3', lastBeforeToday.sl);
                     } else if (rows.length === 1 && todayRowRekap) {
-                        // Jika awal bulan (tanggal 1), hitung saldo awal dari baris pertama Rekap Mantri
                         const setAwal = (id, sVal, aVal) => {
                             let el = document.getElementById(id);
                             let awal = (parseInt(sVal || '0') || 0) + (parseInt(aVal || '0') || 0);
@@ -1405,7 +1443,6 @@
                         setAwal('sa3', todayRowRekap.sl, todayRowRekap.al);
                     }
 
-                    // Jika angsuran CM/MB/ML hari ini belum terisi dari live UBMI, ambil dari baris hari ini di Rekap Mantri
                     if (todayRowRekap) {
                         const setTodayIfEmpty = (id, val) => {
                             let el = document.getElementById(id);
@@ -1431,7 +1468,8 @@
             }
         }
 
-        function tarikTargetRekapDariAditya(silent = false) {
+        function tarikTargetRekapDariAditya(silent = false, forceManualClick = false) {
+            if (!isAutoSyncCalcEnabled() && silent && !forceManualClick) return;
             let adaSync = false;
             try {
                 let rawTargets = bacaJembatanApk('tm_sync_targets', '');
@@ -4265,8 +4303,9 @@
 
             // POLLING PINTAR ANTI-LAG: Cek perubahan string mentah dulu tanpa JSON.parse berulang-ulang!
             window.lastRawSyncSignature = '';
+            updateTombolModeSinkronUI();
             const pantauPerubahanLintasTabOtomatis = () => {
-                if (document.hidden) return;
+                if (document.hidden || !isAutoSyncCalcEnabled()) return;
                 try {
                     let rawTargets = bacaJembatanApk('tm_sync_targets', '');
                     let rawRekapAditya = bacaJembatanApk('tm_sync_rekap', '');
