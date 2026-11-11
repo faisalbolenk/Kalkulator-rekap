@@ -384,14 +384,28 @@
     <div id="menu-storan" class="tab-content active">
         <div class="card" style="padding: 0; background: transparent; box-shadow: none;">
 
-            <!-- BAR KOMANDO PINTAR LINTAS WEB (UBMI & ADITYA) + SAKLAR OTOMATIS / MANUAL -->
+            <!-- BAR KOMANDO PINTAR LINTAS WEB (UBMI & ADITYA) + SAKLAR OTOMATIS PER-BAGIAN -->
             <div class="sync-bridge-bar">
-                <button type="button" id="btn-toggle-sync-mode" class="sync-bridge-btn" style="flex:100%; background:linear-gradient(135deg,#0f766e,#14b8a6); font-size:11.5px; padding:8px;" onclick="toggleModeSinkronKalkulator()">
-                    🤖 Mode Input: OTOMATIS (Diisikan Script)
+                <button type="button" id="btn-toggle-sync-mode" class="sync-bridge-btn" style="flex:3; background:linear-gradient(135deg,#0f766e,#14b8a6); font-size:11px; padding:8px;" onclick="toggleModeSinkronKalkulator()">
+                    🤖 Mode Input: OTOMATIS
                 </button>
-                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#059669,#10b981);" onclick="tarikDataHariIniDariUBMI(false, true)">📥 Tarik TF & Drop UBMI</button>
-                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);" onclick="tarikTargetRekapDariAditya(false, true)">🎯 Tarik Target Aditya</button>
-                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);" onclick="bukaTab({currentTarget:document.getElementById('tab-saldo')},'menu-saldo'); tarikSaldoOtomatisDariUBMI(true);">📋 Buka Rekap Saldo</button>
+                <button type="button" id="btn-open-granular-sync" class="sync-bridge-btn" style="flex:1; background:#1e293b; font-size:11px; padding:8px;" onclick="togglePanelOtomatisDetail()">
+                    ⚙️ Pilih
+                </button>
+                <div id="panel-granular-sync" style="display:none; width:100%; background:#ffffff; border:2px solid #0f766e; border-radius:8px; padding:8px; margin-top:2px; margin-bottom:4px; box-sizing:border-box; font-size:11px; color:#1e293b;">
+                    <div style="font-weight:bold; color:#0f766e; margin-bottom:6px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">🎛️ Pilih Bagian yang Diisi Otomatis oleh Script:</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_drop" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 💸 Drop Baru & PL</label>
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_stort" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 💰 Storting Hari Ini</label>
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_tf" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 🏦 TF Bank UBMI</label>
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_cmmbml" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 📊 Angsuran CM/MB/ML</label>
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_rekap" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 📝 Tabel & Rekap Lalu</label>
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:bold;"><input type="checkbox" id="chk_auto_target" onchange="simpanSaklarOtomatisDetail()" style="width:15px; height:15px; flex:none;"> 🎯 Target & Pengajuan</label>
+                    </div>
+                </div>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#059669,#10b981);" onclick="tarikDataHariIniDariUBMI(false, true)">📥 Tarik UBMI</button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);" onclick="tarikTargetRekapDariAditya(false, true)">🎯 Tarik Aditya</button>
+                <button type="button" class="sync-bridge-btn" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);" onclick="bukaTab({currentTarget:document.getElementById('tab-saldo')},'menu-saldo'); tarikSaldoOtomatisDariUBMI(true);">📋 Rekap Saldo</button>
             </div>
             
             <!-- BLOK SCREENSHOT OTOMATIS -->
@@ -1198,19 +1212,80 @@
         // =====================================================
         // FITUR MODE OTOMATIS VS MANUAL & SINKRONISASI LINTAS WEB
         // =====================================================
+        function getGranularSyncConfig() {
+            let def = { drop: true, stort: true, tf: true, cmmbml: true, rekap: true, target: true };
+            try {
+                let saved = JSON.parse(localStorage.getItem('KalkulatorPati_GranularSync') || 'null');
+                if (saved && typeof saved === 'object') return Object.assign(def, saved);
+            } catch(e) {}
+            return def;
+        }
+
+        function isSubSyncEnabled(key) {
+            if (!isAutoSyncCalcEnabled()) return false;
+            let cfg = getGranularSyncConfig();
+            return cfg[key] !== false;
+        }
+
+        function togglePanelOtomatisDetail() {
+            let pnl = document.getElementById('panel-granular-sync');
+            if (!pnl) return;
+            muatSaklarOtomatisDetailUI();
+            pnl.style.display = pnl.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function muatSaklarOtomatisDetailUI() {
+            let cfg = getGranularSyncConfig();
+            const mapIds = {
+                drop: 'chk_auto_drop',
+                stort: 'chk_auto_stort',
+                tf: 'chk_auto_tf',
+                cmmbml: 'chk_auto_cmmbml',
+                rekap: 'chk_auto_rekap',
+                target: 'chk_auto_target'
+            };
+            for (let k in mapIds) {
+                let el = document.getElementById(mapIds[k]);
+                if (el) el.checked = Boolean(cfg[k]);
+            }
+        }
+
+        function simpanSaklarOtomatisDetail() {
+            let cfg = {
+                drop: Boolean(document.getElementById('chk_auto_drop')?.checked),
+                stort: Boolean(document.getElementById('chk_auto_stort')?.checked),
+                tf: Boolean(document.getElementById('chk_auto_tf')?.checked),
+                cmmbml: Boolean(document.getElementById('chk_auto_cmmbml')?.checked),
+                rekap: Boolean(document.getElementById('chk_auto_rekap')?.checked),
+                target: Boolean(document.getElementById('chk_auto_target')?.checked)
+            };
+            localStorage.setItem('KalkulatorPati_GranularSync', JSON.stringify(cfg));
+            updateTombolModeSinkronUI();
+            window.lastRawSyncSignature = '';
+            tarikDataHariIniDariUBMI(true, false);
+            showToast("⚙️ Pengaturan Otomatis Per-Bagian Disimpan!");
+        }
+
         function isAutoSyncCalcEnabled() {
             return localStorage.getItem('KalkulatorPati_SyncMode') !== 'manual';
         }
 
         function updateTombolModeSinkronUI() {
             let btn = document.getElementById('btn-toggle-sync-mode');
+            muatSaklarOtomatisDetailUI();
             if (!btn) return;
             if (isAutoSyncCalcEnabled()) {
+                let cfg = getGranularSyncConfig();
+                let offList = [];
+                if (!cfg.drop) offList.push('Drop Manual');
+                if (!cfg.stort) offList.push('Stort Manual');
+                if (!cfg.tf) offList.push('TF Manual');
+                let suffix = offList.length > 0 ? ` (${offList.join(', ')})` : ' (Semua ON)';
                 btn.style.background = 'linear-gradient(135deg,#0f766e,#14b8a6)';
-                btn.innerHTML = '🤖 Mode Input: OTOMATIS (Diisikan Script)';
+                btn.innerHTML = '🤖 Otomatis: ON' + suffix;
             } else {
                 btn.style.background = 'linear-gradient(135deg,#d97706,#f59e0b)';
-                btn.innerHTML = '✍️ Mode Input: MANUAL (Isi Sendiri / Dikunci)';
+                btn.innerHTML = '✍️ Mode: MANUAL SEMUA (Dikunci)';
             }
         }
 
@@ -1221,157 +1296,185 @@
             if (nextMode === 'auto') {
                 window.lastRawSyncSignature = '';
                 tarikDataHariIniDariUBMI(false, true);
-                showToast("🤖 Mode OTOMATIS Aktif: Data otomatis diisi oleh script!");
+                showToast("🤖 Mode OTOMATIS Aktif!");
             } else {
-                showToast("✍️ Mode MANUAL Aktif: Ketikan Anda aman & tidak akan ditimpa script!");
+                showToast("✍️ Mode MANUAL Aktif: Semua ketikan Anda dikunci!");
             }
         }
 
         function tarikDataHariIniDariUBMI(silent = false, forceManualClick = false) {
             updateTombolModeSinkronUI();
-            // Jika Mode MANUAL aktif, blokir penimpaan otomatis di latar belakang!
             if (!isAutoSyncCalcEnabled() && !forceManualClick) return;
 
+            let todayStr = getTodayString();
+            let currentYm = getBulanTahunString();
             let adaPerubahan = false;
+
             try {
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
                 let masterDb = rawMaster ? JSON.parse(rawMaster) : {};
-                let ubmi = masterDb.ubmi || {};
-                let aditya = masterDb.aditya || {};
+                let isMasterToday = (masterDb.tanggal === todayStr);
+                let isMasterThisMonth = (!masterDb.bulan || masterDb.bulan === currentYm);
+                let ubmi = isMasterThisMonth ? (masterDb.ubmi || {}) : {};
+                let aditya = isMasterThisMonth ? (masterDb.aditya || {}) : {};
 
-                // 1. Tarik Storting, TF, & Angsuran CM/MB/ML Hari Ini dari UBMI
                 let rawSuper = bacaJembatanApk('tm_super_sync_usber_to_calc', '');
-                let sObj = rawSuper ? JSON.parse(rawSuper) : {};
+                let sObjRaw = rawSuper ? JSON.parse(rawSuper) : {};
+                let sObj = (sObjRaw.tanggal === todayStr) ? sObjRaw : {};
+
                 let rawBrain = bacaJembatanApk('tm_one_brain_memory', '');
-                let bObj = rawBrain ? JSON.parse(rawBrain) : {};
-                let punyaDataUbmi = Boolean(ubmi.updatedAt || sObj.timestamp || bObj.timestamp);
+                let bObjRaw = rawBrain ? JSON.parse(rawBrain) : {};
+                let bObj = (bObjRaw.tanggal === todayStr) ? bObjRaw : {};
 
-                let stortVal = ubmi.storting !== undefined ? ubmi.storting : (bObj.storting !== undefined ? bObj.storting : (sObj.storting || 0));
-                let cmVal = ubmi.cm_angs !== undefined ? ubmi.cm_angs : (sObj.cm || 0);
-                let mbVal = ubmi.mb_angs !== undefined ? ubmi.mb_angs : (sObj.mb || 0);
-                let mlVal = ubmi.ml_angs !== undefined ? ubmi.ml_angs : (sObj.ml || 0);
-                let tfVal = ubmi.tf !== undefined ? ubmi.tf : (sObj.tf || 0);
+                let punyaDataHariIni = Boolean(isMasterToday || sObj.timestamp || bObj.timestamp);
 
-                if (punyaDataUbmi) {
-                    let elSt = document.getElementById('st_storting');
-                    if (elSt) { elSt.value = stortVal > 0 ? String(stortVal) : ''; if (stortVal > 0) formatRibuan(elSt); adaPerubahan = true; }
-                    let elA1 = document.getElementById('a1'); if (elA1) { elA1.value = cmVal > 0 ? String(cmVal) : ''; if (cmVal > 0) formatRibuan(elA1); adaPerubahan = true; }
-                    let elA2 = document.getElementById('a2'); if (elA2) { elA2.value = mbVal > 0 ? String(mbVal) : ''; if (mbVal > 0) formatRibuan(elA2); adaPerubahan = true; }
-                    let elA3 = document.getElementById('a3'); if (elA3) { elA3.value = mlVal > 0 ? String(mlVal) : ''; if (mlVal > 0) formatRibuan(elA3); adaPerubahan = true; }
+                // 1. STORTING HARI INI (MURNI UBMI)
+                if (forceManualClick || isSubSyncEnabled('stort')) {
+                    let stortVal = isMasterToday && ubmi.storting !== undefined ? ubmi.storting : (bObj.storting !== undefined ? bObj.storting : (sObj.storting || 0));
+                    if (punyaDataHariIni) {
+                        let elSt = document.getElementById('st_storting');
+                        if (elSt) { elSt.value = stortVal > 0 ? String(stortVal) : ''; if (stortVal > 0) formatRibuan(elSt); adaPerubahan = true; }
+                    }
                 }
 
-                // Cek TF Hari Ini dari UBMI
-                let d = new Date();
-                let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                let rawTfStr = bacaJembatanApk(tfKey, "");
-                if (rawTfStr !== "") {
-                    let rawTf = parseInt(rawTfStr || "0");
-                    tfVal = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                // 2. ANGSURAN CM, MB, ML HARI INI (MURNI UBMI)
+                if (forceManualClick || isSubSyncEnabled('cmmbml')) {
+                    let cmVal = isMasterToday && ubmi.cm_angs !== undefined ? ubmi.cm_angs : (sObj.cm || 0);
+                    let mbVal = isMasterToday && ubmi.mb_angs !== undefined ? ubmi.mb_angs : (sObj.mb || 0);
+                    let mlVal = isMasterToday && ubmi.ml_angs !== undefined ? ubmi.ml_angs : (sObj.ml || 0);
+                    if (punyaDataHariIni) {
+                        let elA1 = document.getElementById('a1'); if (elA1) { elA1.value = cmVal > 0 ? String(cmVal) : ''; if (cmVal > 0) formatRibuan(elA1); adaPerubahan = true; }
+                        let elA2 = document.getElementById('a2'); if (elA2) { elA2.value = mbVal > 0 ? String(mbVal) : ''; if (mbVal > 0) formatRibuan(elA2); adaPerubahan = true; }
+                        let elA3 = document.getElementById('a3'); if (elA3) { elA3.value = mlVal > 0 ? String(mlVal) : ''; if (mlVal > 0) formatRibuan(elA3); adaPerubahan = true; }
+                    }
                 }
-                if (punyaDataUbmi || rawTfStr !== "") {
-                    let elTfUbmi = document.getElementById('st_tf_ubmi');
-                    if (elTfUbmi) {
-                        elTfUbmi.value = tfVal > 0 ? String(tfVal) : '';
-                        if (tfVal > 0) formatRibuan(elTfUbmi);
-                        hitungTotalTFInput();
+
+                // 3. TF BANK HARI INI (MURNI UBMI)
+                if (forceManualClick || isSubSyncEnabled('tf')) {
+                    let tfVal = isMasterToday && ubmi.tf !== undefined ? ubmi.tf : (sObj.tf || 0);
+                    let d = new Date();
+                    let tfKey = 'tm_tf_total_v5_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    let rawTfStr = bacaJembatanApk(tfKey, "");
+                    if (rawTfStr !== "") {
+                        let rawTf = parseInt(rawTfStr || "0");
+                        tfVal = rawTf >= 1000 ? Math.floor(rawTf / 1000) : rawTf;
+                    }
+                    if (punyaDataHariIni || rawTfStr !== "") {
+                        let elTfUbmi = document.getElementById('st_tf_ubmi');
+                        if (elTfUbmi) {
+                            elTfUbmi.value = tfVal > 0 ? String(tfVal) : '';
+                            if (tfVal > 0) formatRibuan(elTfUbmi);
+                            hitungTotalTFInput();
+                            adaPerubahan = true;
+                        }
+                    }
+                }
+
+                // 4. DROP BARU & PELUNASAN: 100% MURNI DARI UBMI SAJA & OTOMATIS RESET 0 SAAT GANTI HARI (JAM 12 MALAM)!
+                if (forceManualClick || isSubSyncEnabled('drop')) {
+                    let dbVal = 0;
+                    let plVal = 0;
+
+                    if (isMasterToday) {
+                        dbVal = parseInt(ubmi.drop_baru || 0);
+                        plVal = parseInt(ubmi.drop_pl || 0);
+                    } else {
+                        dbVal = parseInt(sObj.drop_baru || bObj.drop_baru || 0);
+                        plVal = parseInt(sObj.drop_pl || bObj.drop_pl || 0);
+                    }
+
+                    // Cek juga baris tanggal hari ini di Rekap Mantri UBMI jika dbVal+plVal masih 0
+                    if ((dbVal + plVal) === 0 && isMasterToday) {
+                        let dropRekapHariIni = parseInt(ubmi.drop_hari_ini_rekap || 0);
+                        if (!dropRekapHariIni) {
+                            try {
+                                let rawRek = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
+                                let pRek = rawRek ? JSON.parse(rawRek) : {};
+                                if (!pRek.bulan || pRek.bulan === currentYm) {
+                                    let tRow = (pRek.rows || []).find(r => parseInt(r.tgl) === new Date().getDate());
+                                    if (tRow && parseInt(tRow.drop || 0) > 0) dropRekapHariIni = parseInt(tRow.drop);
+                                }
+                            } catch(e) {}
+                        }
+                        if (dropRekapHariIni > 0) plVal = dropRekapHariIni;
+                    }
+
+                    let elDB = document.getElementById('st_drop_baru');
+                    let elPL = document.getElementById('st_drop_pelunasan');
+                    if (elDB) {
+                        elDB.value = dbVal > 0 ? String(dbVal) : '';
+                        if (dbVal > 0) formatRibuan(elDB);
                         adaPerubahan = true;
                     }
-                }
-
-                // 2. PERBAIKAN DROP: Utamakan Drop Asli dari Web Kantor (UBMI) & Rekap Mantri UBMI (TANPA mengambil dari Bank Nasabah!)
-                let dbVal = (ubmi.drop_baru !== undefined) ? parseInt(ubmi.drop_baru || 0) : (parseInt(sObj.drop_baru || bObj.drop_baru || 0));
-                let plVal = (ubmi.drop_pl !== undefined) ? parseInt(ubmi.drop_pl || 0) : (parseInt(sObj.drop_pl || bObj.drop_pl || 0));
-
-                // Jika di Rekap Mantri UBMI ada angka Drop hari ini namun rincian DB/PL masih 0, gunakan angka Rekap UBMI tersebut
-                let dropRekapHariIni = parseInt(ubmi.drop_hari_ini_rekap || 0);
-                if (!dropRekapHariIni) {
-                    try {
-                        let rawRek = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
-                        let pRek = rawRek ? JSON.parse(rawRek) : {};
-                        let tRow = (pRek.rows || []).find(r => parseInt(r.tgl) === d.getDate());
-                        if (tRow && parseInt(tRow.drop || 0) > 0) dropRekapHariIni = parseInt(tRow.drop);
-                    } catch(e) {}
-                }
-
-                if ((dbVal + plVal) === 0 && dropRekapHariIni > 0) {
-                    if (aditya.otentikasi_checked_date === getTodayString() && ((aditya.drop_baru_otentikasi || 0) + (aditya.drop_pl_otentikasi || 0)) === dropRekapHariIni) {
-                        dbVal = parseInt(aditya.drop_baru_otentikasi || 0);
-                        plVal = parseInt(aditya.drop_pl_otentikasi || 0);
-                    } else {
-                        plVal = dropRekapHariIni;
+                    if (elPL) {
+                        elPL.value = plVal > 0 ? String(plVal) : '';
+                        if (plVal > 0) formatRibuan(elPL);
+                        adaPerubahan = true;
                     }
-                } else if ((dbVal + plVal) === 0 && aditya.otentikasi_checked_date === getTodayString()) {
-                    dbVal = parseInt(aditya.drop_baru_otentikasi || 0);
-                    plVal = parseInt(aditya.drop_pl_otentikasi || 0);
+                    hitungTotalDrop();
                 }
 
-                let elDB = document.getElementById('st_drop_baru');
-                let elPL = document.getElementById('st_drop_pelunasan');
-                if (elDB) {
-                    elDB.value = dbVal > 0 ? String(dbVal) : '';
-                    if (dbVal > 0) formatRibuan(elDB);
-                    adaPerubahan = true;
+                // 5. REKAP LALU & TABEL REKAP BULANAN (UBMI)
+                if (forceManualClick || isSubSyncEnabled('rekap')) {
+                    tarikRekapBulananDariUBMI(true, forceManualClick);
                 }
-                if (elPL) {
-                    elPL.value = plVal > 0 ? String(plVal) : '';
-                    if (plVal > 0) formatRibuan(elPL);
-                    adaPerubahan = true;
-                }
-                hitungTotalDrop();
 
-                // 3. Sinkronkan Menu Rekap MURNI dari Tab Rekap Mantri Pati 5 (UBMI)
-                tarikRekapBulananDariUBMI(true, forceManualClick);
-
-                // 4. Tarik Target, Program, Index, Pengajuan & Gagalkan Murni dari Server Aditya
-                if (Array.isArray(aditya.targets) && aditya.targets.some(t => t > 0)) {
-                    const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
-                    for (let i = 0; i < 6; i++) {
-                        let el = document.getElementById(tmIds[i]);
-                        if (el && aditya.targets[i] > 0) { el.value = String(aditya.targets[i]); formatRibuan(el); }
+                // 6. TARGET MURNI, PROGRAM, INDEX, PENGAJUAN & GAGALKAN (ADITYA)
+                if (forceManualClick || isSubSyncEnabled('target')) {
+                    if (Array.isArray(aditya.targets) && aditya.targets.some(t => t > 0)) {
+                        const tmIds = ['tm_1', 'tm_2', 'tm_3', 'tm_4', 'tm_5', 'tm_6'];
+                        for (let i = 0; i < 6; i++) {
+                            let el = document.getElementById(tmIds[i]);
+                            if (el && aditya.targets[i] > 0) { el.value = String(aditya.targets[i]); formatRibuan(el); }
+                        }
                     }
-                }
-                if (aditya.program_drop > 0) {
-                    let elProg = document.getElementById('tg_program');
-                    if (elProg && !elProg.value) { elProg.value = String(aditya.program_drop); formatRibuan(elProg); }
-                }
-                if (aditya.index_target > 0) {
-                    let elIdx = document.getElementById('tg_index');
-                    if (elIdx && !elIdx.value) elIdx.value = String(aditya.index_target);
-                }
-                if (aditya.pengajuan_rencana > 0 || aditya.gagalkan_rencana > 0) {
-                    let todayDate = new Date().getDate();
-                    let inpP = document.getElementById('tt_pengajuan_' + todayDate);
-                    let inpG = document.getElementById('tt_gagalkan_' + todayDate);
-                    if (inpP && aditya.pengajuan_rencana > 0) { inpP.value = String(aditya.pengajuan_rencana); formatRibuan(inpP); }
-                    if (inpG && aditya.gagalkan_rencana > 0) { inpG.value = String(aditya.gagalkan_rencana); formatRibuan(inpG); }
+                    if (aditya.program_drop > 0) {
+                        let elProg = document.getElementById('tg_program');
+                        if (elProg && !elProg.value) { elProg.value = String(aditya.program_drop); formatRibuan(elProg); }
+                    }
+                    if (aditya.index_target > 0) {
+                        let elIdx = document.getElementById('tg_index');
+                        if (elIdx && !elIdx.value) elIdx.value = String(aditya.index_target);
+                    }
+                    if (aditya.pengajuan_rencana !== undefined || aditya.gagalkan_rencana !== undefined) {
+                        let todayDate = new Date().getDate();
+                        let inpP = document.getElementById('tt_pengajuan_' + todayDate);
+                        let inpG = document.getElementById('tt_gagalkan_' + todayDate);
+                        if (inpP && aditya.pengajuan_rencana > 0) { inpP.value = String(aditya.pengajuan_rencana); formatRibuan(inpP); }
+                        if (inpG && aditya.gagalkan_rencana > 0) { inpG.value = String(aditya.gagalkan_rencana); formatRibuan(inpG); }
+                    }
                 }
             } catch(e) {}
 
             if (adaPerubahan) {
                 syncDariStoran();
                 hitungSemua();
-                if (!silent) showToast("✅ Data Valid dari Server UBMI & Aditya Berhasil Dimuat!");
+                if (!silent) showToast("✅ Data Valid dari Server UBMI Berhasil Dimuat!");
             } else if (!silent) {
                 showToast("ℹ️ Data sudah paling baru sesuai Server.", true);
             }
         }
 
-        // MENU REKAP: 100% AMBIL DARI TAB REKAP MANTRI PATI 5 (UBMI)
+        // MENU REKAP: 100% DARI REKAP MANTRI UBMI & MENDUKUNG AWAL BULAN (MULAI DARI AWAL, HANYA SIRKULASI YANG LANJUT)
         function tarikRekapBulananDariUBMI(silent = false, forceManualClick = false) {
-            if (!isAutoSyncCalcEnabled() && silent && !forceManualClick) return;
+            if (!isSubSyncEnabled('rekap') && silent && !forceManualClick) return;
+            let currentYm = getBulanTahunString();
             let adaMasuk = false;
             try {
                 let rawMaster = bacaJembatanApk('tm_master_server_db', '');
-                let ubmi = rawMaster ? (JSON.parse(rawMaster).ubmi || {}) : {};
+                let masterDb = rawMaster ? JSON.parse(rawMaster) : {};
+                let isSameMonthMaster = (!masterDb.bulan || masterDb.bulan === currentYm);
+                let ubmi = isSameMonthMaster ? (masterDb.ubmi || {}) : {};
 
                 let rawRekapBulan = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
                 let parsedRekap = rawRekapBulan ? JSON.parse(rawRekapBulan) : {};
-                let rows = (Array.isArray(parsedRekap.rows) && parsedRekap.rows.length > 0)
+                let isSameMonthRekap = (!parsedRekap.bulan || parsedRekap.bulan === currentYm);
+                let rows = isSameMonthRekap && Array.isArray(parsedRekap.rows)
                     ? parsedRekap.rows
                     : (Array.isArray(ubmi.rekap_rows) ? ubmi.rekap_rows : []);
 
-                let progCmUbmi = parsedRekap.prog_cm || bacaJembatanApk('tm_rekap_prog_cm', '');
-                let progMbUbmi = parsedRekap.prog_mb || bacaJembatanApk('tm_rekap_prog_mb', '');
+                let progCmUbmi = (isSameMonthRekap && parsedRekap.prog_cm) || bacaJembatanApk('tm_rekap_prog_cm', '');
+                let progMbUbmi = (isSameMonthRekap && parsedRekap.prog_mb) || bacaJembatanApk('tm_rekap_prog_mb', '');
                 if (progCmUbmi) {
                     let elP1 = document.getElementById('p1');
                     if (elP1 && document.activeElement !== elP1) elP1.value = String(progCmUbmi).replace('.', ',');
@@ -1381,11 +1484,11 @@
                     if (elP2 && document.activeElement !== elP2) elP2.value = String(progMbUbmi).replace('.', ',');
                 }
 
-                if (Array.isArray(rows) && rows.length > 0) {
-                    let todayDate = new Date().getDate();
-                    let lastBeforeToday = null;
-                    let todayRowRekap = null;
+                let todayDate = new Date().getDate();
+                let lastBeforeToday = null;
+                let todayRowRekap = null;
 
+                if (Array.isArray(rows) && rows.length > 0) {
                     rows.forEach(r => {
                         let dNum = parseInt(r.tgl);
                         if (!dNum) return;
@@ -1414,62 +1517,77 @@
                         setCell('t_jl_', r.jl);
                         setCell('t_sl_', r.sl);
                     });
+                }
 
-                    if (lastBeforeToday) {
-                        const setInputRekap = (id, val) => {
-                            let el = document.getElementById(id);
-                            if (el && document.activeElement !== el && val !== undefined && val !== '') {
-                                el.value = String(val);
-                                formatRibuan(el);
-                            }
-                        };
-                        setInputRekap('d2', lastBeforeToday.jml_drop);
-                        setInputRekap('s2', lastBeforeToday.jml_stort);
-                        setInputRekap('siRec', lastBeforeToday.sirk);
-                        setInputRekap('j1', lastBeforeToday.jc);
-                        setInputRekap('sa1', lastBeforeToday.sc);
-                        setInputRekap('j2', lastBeforeToday.jm);
-                        setInputRekap('sa2', lastBeforeToday.sm);
-                        setInputRekap('j3', lastBeforeToday.jl);
-                        setInputRekap('sa3', lastBeforeToday.sl);
-                    } else if (rows.length === 1 && todayRowRekap) {
-                        const setAwal = (id, sVal, aVal) => {
-                            let el = document.getElementById(id);
-                            let awal = (parseInt(sVal || '0') || 0) + (parseInt(aVal || '0') || 0);
-                            if (el && awal > 0 && document.activeElement !== el) { el.value = String(awal); formatRibuan(el); }
-                        };
-                        setAwal('sa1', todayRowRekap.sc, todayRowRekap.ac);
-                        setAwal('sa2', todayRowRekap.sm, todayRowRekap.am);
-                        setAwal('sa3', todayRowRekap.sl, todayRowRekap.al);
+                const setInputRekap = (id, val) => {
+                    let el = document.getElementById(id);
+                    if (el && document.activeElement !== el && val !== undefined) {
+                        let num = parseInt(String(val).replace(/\D/g, '') || '0', 10) || 0;
+                        el.value = num > 0 ? String(num) : '';
+                        if (num > 0) formatRibuan(el);
                     }
+                };
 
-                    if (todayRowRekap) {
-                        const setTodayIfEmpty = (id, val) => {
-                            let el = document.getElementById(id);
-                            if (el && (!el.value || el.value === '0') && parseInt(val || '0') > 0) {
-                                el.value = String(val);
-                                formatRibuan(el);
-                            }
-                        };
-                        setTodayIfEmpty('a1', todayRowRekap.ac);
-                        setTodayIfEmpty('a2', todayRowRekap.am);
-                        setTodayIfEmpty('a3', todayRowRekap.al);
-                    }
-
+                if (lastBeforeToday) {
+                    setInputRekap('d2', lastBeforeToday.jml_drop);
+                    setInputRekap('s2', lastBeforeToday.jml_stort);
+                    setInputRekap('siRec', lastBeforeToday.sirk);
+                    setInputRekap('j1', lastBeforeToday.jc);
+                    setInputRekap('sa1', lastBeforeToday.sc);
+                    setInputRekap('j2', lastBeforeToday.jm);
+                    setInputRekap('sa2', lastBeforeToday.sm);
+                    setInputRekap('j3', lastBeforeToday.jl);
+                    setInputRekap('sa3', lastBeforeToday.sl);
                     adaMasuk = true;
+                } else {
+                    // AWAL BULAN BARU (Belum ada baris sebelum hari ini):
+                    // Drop Lalu (d2), Stort Lalu (s2), dan Jumlah CM/MB/ML (j1, j2, j3) mulai dari 0! Hanya Sirkulasi & Saldo CM/MB/ML yang lanjut!
+                    setInputRekap('d2', 0);
+                    setInputRekap('s2', 0);
+                    setInputRekap('j1', 0);
+                    setInputRekap('j2', 0);
+                    setInputRekap('j3', 0);
+
+                    let sirkAwal = parseInt(ubmi.sirkulasi_awal || ubmi.rekap_lalu?.sirk_lalu || '0', 10) || 0;
+                    if (!sirkAwal && todayRowRekap) {
+                        sirkAwal = Math.round((parseInt(todayRowRekap.sirk || 0) - (parseInt(todayRowRekap.drop || 0) * 1.3) + parseInt(todayRowRekap.stort || 0)));
+                    }
+                    if (sirkAwal > 0) setInputRekap('siRec', sirkAwal);
+
+                    let saCmAwal = parseInt(ubmi.sa_cm || ubmi.rekap_lalu?.sc_lalu || '0', 10) || (todayRowRekap ? (parseInt(todayRowRekap.sc || 0) + parseInt(todayRowRekap.ac || 0)) : 0);
+                    let saMbAwal = parseInt(ubmi.sa_mb || ubmi.rekap_lalu?.sm_lalu || '0', 10) || (todayRowRekap ? (parseInt(todayRowRekap.sm || 0) + parseInt(todayRowRekap.am || 0)) : 0);
+                    let saMlAwal = parseInt(ubmi.sa_ml || ubmi.rekap_lalu?.sl_lalu || '0', 10) || (todayRowRekap ? (parseInt(todayRowRekap.sl || 0) + parseInt(todayRowRekap.al || 0)) : 0);
+
+                    if (saCmAwal > 0) setInputRekap('sa1', saCmAwal);
+                    if (saMbAwal > 0) setInputRekap('sa2', saMbAwal);
+                    if (saMlAwal > 0) setInputRekap('sa3', saMlAwal);
+                    if (sirkAwal > 0 || saCmAwal > 0 || rows.length > 0) adaMasuk = true;
+                }
+
+                if (todayRowRekap && (forceManualClick || isSubSyncEnabled('cmmbml'))) {
+                    const setTodayIfEmpty = (id, val) => {
+                        let el = document.getElementById(id);
+                        if (el && (!el.value || el.value === '0') && parseInt(val || '0') > 0) {
+                            el.value = String(val);
+                            formatRibuan(el);
+                        }
+                    };
+                    setTodayIfEmpty('a1', todayRowRekap.ac);
+                    setTodayIfEmpty('a2', todayRowRekap.am);
+                    setTodayIfEmpty('a3', todayRowRekap.al);
                 }
             } catch(e) {}
 
             if (adaMasuk) {
                 hitungSemua();
-                if (!silent) showToast("✅ Menu Rekap disinkronkan murni dari Tab Rekap Mantri Pati 5!");
+                if (!silent) showToast("✅ Menu Rekap disinkronkan murni dari UBMI!");
             } else if (!silent) {
-                showToast("ℹ️ Buka UBMI sebentar agar Tab Rekap Mantri Pati 5 tersedot otomatis.", true);
+                showToast("ℹ️ Buka UBMI sebentar agar Rekap Mantri tersedot otomatis.", true);
             }
         }
 
         function tarikTargetRekapDariAditya(silent = false, forceManualClick = false) {
-            if (!isAutoSyncCalcEnabled() && silent && !forceManualClick) return;
+            if (!isSubSyncEnabled('target') && silent && !forceManualClick) return;
             let adaSync = false;
             try {
                 let rawTargets = bacaJembatanApk('tm_sync_targets', '');
@@ -3567,18 +3685,54 @@
 
             if(savedData) {
                 try {
-                    let parsed = JSON.parse(savedData); let todayStr = getTodayString();
-                    let dataObj = parsed.values ? parsed.values : parsed; let lastDate = parsed.lastDate || todayStr;
+                    let parsed = JSON.parse(savedData);
+                    let todayStr = getTodayString();
+                    let dataObj = parsed.values ? parsed.values : parsed;
+                    let lastDate = parsed.lastDate || todayStr;
 
                     if (lastDate !== todayStr) {
+                        let isGantiBulan = (lastDate.slice(0, 7) !== todayStr.slice(0, 7));
                         let totalDrop = parseSaved(dataObj['d1']) + parseSaved(dataObj['d2']);
                         let totalStort = parseSaved(dataObj['s1']) + parseSaved(dataObj['s2']);
                         let totalSirk = (parseSaved(dataObj['drRec']) * cfgFaktorSirkulasi) - parseSaved(dataObj['stRec']) + parseSaved(dataObj['siRec']);
 
-                        if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString().replace('.', ',');
-                        if (totalStort !== 0) dataObj['s2'] = totalStort.toString().replace('.', ',');
+                        // Sirkulasi Lalu (siRec) SELALU LANJUT meskipun ganti bulan!
                         if (totalSirk !== 0) dataObj['siRec'] = totalSirk.toString().replace('.', ',');
-                        
+
+                        if (isGantiBulan) {
+                            // GANTI BULAN BARU: Mulai dari awal (0)! Hanya Sirkulasi & Saldo CM/MB/ML yang lanjut!
+                            dataObj['d2'] = '';
+                            dataObj['s2'] = '';
+                            dataObj['tg_program'] = '';
+                            dataObj['tg_index'] = '';
+                            dataObj['p1'] = '';
+                            dataObj['p2'] = '';
+                            for (let i = 1; i <= 3; i++) {
+                                let a = parseSaved(dataObj['a' + i]);
+                                let sa = parseSaved(dataObj['sa' + i]);
+                                if (a > 0 && sa >= a) dataObj['sa' + i] = (sa - a).toString().replace('.', ',');
+                                dataObj['j' + i] = ''; // Jumlah angsuran bulanan kembali ke 0 di bulan baru
+                                dataObj['a' + i] = '';
+                            }
+                            showToast("🗓️ Bulan Baru! Drop, Stort & Program di-reset ke awal, Saldo Sirkulasi tetap lanjut.");
+                        } else {
+                            // GANTI HARI DI BULAN YANG SAMA
+                            if (totalDrop !== 0) dataObj['d2'] = totalDrop.toString().replace('.', ',');
+                            if (totalStort !== 0) dataObj['s2'] = totalStort.toString().replace('.', ',');
+                            for (let i = 1; i <= 3; i++) {
+                                let a = parseSaved(dataObj['a' + i]);
+                                let j = parseSaved(dataObj['j' + i]);
+                                let sa = parseSaved(dataObj['sa' + i]);
+                                if (a > 0) {
+                                    dataObj['j' + i] = (a + j).toString().replace('.', ',');
+                                    dataObj['sa' + i] = (sa - a).toString().replace('.', ',');
+                                }
+                                dataObj['a' + i] = '';
+                            }
+                            showToast("🌅 Hari baru! Drop hari ini di-reset & Saldo lalu dipindahkan otomatis.");
+                        }
+
+                        // Setiap ganti hari (jam 12 malam), kosongkan Drop Baru, Pelunasan, Storting, dan TF hari ini!
                         dataObj['d1'] = ''; dataObj['s1'] = ''; dataObj['drRec'] = ''; dataObj['stRec'] = '';
                         dataObj['st_drop'] = ''; dataObj['st_storting'] = ''; dataObj['st_transfer'] = '';
                         dataObj['st_drop_baru'] = ''; dataObj['st_drop_pelunasan'] = '';
@@ -3597,12 +3751,6 @@
                         else if (dayNew === 6) defTr = localStorage.getItem(USER_ID + '_Cfg_Tr6') || "25";
                         dataObj['st_transport'] = defTr;
 
-                        for(let i=1; i<=3; i++) {
-                            let a = parseSaved(dataObj['a'+i]); let j = parseSaved(dataObj['j'+i]); let sa = parseSaved(dataObj['sa'+i]);
-                            if (a > 0) { dataObj['j'+i] = (a+j).toString().replace('.', ','); dataObj['sa'+i] = (sa-a).toString().replace('.', ','); }
-                            dataObj['a'+i] = '';
-                        }
-                        showToast("🌅 Hari baru! Saldo lalu dipindahkan otomatis.");
                         parsed.lastDate = todayStr; 
                         localStorage.setItem(USER_ID + '_Mini', JSON.stringify(parsed));
                         if(isAppReady) simpanKeCloud('Kalkulator_Mini', JSON.stringify(parsed));
@@ -3614,7 +3762,6 @@
                             if(el.tagName === 'INPUT' && el.type === 'text' && !id.startsWith('t_')) formatRibuan(el);
                         }
                     });
-                    // Kompatibilitas data lama jika st_kasbon_kantor atau st_tf_ubmi belum ada
                     let elKbKtr = document.getElementById('st_kasbon_kantor');
                     let elKbTot = document.getElementById('st_kasbon');
                     if (elKbKtr && !elKbKtr.value && elKbTot && elKbTot.value) {
