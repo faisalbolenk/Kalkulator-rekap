@@ -1370,43 +1370,22 @@
                     }
                 }
 
-                // 4. DROP BARU & PELUNASAN: 100% MURNI DARI UBMI SAJA & OTOMATIS RESET 0 SAAT GANTI HARI (JAM 12 MALAM)!
+                // 4. DROP BARU & PELUNASAN: 100% MURNI DARI UBMI TANGGAL HARI INI (JIKA HARI INI TIDAK ADA DROP = 0!)
                 if (forceManualClick || isSubSyncEnabled('drop')) {
-                    let dbVal = 0;
-                    let plVal = 0;
-
-                    if (isMasterToday) {
-                        dbVal = parseInt(ubmi.drop_baru || 0);
-                        plVal = parseInt(ubmi.drop_pl || 0);
-                    } else {
-                        dbVal = parseInt(sObj.drop_baru || bObj.drop_baru || 0);
-                        plVal = parseInt(sObj.drop_pl || bObj.drop_pl || 0);
-                    }
-
-                    // Cek juga baris tanggal hari ini di Rekap Mantri UBMI jika dbVal+plVal masih 0
-                    if ((dbVal + plVal) === 0 && isMasterToday) {
-                        let dropRekapHariIni = parseInt(ubmi.drop_hari_ini_rekap || 0);
-                        if (!dropRekapHariIni) {
-                            try {
-                                let rawRek = bacaJembatanApk('tm_jembatan_rekap_permantri', '');
-                                let pRek = rawRek ? JSON.parse(rawRek) : {};
-                                if (!pRek.bulan || pRek.bulan === currentYm) {
-                                    let tRow = (pRek.rows || []).find(r => parseInt(r.tgl) === new Date().getDate());
-                                    if (tRow && parseInt(tRow.drop || 0) > 0) dropRekapHariIni = parseInt(tRow.drop);
-                                }
-                            } catch(e) {}
-                        }
-                        if (dropRekapHariIni > 0) plVal = dropRekapHariIni;
-                    }
+                    let dbVal = isMasterToday ? parseInt(ubmi.drop_baru || 0) : parseInt(sObj.drop_baru || bObj.drop_baru || 0);
+                    let plVal = isMasterToday ? parseInt(ubmi.drop_pl || 0) : parseInt(sObj.drop_pl || bObj.drop_pl || 0);
 
                     let elDB = document.getElementById('st_drop_baru');
                     let elPL = document.getElementById('st_drop_pelunasan');
-                    if (elDB) {
+                    let curDB = elDB ? (parseInt(elDB.value.replace(/\D/g, '') || '0') || 0) : 0;
+                    let curPL = elPL ? (parseInt(elPL.value.replace(/\D/g, '') || '0') || 0) : 0;
+
+                    if (elDB && curDB !== dbVal) {
                         elDB.value = dbVal > 0 ? String(dbVal) : '';
                         if (dbVal > 0) formatRibuan(elDB);
                         adaPerubahan = true;
                     }
-                    if (elPL) {
+                    if (elPL && curPL !== plVal) {
                         elPL.value = plVal > 0 ? String(plVal) : '';
                         if (plVal > 0) formatRibuan(elPL);
                         adaPerubahan = true;
